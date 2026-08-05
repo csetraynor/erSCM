@@ -1,0 +1,46 @@
+#' Simulated PK/PD and Demographics Dataset
+#'
+#' A simulated dataset combining pharmacokinetic steady-state metrics, renal/hepatic
+#' labs, and subject demographics from study "101-DEMO-001". Variables include
+#' steady-state exposure parameters (CMAXss, CMINss, AUCss), dosing, renal function
+#' markers, anthropometrics, categorical weight bins, and simulation metadata.
+#'
+#' @format ## `demo_eres`
+#' A data frame with 140 rows and 25 columns:
+#' \describe{
+#'   \item{STUDY}{Study identifier (character), e.g., "101-DEMO-001".}
+#'   \item{USUBJID}{Unique subject identifier (character), typically STUDY + subject code.}
+#'   \item{ID}{Integer subject index (integer).}
+#'   \item{DOSE}{Dose administered (numeric), units not specified; likely mg.}
+#'   \item{CMAXss}{Steady-state maximum concentration (numeric).}
+#'   \item{CMINss}{Steady-state minimum concentration (numeric).}
+#'   \item{AUCss}{Steady-state area under the concentration-time curve (numeric).}
+#'   \item{RF}{Renal function category (character), e.g., "norm".}
+#'   \item{WT}{Body weight (numeric), in kilograms.}
+#'   \item{WCUT}{Weight category/band (character), interval notation such as \code{[50.5,62]}.}
+#'   \item{QN}{Quantile/bin index for weight (integer), e.g., 1-4.}
+#'   \item{Q}{Quantile label (character), e.g., \code{Q1 [50.5,62]}.}
+#'   \item{AGE}{Age (numeric), in years.}
+#'   \item{HT}{Height (numeric), in centimeters.}
+#'   \item{EGFR}{Estimated glomerular filtration rate (numeric).}
+#'   \item{ALB}{Serum albumin (numeric), g/dL if standard units.}
+#'   \item{BMI}{Body mass index (numeric), kg/m^2.}
+#'   \item{SEX}{Sex (integer coded), 0/1 coding; mapping not specified.}
+#'   \item{AAG}{Alpha-1-acid glycoprotein (numeric).}
+#'   \item{SCR}{Serum creatinine (numeric).}
+#'   \item{AST}{Aspartate aminotransferase (numeric).}
+#'   \item{ALT}{Alanine aminotransferase (numeric).}
+#'   \item{sim_time}{Simulation time horizon (integer), e.g., 1000.}
+#'   \item{sim_status}{Simulation status flag (integer), e.g., 0 = completed, 1 = stopped.}
+#'   \item{lp}{Log-posterior or log-probability value from simulation (numeric).}
+#' }
+#'
+#' @details
+#' - Exposure metrics (CMAXss, CMINss, AUCss) represent steady-state values for a fixed dose.
+#' - WCUT and Q/QN provide weight-based categorical groupings used for stratified analyses.
+#' - Renal/hepatic markers (EGFR, SCR, AST, ALT) and proteins (ALB, AAG) may influence PK.
+#' - sim_time and sim_status capture simulation run metadata; lp is the simulation log-probability.
+#'
+#' @source Simulated data generated for demonstration purposes; no external source.
+#'
+"demo_eres"

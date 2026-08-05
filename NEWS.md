@@ -1,0 +1,158 @@
+# erSCM 0.1.4 (development)
+
+## Bug Fixes
+
+* `scm_glm()` now returns a proper `eres_scm_glm` S3 object even when no
+  exposure variable reaches the entry significance threshold. Previously it
+  returned a plain list, which caused downstream functions (`print`,
+  `plot_nonlinear_effect`, `scm_bootstrap`) to fail or produce degraded output.
+  `scm_coxph()` already had this behavior. The returned object has
+  `final_model = NULL`; `print()` now describes the no-model state clearly.
+* `plot_nonlinear_effect()` now produces a clear error ("Cannot plot: no model
+  was fit.") when passed a fit where no exposure was selected.
+* `scm_bootstrap()` now produces a clear error ("Cannot bootstrap: the original
+  fit did not produce a model.") rather than a cryptic downstream failure.
+* `scm_bootstrap()`: when multiple exposure variables have non-linear
+  transformations enabled, transformation selection frequencies are now
+  correctly tracked for all candidates. Previously only the first exposure's
+  transforms were recorded; all subsequent NL-enabled exposures were silently
+  dropped from `exposure_transform_freq`.
+* `plot_nonlinear_effect()`: removed unused intermediate variables in the
+  response-scale GLM branch. The y-axis correctly shows OR (GLM) or HR
+  (CoxPH) relative to the median reference value.
+
+## Improvements
+
+* `run_scm()` now accepts `nonlinear`, `linearity_alpha`, `fp_powers`, and
+  `spline_df` as explicit named parameters with validation (previously forwarded
+  silently via `...`). Invalid values now produce informative errors via
+  `cli::cli_abort()`.
+* `plot_nonlinear_effect()` and `plot_all_nonlinear()` are now correctly exported
+  and accessible after `library(erSCM)` (previously had `@export` tags but were
+  absent from `NAMESPACE`).
+* `scm_glm()` and `scm_coxph()` now emit a `cli::cli_warn()` when both `nonlinear`
+  and `interactions` are specified, documenting the known limitation that
+  interactions whose parent variable enters in a non-linear form are silently
+  skipped.
+* New vignette: *Non-Linear Transformations in SCM*
+  (`vignette("nonlinear-transformations")`).
+* `scm_bootstrap()`'s `exposure_transform_freq` return field is now a named list
+  (one entry per NL-enabled exposure variable) for consistent handling across
+  single- and multi-exposure cases.
+* Expanded test coverage for non-linear transformations combined with
+  `adjust_for` and `start_covariates` (backward direction).
+
+## Testing
+
+* Bootstrap test suite optimised: `n_boot` values reduced to 10–20 across all
+  tests. Long-running stability assessments (n_boot ≥ 200) are demonstrated in
+  the vignette rather than the test suite.
+* All bootstrap tests are guarded with `skip_on_cran()`. The non-CRAN portion of
+  the suite completes in under 3 minutes on a typical CPU.
+
+## Known Limitations
+
+* The backward simplification for non-linear terms currently tests
+  FP2 → linear directly, skipping the FP1 intermediate step from the full
+  Royston & Altman MFP hierarchy. This is a deliberate simplification adequate
+  for typical pharmacometric datasets.
+* Interactions between a non-linearly-entered variable and other covariates are
+  silently skipped; users should not specify interactions involving non-linearly
+  entered variables. A warning is emitted in this case.
+
+# erSCM 0.1.3
+
+## New Features
+
+* `scm_bootstrap()` now includes a two-layer safeguard for **categorical
+  covariates with rare factor levels**, which can cause complete separation or
+  convergence failures during bootstrap resampling.
+  - New parameters `min_level_n = 5L` and `min_events_per_level = 1L`: any
+    factor covariate with a level below these thresholds is excluded from that
+    replicate's candidate pool (counted as "not selected" — conservative).
+  - Pre-bootstrap diagnostic (`diagnostics` return field): scans the full
+    dataset for problematic factor levels and emits a `cli_warn` (high risk) or
+    `cli_inform` (moderate risk) before the loop begins.
+  - New return fields: `convergence_issues` (tibble of failed replicates),
+    `variable_exclusion_rate` (named numeric vector of per-variable exclusion
+    proportions), and `diagnostics` (pre-bootstrap suitability report).
+  - `print.scm_bootstrap()` now shows a "Factor Level Warnings" section when
+    any variable has a >10% exclusion rate.
+  - Set both `min_level_n = 0L` and `min_events_per_level = 0L` to disable all
+    new safeguards and restore pre-Phase-6 behavior.
+
+# erSCM 0.1.2
+
+## New Features
+
+* Added **Exposure Selection Stability** tracking to `scm_bootstrap()`. When
+  multiple candidate exposure variables are provided, the bootstrap now records
+  which exposure is selected in each replicate. New return fields:
+  - `exposure_selection_prob`: proportion of converged replicates each exposure
+    was selected (includes a `none_significant` entry when applicable).
+  - `exposure_selected_per_boot`: character vector (length `n_converged`) of the
+    exposure selected in each converged replicate.
+  - `inclusion_prob_by_exposure`: named list of covariate inclusion probabilities
+    conditional on each exposure being selected; `NULL` for single-exposure fits.
+  - `plot(stability, type = "exposure")` for a dedicated selection bar chart.
+  - `stable_covariates(stability, include_exposure = TRUE)` to include exposures
+    in the stable-term list.
+  - `summary()` now returns an `exposure_stability` tibble with columns
+    `exposure_var`, `selection_prob`, and `is_original`.
+  - New vignette section: *Exposure Selection Stability* (section 7).
+* `modal_model` now returns a `list(exposure, covariates)` instead of a plain
+  character vector, capturing the full modal model identity.
+* `original_selected` now returns a `list(exposure, covariates)` instead of a
+  plain character vector.
+* Fixed a metadata bug in `scm_coxph()`: `metadata$candidate_exposure_vars`
+  now correctly stores the **full list** of candidate exposures (previously only
+  stored the selected winner). Both `scm_glm()` and `scm_coxph()` now include
+  `metadata$selected_exposure` recording the winning exposure.
+
+# erSCM 0.1.1
+
+## New Features
+
+* Added `scm_bootstrap()` for Bootstrap Model Selection Stability (BMS) assessment.
+  Accepts a fitted `scm_glm()` or `scm_coxph()` object and resamples the dataset
+  `n_boot` times, running the full SCM procedure on each replicate to quantify
+  covariate selection stability.
+  - `print()`, `summary()`, and `plot()` S3 methods for `"scm_bootstrap"` objects.
+  - `stable_covariates()` utility to extract covariates exceeding a stability
+    threshold.
+  - Patient-level resampling via `subject_col` for repeated-measures or
+    multi-row-per-subject data.
+  - Optional parallel execution via `future.apply` (set `parallel = TRUE` with
+    an active `future::plan()`).
+  - Co-inclusion matrix to identify competing or complementary covariate pairs.
+  - Model variability index (`1 - modal_model_frequency`) for overall stability
+    assessment.
+  - New vignette: *Bootstrap Model Selection Stability*
+    (`vignette("bootstrap-stability")`).
+
+* Added `run_scm()` unified dispatcher — routes to `scm_glm()` or `scm_coxph()`
+  based on the `type` argument, providing a single entry point for programmatic
+  use such as bootstrap resampling engines.
+
+# erSCM 0.1.0
+
+* Initial CRAN submission.
+* Stepwise Covariate Modeling for GLM (`scm_glm()`) and Cox PH (`scm_coxph()`).
+* S3 classes `eres_scm_glm` and `eres_scm_coxph` with `print()` and `plot()` methods.
+* `adjust_for` parameter in `scm_glm()` and `scm_coxph()` for forced covariate
+  adjustment: terms are included in the base model before forward selection and
+  protected from backward elimination.
+* Visual distinction between forced-adjustment and SCM-selected covariates in
+  forest plots (`make_forest_plot()`) and summary tables (`get_sum_tbl()`).
+* GLM covariate effect plots (`plot_glm_terms()`, `plot_glm_continuous()`,
+  `plot_glm_categorical()`).
+* Variable specification framework via `var_spec()` for display labels, units,
+  and back-transformation of scaled covariates.
+* Interaction term support in forward selection (`expand_interactions()`).
+* Forest plot visualisation (`make_forest_plot()`, `plot_grouped_ratios()`).
+* Visual Predictive Check for Cox models (`vpc_coxph()`, `plot_cox_terms()`).
+* Summary table utilities (`get_sum_tbl()`, `get_sum_tbl_coxph()`).
+* Univariate screening (`fit_univariate_models()`, `fit_univariate_models_coxph()`).
+* Internal formula construction now uses `stats::as.formula()` throughout;
+  all `eval(parse(...))` patterns have been replaced.
+* Demo dataset `demo_eres` included.

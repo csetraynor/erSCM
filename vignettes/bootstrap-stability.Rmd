@@ -1,0 +1,585 @@
+---
+title: "Bootstrap Model Selection Stability"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Bootstrap Model Selection Stability}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## 1  Motivation — Why Assess Selection Stability?
+
+Stepwise Covariate Modelling (SCM) is widely used in pharmacometrics to identify
+covariates that meaningfully influence a drug's pharmacokinetic or
+pharmacodynamic endpoint. However, variable selection is **sensitive to the
+specific sample drawn from the population**. With the modest sample sizes typical
+of clinical pharmacology studies (200–1 000 patients), a single influential
+observation can determine whether a borderline covariate enters or is excluded.
+
+This creates a reproducibility question: *would the same covariates be selected
+if the study were repeated?*
+
+**Bootstrap Model Selection Stability (BMS)** answers this question empirically.
+By resampling the dataset many times and re-running the full SCM procedure on
+each resample, BMS quantifies how often each covariate is selected across many
+hypothetical re-draws from the same population. The result is an **inclusion
+probability** for every candidate — a direct, interpretable measure of selection
+confidence.
+
+### Literature context
+
+Sauerbrei & Schumacher (1992) introduced bootstrap inclusion frequencies for
+variable selection in Cox models. Meinshausen & Bühlmann (2010) formalised
+*stability selection* with error-rate control for penalised regression.
+`erSCM` brings these ideas to the sequential SCM workflow used in
+pharmacometrics.
+
+### What makes the `erSCM` implementation distinctive
+
+- **Protected exposure**: the exposure variable always enters first and is never
+  subject to selection, so inclusion probabilities reflect covariate stability
+  only.
+- **Hierarchy-respecting interactions**: interaction terms are only tested when
+  both parent main effects are in the model (in every replicate).
+- **Supports both GLM and Cox PH**: binary and time-to-event endpoints use
+  identical BMS machinery.
+- **Patient-level resampling**: for multi-row-per-subject data (e.g., repeated
+  measurements or adverse event records), entire patients can be resampled as a
+  unit via `subject_col`.
+- **Designed for small samples**: the bootstrapped data inherits all original
+  transformations (scaling, centering, subsetting), so no additional preparation
+  is needed.
+
+---
+
+## 2  The BMS Algorithm
+
+The procedure is deliberately simple.
+
+1. **Fit the SCM model once** on the original dataset using `scm_glm()` or
+   `scm_coxph()`. This produces a fitted object that stores the transformed
+   dataset, candidate variables, significance thresholds, and model type.
+
+2. **Pass the fitted object to `scm_bootstrap()`**. No settings need to be
+   re-specified — the function extracts everything it needs from the fitted
+   object.
+
+3. **For each of `n_boot` bootstrap replicates**:
+   - Resample the *already-transformed* dataset with replacement (row-level or
+     patient-level).
+   - Run the identical SCM procedure (forward screening, forward addition,
+     backward elimination) on the resampled data.
+   - Record which covariates are in the final model.
+
+4. **Aggregate across converged replicates**:
+   - **Inclusion probability**: proportion of replicates selecting each covariate.
+   - **Co-inclusion matrix**: joint selection proportions for every pair.
+   - **Modal model**: the most frequently selected combination.
+   - **Model variability index**: `1 − modal_model_frequency`.
+
+### What is excluded from inclusion probabilities?
+
+- The **exposure variable** — always protected, so its "inclusion" is trivial.
+- `adjust_for` terms — forced into every model by design, so their "selection"
+  is also uninformative.
+
+### Patient-level resampling
+
+When each subject contributes multiple rows (e.g., multiple adverse events,
+or longitudinal records), row-level resampling breaks the within-subject
+dependence structure. Pass `subject_col = "SUBJID"` to resample *subjects*
+with replacement instead; all rows belonging to each sampled subject are
+included together.
+
+### How many bootstrap replicates?
+
+| Purpose | Recommended `n_boot` |
+|---|---|
+| Quick exploration | 50–100 |
+| Confirmatory analysis / presentation | 500 |
+| Publication / regulatory submission | 1 000 |
+
+With 500–1 000 replicates the inclusion probabilities are stable to ±0.02–0.03.
+
+---
+
+## 3  Quick Start
+
+```{r quick-start, eval = FALSE}
+library(erSCM)
+
+# Fit the SCM model
+fit <- scm_glm(
+  eres_data         = my_data,
+  exposure_vars     = "CMAX",
+  covariates        = c("AGE", "WT", "SEX", "RACE", "CRCL"),
+  significance_level = c(0.05, 0.01)
+)
+
+# Bootstrap stability assessment
+stability <- scm_bootstrap(fit, n_boot = 500, seed = 42)
+
+print(stability)
+plot(stability)
+stable_covariates(stability, threshold = 0.7)
+```
+
+---
+
+## 4  Detailed GLM Example
+
+### 4.1  Data preparation
+
+We use `demo_eres`, the simulated pharmacokinetic/safety dataset bundled with
+`erSCM`. The outcome column `sim_status` (0/1) represents a simulated adverse
+event indicator.
+
+```{r glm-setup}
+library(erSCM)
+
+data("demo_eres")
+
+# Median-normalise continuous predictors (recommended before SCM)
+con_vars <- c("WT", "AGE", "HT", "EGFR", "ALB", "BMI", "AAG", "SCR", "AST", "ALT")
+exp_vars <- c("CMAXss", "CMINss", "AUCss")
+cov_vars <- c("WT", "AGE", "EGFR", "ALB", "BMI", "SEX", "AAG")
+
+demo_norm <- demo_eres
+demo_norm[, c(con_vars, exp_vars)] <- lapply(
+  demo_norm[, c(con_vars, exp_vars)],
+  function(x) x / median(x, na.rm = TRUE)
+)
+demo_norm$SEX <- as.factor(demo_norm$SEX)
+```
+
+### 4.2  Initial SCM fit
+
+```{r glm-fit}
+fit_glm <- suppressMessages(
+  scm_glm(
+    eres_data          = demo_norm,
+    exposure_vars      = exp_vars,
+    covariates         = cov_vars,
+    significance_level = c(0.05, 0.01),
+    dv_col             = "sim_status",
+    family             = "binomial",
+    verbose            = FALSE
+  )
+)
+
+fit_glm
+```
+
+### 4.3  Bootstrap stability assessment
+
+We use `n_boot = 50` here so the vignette builds quickly. For a real analysis,
+use `n_boot = 500` or more.
+
+```{r glm-bootstrap}
+stability_glm <- suppressMessages(
+  scm_bootstrap(fit_glm, n_boot = 50, seed = 42)
+)
+```
+
+### 4.4  Interpreting `print()`
+
+```{r glm-print}
+print(stability_glm)
+```
+
+The print output shows:
+
+- **Metadata block**: model type, protected exposure, forced adjustments,
+  replicate convergence rate.
+- **Covariate Inclusion Probabilities**: each candidate covariate with a Unicode
+  bar chart, its inclusion probability, and stability markers (`***` ≥ threshold,
+  `. ` ≥ 0.3). A `◆` marks covariates selected in the original fit.
+- **Modal Model**: the most frequently selected covariate combination and its
+  frequency.
+- **Stability Assessment**: the model variability index with a traffic-light
+  colour interpretation.
+
+### 4.5  Interpreting `summary()`
+
+```{r glm-summary}
+s <- summary(stability_glm, threshold = 0.7)
+s$inclusion_table
+```
+
+`summary()` returns a structured list (class `"summary_scm_bootstrap"`) with:
+
+- `inclusion_table`: a tibble ranking all terms by inclusion probability,
+  with `stability_class` ("stable", "moderate", "unstable") and `term_type`
+  ("main_effect" or "interaction").
+- `stable_covariates`, `moderate_covariates`, `unstable_covariates`: pre-split
+  vectors for easy downstream use.
+- `original_match_rate`: the proportion of replicates that selected *exactly* the
+  same model as the original fit — a stringent measure of overall stability.
+
+### 4.6  Inclusion plot
+
+```{r glm-plot-inclusion, fig.alt = "Horizontal bar chart of covariate inclusion probabilities with error bars and a vertical threshold line."}
+plot(stability_glm, type = "inclusion", threshold = 0.7)
+```
+
+Each bar shows the inclusion probability for one candidate covariate. Error bars
+are Wilson score 95% confidence intervals. The dashed vertical line marks the
+stability threshold. Green bars are reliably selected; orange bars are uncertain;
+red bars are rarely selected.
+
+### 4.7  Co-inclusion heatmap
+
+```{r glm-plot-coinclusion, fig.alt = "Lower-triangle heatmap of pairwise covariate co-inclusion proportions, ordered by hierarchical clustering."}
+plot(stability_glm, type = "coinclusion")
+```
+
+The lower-triangle heatmap shows the proportion of replicates in which each pair
+of covariates was *simultaneously* selected. Diagonal cells show marginal
+inclusion probabilities. Dark cells indicate covariates that consistently enter
+together; white off-diagonal cells indicate covariates that are rarely
+co-selected — either both are rarely selected, or they *compete* (see Section 6).
+
+### 4.8  Extracting stable covariates
+
+```{r glm-stable}
+stable_covariates(stability_glm, threshold = 0.7)
+```
+
+`stable_covariates()` returns the names of covariates whose inclusion
+probability meets or exceeds the threshold, sorted by probability. This vector
+can be used directly to re-fit a final model or to inform sensitivity analyses.
+
+### 4.9  Comparing the modal model to the original fit
+
+```{r glm-modal}
+cat("Original selected: ", paste(stability_glm$original_selected, collapse = ", "), "\n")
+cat("Modal model:       ", paste(stability_glm$modal_model,       collapse = ", "), "\n")
+cat("Modal frequency:   ", round(stability_glm$modal_model_freq * 100, 1), "%\n")
+```
+
+When the original fit and the modal model agree and the modal frequency is high
+(> 70%), the original selection can be considered robust. When they differ or
+the modal frequency is low, the original selection should be treated with caution
+and the inclusion probabilities used to guide sensitivity analyses.
+
+---
+
+## 5  Cox PH Example
+
+### 5.1  Simulated time-to-event data
+
+```{r coxph-setup}
+set.seed(101)
+n <- 300
+CMAX <- rnorm(n, 100, 25)
+
+# Event time depends on CMAX (higher exposure -> higher hazard); censoring
+# time is independent, so DV/TIME jointly carry a real CMAX signal for the
+# stepwise search to detect.
+lp          <- 0.9 * (CMAX - 100) / 25
+event_time  <- rexp(n, rate = 0.05 * exp(lp))
+censor_time <- rexp(n, rate = 0.02)
+
+surv_data <- data.frame(
+  TIME   = pmin(event_time, censor_time),
+  DV     = as.numeric(event_time <= censor_time),
+  CMAX   = CMAX,
+  AGE    = rnorm(n, 58, 12),
+  WT     = rnorm(n, 78, 16),
+  SEX    = factor(sample(c("M", "F"), n, replace = TRUE)),
+  CRCL   = rnorm(n, 90, 25),
+  SUBJID = paste0("PT", seq_len(n))
+)
+```
+
+### 5.2  Fit and bootstrap
+
+```{r coxph-fit}
+fit_cox <- suppressMessages(
+  scm_coxph(
+    eres_data          = surv_data,
+    exposure_vars      = "CMAX",
+    covariates         = c("AGE", "WT", "SEX", "CRCL"),
+    significance_level = c(0.05, 0.01),
+    dv_col             = "DV",
+    time_col           = "TIME",
+    verbose            = FALSE
+  )
+)
+
+stability_cox <- suppressMessages(
+  scm_bootstrap(fit_cox, n_boot = 50, seed = 7)
+)
+
+print(stability_cox)
+```
+
+### 5.3  Patient-level resampling
+
+Because each patient in a time-to-event study contributes exactly one row, the
+default row-level resampling is equivalent to patient-level resampling here.
+For data where a patient contributes multiple rows (e.g., repeated
+measurements, multiple AE records), use `subject_col`:
+
+```{r coxph-subject, eval = FALSE}
+stability_multilevel <- scm_bootstrap(
+  fit_cox,
+  n_boot      = 500,
+  seed        = 7,
+  subject_col = "SUBJID"
+)
+```
+
+### 5.4  Inclusion plot for Cox model
+
+```{r coxph-plot, fig.alt = "Inclusion probability bar chart for Cox PH bootstrap stability."}
+plot(stability_cox, type = "inclusion")
+```
+
+---
+
+## 6  Interpreting Results
+
+### 6.1  Inclusion probability thresholds
+
+| Inclusion probability | Interpretation |
+|---|---|
+| ≥ 0.90 | Very strong evidence; the covariate is almost certainly a true predictor |
+| 0.70 – 0.90 | Strong evidence; likely a clinically meaningful covariate effect |
+| 0.30 – 0.70 | Uncertain; the evidence is sample-dependent |
+| < 0.30 | Weak evidence; the original selection may be a false positive |
+
+These thresholds are guidance, not rules. The appropriate cut-off depends on the
+clinical context, the consequences of including a spurious covariate, and the
+study sample size.
+
+### 6.2  The co-inclusion matrix
+
+High co-inclusion (off-diagonal > 0.8) means the two covariates almost always
+enter the model together — they are **complementary**: each captures a different
+aspect of between-subject variability.
+
+Low co-inclusion despite *both* covariates having high marginal probabilities
+suggests **competition**: the two covariates explain similar variability (e.g.,
+body weight and BMI, or total clearance and creatinine clearance). When one
+enters, the other becomes redundant. In this situation, consider:
+
+- Checking the clinical interpretation and correlation structure.
+- Using domain knowledge to choose between them.
+- Including both and examining the p-values in the joint model.
+
+### 6.3  Model variability index
+
+`model_variability_index = 1 − modal_model_frequency`
+
+| Index | Interpretation |
+|---|---|
+| < 0.3 | Low variability — stable selection |
+| 0.3 – 0.6 | Moderate variability — some sensitivity to sampling |
+| ≥ 0.6 | High variability — covariate selection is unstable |
+
+### 6.4  Original model match rate
+
+`summary()$original_match_rate` gives the proportion of replicates that
+reproduced the original model *exactly*. This is a stringent criterion; even a
+single extra or missing term counts as a mismatch. Values above 50% are
+generally reassuring for a parsimonious model.
+
+### 6.5  Recommendations for regulatory submissions
+
+- Report inclusion probabilities alongside the selected model in the covariate
+  model development report.
+- For covariates with inclusion probability 0.30–0.70, conduct sensitivity
+  analyses that include and exclude each uncertain covariate.
+- A modal model that differs from the final selected model may justify using the
+  modal model as the final model, or at minimum warrants discussion.
+- Document the bootstrap seed and `n_boot` for reproducibility.
+
+---
+
+## 7  Exposure Selection Stability
+
+When multiple candidate exposure metrics are provided to `scm_glm()` or
+`scm_coxph()`, the first forward step selects the best-performing one based on
+the LRT p-value. This selection itself is subject to sampling variability — a
+different bootstrap sample might prefer a different exposure metric.
+
+`scm_bootstrap()` automatically tracks which exposure is selected in each
+replicate and reports this as `exposure_selection_prob`.
+
+```{r exposure-stability, eval=FALSE}
+# Fit with multiple candidate exposures
+fit_multi <- scm_glm(
+  eres_data          = my_data,
+  exposure_vars      = c("CMAX", "AUC", "CTROUGH"),
+  covariates         = c("AGE", "WT", "SEX", "RACE"),
+  significance_level = c(0.05, 0.01)
+)
+
+stability_multi <- scm_bootstrap(fit_multi, n_boot = 500, seed = 42)
+
+# View exposure selection probabilities
+stability_multi$exposure_selection_prob
+#>      CMAX       AUC   CTROUGH
+#>      0.82      0.15      0.03
+
+# Visualise
+plot(stability_multi, type = "exposure")
+```
+
+### 7.1  Interpreting Exposure Selection Probabilities
+
+| Probability | Interpretation |
+|---|---|
+| > 0.8 | Strong preference — this metric is a robust choice |
+| 0.5–0.8 | Moderate preference — alternatives are plausible |
+| < 0.5 | No clear winner — use clinical/mechanistic rationale |
+
+When a `none_significant` entry appears in `exposure_selection_prob`, it reports
+the fraction of replicates in which **no exposure** reached significance in the
+first forward step. A non-trivial `none_significant` fraction suggests the
+exposure-response signal is weak in some resampled datasets.
+
+### 7.2  Conditional Covariate Importance
+
+When different exposures are selected across replicates, the important covariates
+may differ. `inclusion_prob_by_exposure` shows covariate inclusion conditional
+on which exposure was selected:
+
+```{r by-exposure, eval=FALSE}
+stability_multi$inclusion_prob_by_exposure
+#> $CMAX
+#>   AGE    WT   SEX  RACE
+#>  0.75  0.45  0.30  0.10
+#>
+#> $AUC
+#>   AGE    WT   SEX  RACE
+#>  0.50  0.70  0.20  0.15
+```
+
+This reveals that when CMAX is the exposure, AGE is the most important covariate,
+but when AUC is selected, WT becomes more important. This may reflect different
+pharmacological mechanisms captured by each exposure metric.
+
+`inclusion_prob_by_exposure` is `NULL` when only a single candidate exposure is
+provided (the unconditional `inclusion_prob` already gives the complete picture).
+
+---
+
+## 8  Computational Considerations
+
+### 8.1  Runtime expectations
+
+| Dataset | Covariates | `n_boot` | Approx. time (sequential) |
+|---|---|---|---|
+| 300 patients | 5 | 100 | ~30 s |
+| 500 patients | 7 | 500 | 5–10 min |
+| 1 000 patients | 10 | 500 | 20–40 min |
+| 1 000 patients | 10 | 1 000 | 40–80 min |
+
+Times depend heavily on convergence and machine speed.
+
+### 8.2  Parallel execution
+
+```{r parallel, eval = FALSE}
+library(future)
+plan(multisession, workers = 4)
+
+stability_par <- scm_bootstrap(fit_glm, n_boot = 500, seed = 42, parallel = TRUE)
+
+plan(sequential)   # always reset when done
+```
+
+With `parallel = TRUE`, `scm_bootstrap()` uses `future.apply::future_lapply()`
+with `future.seed = seed`, guaranteeing bit-for-bit reproducibility regardless
+of the number of workers.
+
+### 8.3  Seed setting
+
+The same seed always produces the same resamples and the same results.
+Pass a different seed to assess sensitivity of the inclusion probabilities
+to the bootstrap sample itself (they should be stable across seeds for
+`n_boot ≥ 200`).
+
+### 8.4  Memory efficiency
+
+Only the vector of selected term names is stored per replicate, not the full
+fitted model objects. Memory usage scales as `O(n_boot × n_covariates)`,
+which is negligible for all practical parameter combinations.
+
+### 8.5  Convergence failures
+
+If replicates fail (e.g., due to separation in logistic regression on a small
+bootstrap sample), `boot_converged` records which replicates succeeded.
+All aggregation metrics (inclusion probabilities, co-inclusion matrix, modal
+model) are computed over **converged replicates only**.
+
+If the convergence rate falls below 80%, `scm_bootstrap()` emits a warning.
+Common causes and remedies:
+
+| Cause | Remedy |
+|---|---|
+| Complete separation in GLM bootstrap samples | Use `scale_to_median = TRUE` in the original fit; reduce `n_boot` or the covariate count |
+| Very small effective sample size | Use `subject_col` to avoid resampling the same subject too many times |
+| Too many covariates for the sample size | Screen with a more lenient threshold in the original fit first |
+
+---
+
+## 9  Comparison with Other Approaches
+
+### LASSO / elastic net stability selection
+
+*Meinshausen & Bühlmann (2010)* apply stability selection to penalised
+regression with theoretical error-rate control. LASSO and SCM are
+**complementary**: LASSO penalises all predictors simultaneously, while SCM
+maintains the sequential exposure-first structure required by the ERES workflow.
+BMS can be viewed as an empirical analogue of stability selection for the SCM
+context.
+
+### Bayesian model averaging (BMA)
+
+BMA marginalises over model uncertainty in a principled way but requires
+specifying priors and is computationally intensive for large covariate sets.
+BMS is substantially faster and requires no prior specification, at the cost
+of not providing a coherent probabilistic framework.
+
+### Full subset selection
+
+Enumerating all $2^p$ covariate subsets is infeasible beyond $p \approx 20$.
+BMS scales to large $p$ because it runs the SCM heuristic rather than
+evaluating all subsets.
+
+### Why BMS fits the SCM workflow
+
+The sequential nature of SCM — exposure enters first, covariates are added
+and removed via LRT — means that the selected model depends on which
+observations influence each LRT. BMS directly probes this sensitivity by
+resampling at exactly the step where it matters, without modifying the
+algorithm itself.
+
+---
+
+## References
+
+- Sauerbrei, W. & Schumacher, M. (1992). A bootstrap resampling procedure for
+  model building: application to the Cox regression model. *Statistics in
+  Medicine*, 11(16), 2093–2109.
+- Meinshausen, N. & Bühlmann, P. (2010). Stability selection. *Journal of the
+  Royal Statistical Society: Series B*, 72(4), 417–473.
+
+---
+
+## Session information
+
+```{r session-info}
+sessionInfo()
+```

@@ -1,0 +1,411 @@
+---
+title: "Non-Linear Transformations in SCM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Non-Linear Transformations in SCM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.width = 7,
+  fig.height = 4.5
+)
+```
+
+## 1  Motivation
+
+The standard Stepwise Covariate Modelling (SCM) procedure assumes a **linear
+relationship** between each covariate (on the link scale) and the outcome. For
+continuous pharmacokinetic metrics such as AUC or C~max~, this assumption is often
+unjustified: receptor occupancy follows an Emax relationship, PK parameters scale
+with body weight raised to a fractional power, and renal function indices compress
+at extremes.
+
+Ignoring non-linearity has practical consequences:
+
+- A covariate with a genuinely non-linear effect may fail to reach significance
+  under a linear test, leading to exclusion from the final model.
+- Conversely, the steepest linear approximation through a curved relationship
+  produces inflated effect estimates at the tails, distorting covariate effect
+  interpretations that regulators and clinical teams use for dose adjustment.
+
+The **ICH E2E** and **EMA pharmacometrics guidance** both emphasise that the
+functional form of covariate effects should be investigated alongside the question
+of which covariates to include. The Phase A non-linear SCM feature in `erSCM`
+addresses this by testing multiple functional forms at each forward step, using a
+closed-testing procedure (Royston & Altman, 1994) to decide whether a non-linear
+form is justified over a linear one before the standard SCM entry criterion is
+applied.
+
+## 2  The `nonlinear` Argument
+
+The `nonlinear` argument to `scm_glm()`, `scm_coxph()`, and `run_scm()` accepts
+four forms:
+
+### `NULL` (default)
+
+All variables enter linearly. Existing SCM behavior is preserved exactly. No
+performance overhead.
+
+```r
+scm_glm(eres_data = dat, exposure_vars = "CMAX", covariates = c("AGE", "WT"))
+```
+
+### `TRUE` or `"auto"` — default transform set for all continuous variables
+
+Applies the default search (`c("linear", "log", "fp1", "fp2")`) to every continuous
+candidate. Factor, character, and logical variables are always treated as linear.
+
+```r
+scm_glm(eres_data = dat, exposure_vars = "CMAX", covariates = c("AGE", "WT", "SEX"),
+        nonlinear = TRUE)
+```
+
+### Character vector — same set for all continuous variables
+
+```r
+scm_glm(eres_data = dat, exposure_vars = "CMAX", covariates = c("AGE", "WT"),
+        nonlinear = c("linear", "log", "rcs"))
+```
+
+### Named list — per-variable specification (recommended)
+
+The most precise option: specify exactly which functional forms to test for each
+variable. Variables not listed receive `"linear"` only.
+
+```r
+scm_glm(
+  eres_data     = dat,
+  exposure_vars = "CMAX",
+  covariates    = c("AGE", "WT", "SEX"),
+  nonlinear = list(
+    CMAX = c("linear", "log", "fp2"),
+    AGE  = c("linear", "log"),
+    WT   = c("linear", "sqrt")
+  )
+)
+```
+
+## 3  Supported Transformations
+
+| Name | Formula (for variable x) | Notes |
+|------|--------------------------|-------|
+| `"linear"` | x | Always included as a reference form |
+| `"log"` | log(x) | Requires x > 0; warns if non-positive values present |
+| `"sqrt"` | sqrt(x) | Requires x ≥ 0 |
+| `"fp1"` | x^p (p from {-2, -1, -0.5, 0, 0.5, 1, 2, 3}; p=0 → log(x)) | Best power selected by deviance |
+| `"fp2"` | x^p1 + x^p2 (all pairs; repeated power handled as in Royston & Altman) | 2 df; best pair selected by deviance |
+| `"rcs"` or `"rcsN"` | `splines::ns(x, df = N)` | Default N = 3; use e.g. `"rcs4"` for 4 df |
+
+The `fp_powers` argument controls the candidate power set for FP1/FP2 (default
+`c(-2, -1, -0.5, 0, 0.5, 1, 2, 3)`). The `spline_df` argument sets the default df
+for `"rcs"` (default `3L`).
+
+## 4  The Closed Testing Procedure and `linearity_alpha`
+
+At each forward step, when testing variable V, the algorithm:
+
+1. Fits V in **all** allowed functional forms (linear + non-linear candidates).
+2. Selects the **best non-linear form** (lowest deviance among non-linear candidates).
+3. Compares the best non-linear form vs. linear using an **LRT** (or AIC for equal-df
+   forms like FP1 vs. linear).
+4. The non-linear form is adopted only when `p_nonlinear_vs_linear < linearity_alpha`
+   (default 0.05).
+5. The winning form (linear or non-linear) is then compared to the current model using
+   the standard SCM criterion (`significance_level[1]`).
+
+This two-criterion approach ensures that a non-linear form only displaces a linear one
+when there is genuine statistical evidence of non-linearity — not merely because it has
+a marginally lower deviance from additional degrees of freedom.
+
+**Choosing `linearity_alpha`:**
+
+- A **liberal `linearity_alpha`** (e.g., 0.20) makes the procedure more willing to
+  adopt non-linear forms; appropriate when the scientific prior for non-linearity is
+  strong (e.g., testing Emax-type exposures).
+- A **conservative `linearity_alpha`** (e.g., 0.01) keeps variables linear unless
+  non-linearity is strongly supported; appropriate for covariates like age where
+  near-linearity is expected.
+- The default `0.05` balances these concerns for most pharmacometric analyses.
+
+Note that `linearity_alpha` and `significance_level` are independent thresholds:
+a variable can fail `linearity_alpha` (remains linear) yet still pass
+`significance_level` (enters the model linearly). Both tests must be understood
+when interpreting the selection path.
+
+## 5  Worked Example — GLM
+
+We generate a synthetic dataset where `CMAX` has a genuine log-linear relationship
+with a binary adverse event endpoint:
+
+```{r data_glm}
+set.seed(42)
+n <- 400
+
+dat <- data.frame(
+  CMAX = runif(n, min = 5, max = 200),
+  AGE  = rnorm(n, mean = 55, sd = 12),
+  WT   = rnorm(n, mean = 75, sd = 15),
+  SEX  = factor(sample(c("M", "F"), n, replace = TRUE))
+)
+# True relationship: log-linear with CMAX, mild AGE effect
+lp  <- -3 + 1.2 * log(dat$CMAX / 50) + 0.02 * (dat$AGE - 55)
+dat$DV <- rbinom(n, 1, prob = plogis(lp))
+cat("Event rate:", round(mean(dat$DV), 3), "\n")
+```
+
+### 5.1  Fit with non-linear search
+
+```{r fit_nl_glm, message = FALSE}
+library(erSCM)
+
+fit_nl <- scm_glm(
+  eres_data          = dat,
+  exposure_vars      = "CMAX",
+  covariates         = c("AGE", "WT", "SEX"),
+  significance_level = c(0.05, 0.01),
+  nonlinear = list(
+    CMAX = c("linear", "log", "fp1", "fp2"),
+    AGE  = c("linear", "log")
+  ),
+  linearity_alpha    = 0.05,
+  center             = FALSE,
+  verbose            = FALSE
+)
+```
+
+### 5.2  Inspect the transform registry
+
+The `transform_registry` stored in `fit$metadata` records how each selected variable
+entered the model:
+
+```{r inspect_registry}
+reg <- fit_nl$metadata$transform_registry
+lapply(reg, function(r) {
+  data.frame(
+    transform = r$transform_type,
+    label     = r$label,
+    df        = r$df,
+    p_vs_linear = round(r$pvalue_vs_linear, 4)
+  )
+})
+```
+
+The `p_vs_linear` field is non-NA only when a non-linear form was adopted: it shows
+the LRT p-value of the winning non-linear form vs. linear, confirming the closed
+testing decision.
+
+### 5.3  Compare to a linear-only fit
+
+```{r fit_linear_glm, message = FALSE}
+fit_lin <- scm_glm(
+  eres_data          = dat,
+  exposure_vars      = "CMAX",
+  covariates         = c("AGE", "WT", "SEX"),
+  significance_level = c(0.05, 0.01),
+  center             = FALSE,
+  verbose            = FALSE
+)
+
+cat("Non-linear fit AIC: ", round(AIC(fit_nl$final_model), 2), "\n")
+cat("Linear fit AIC:     ", round(AIC(fit_lin$final_model), 2), "\n")
+```
+
+### 5.4  Visualise the non-linear exposure-response curve
+
+`plot_nonlinear_effect()` computes and plots the partial effect of a variable over
+its observed range, holding all other predictors at reference values (medians or
+first factor level). The y-axis shows the effect on the link scale (log-odds),
+centred at the median of the focal variable.
+
+```{r plot_nl_glm, fig.alt = "Partial effect of CMAX on log-odds, showing log-linear curve with confidence ribbon"}
+plot_nonlinear_effect(fit_nl, "CMAX", scale = "link", rug = TRUE)
+```
+
+To overlay the linear fit as a dashed reference line:
+
+```{r plot_nl_glm_linear, fig.alt = "Same plot with linear fit overlaid as dashed line"}
+plot_nonlinear_effect(fit_nl, "CMAX", scale = "link",
+                      show_linear = TRUE, rug = TRUE)
+```
+
+### 5.5  Summary output
+
+```{r print_nl}
+print(fit_nl)
+```
+
+## 6  Worked Example — CoxPH
+
+The same interface works for time-to-event data. Here we simulate a dataset with a
+log-linear exposure effect on the hazard:
+
+```{r data_coxph}
+set.seed(77)
+n <- 350
+
+dat_cox <- data.frame(
+  CMAX = runif(n, 5, 200),
+  AGE  = rnorm(n, 55, 12),
+  WT   = rnorm(n, 75, 15)
+)
+# True hazard proportional to log(CMAX)
+lp_cox <- 0.8 * log(dat_cox$CMAX / 50)
+dat_cox$TIME <- rexp(n, rate = 0.05 * exp(lp_cox))
+dat_cox$DV   <- rbinom(n, 1, 0.6)   # censoring indicator
+```
+
+```{r fit_nl_cox, message = FALSE, eval = FALSE}
+fit_cox <- scm_coxph(
+  eres_data          = dat_cox,
+  exposure_vars      = "CMAX",
+  covariates         = c("AGE", "WT"),
+  significance_level = c(0.05, 0.01),
+  dv_col             = "DV",
+  time_col           = "TIME",
+  nonlinear = list(CMAX = c("linear", "log", "fp2")),
+  linearity_alpha    = 0.05,
+  center             = FALSE
+)
+
+plot_nonlinear_effect(fit_cox, "CMAX", scale = "response")
+# scale = "response" gives HR relative to median CMAX
+```
+
+The output structure is identical to the GLM case: `fit_cox$metadata$transform_registry`
+records the selected form, and `plot_nonlinear_effect()` handles CoxPH objects
+automatically (using the linear predictor from `survival::coxph`).
+
+## 7  Bootstrap Stability with Non-Linear Terms
+
+When `scm_bootstrap()` is called on a fitted object that used `nonlinear`,
+it automatically re-runs the non-linear SCM on each bootstrap replicate:
+
+```{r boot_nl, eval = FALSE}
+boot_nl <- scm_bootstrap(
+  scm_fit = fit_nl,
+  n_boot  = 200L,
+  seed    = 1L,
+  verbose = FALSE
+)
+
+print(boot_nl)
+```
+
+### 7.1  Interpretation: `transform_selection_freq` and `exposure_transform_freq`
+
+The bootstrap result contains two extra fields:
+
+- **`exposure_transform_freq`**: a named vector recording how often each functional
+  form was selected for the exposure variable across converged replicates. For example,
+  `c(log = 0.82, linear = 0.14, not_selected = 0.04)` means the log form was chosen
+  in 82 % of replicates.
+- **`transform_selection_freq`**: the analogous table for each covariate that had a
+  non-linear search.
+
+These complement the standard `inclusion_prob` by answering: not only *was* CMAX
+selected, but *in what form*?
+
+```{r boot_nl_print, eval = FALSE}
+# Access directly
+boot_nl$exposure_transform_freq
+boot_nl$transform_selection_freq$AGE
+```
+
+### 7.2  Transformation stability plot
+
+```{r boot_nl_plot, eval = FALSE, fig.alt = "Stacked bar chart showing proportion of bootstrap replicates selecting each transformation form"}
+plot(boot_nl, type = "transforms")
+```
+
+Each bar represents one variable; segments show the proportion of converged
+replicates where each transformation form was chosen (including `not_selected` for
+replicates where the variable was not entered). A dominant single-colour bar
+indicates a stable functional form; a fragmented bar suggests the data do not
+clearly distinguish between forms.
+
+See `vignette("bootstrap-stability")` for full documentation of bootstrap parameters,
+parallel execution, and convergence diagnostics.
+
+## 8  Limitations
+
+### 8.1  Non-linear terms and interactions
+
+When both `nonlinear` and `interactions` are specified, **interactions whose parent
+variable entered in a non-linear form are silently skipped**. This occurs because the
+interaction eligibility check compares bare variable names (e.g., `"CMAX"`) against
+the `Relation` vector, which stores formula fragments (`"log(CMAX)"`). A warning is
+issued when both arguments are non-NULL.
+
+**Workaround:** If you need to test interactions involving non-linear terms, run the
+SCM with `nonlinear` first to identify the best functional form, then manually
+transform the variable in the dataset and re-run with `nonlinear = NULL`.
+
+### 8.2  `adjust_for` with non-linear covariates
+
+Terms passed via `adjust_for` are forced into the base model as literal formula
+strings before forward selection begins. If you wish to force a non-linear
+`adjust_for` term (e.g., `"log(CMAX)"`), include the formula string directly in
+`adjust_for` and set `nonlinear = NULL` for that variable:
+
+```r
+# Pre-transformed data column approach (recommended):
+dat$log_CMAX <- log(dat$CMAX)
+scm_glm(eres_data = dat, ..., adjust_for = "log_CMAX")
+
+# Formula string in adjust_for (works but not recommended — bypasses warnings):
+scm_glm(eres_data = dat, ..., adjust_for = "log(CMAX)")
+```
+
+### 8.3  Backward simplification hierarchy
+
+The backward step implements a **two-step** closed-testing simplification:
+non-linear form → linear → remove. The full Royston & Altman (1994) MFP hierarchy
+includes an intermediate FP2 → FP1 step before the FP2 → linear test. This
+intermediate step is not yet implemented; its absence means that FP2 terms may be
+simplified directly to linear even when an FP1 form would have been adequate. In
+practice, FP2 substantially outperforms FP1 relatively rarely in typical PK
+covariate data, so the impact on final model selection is usually small.
+
+### 8.4  Minimum sample size recommendations
+
+| Transformation | Minimum recommended N |
+|----------------|----------------------|
+| `log`, `sqrt` | ≥ 50 (same as linear) |
+| `fp1` | ≥ 80 |
+| `fp2` | ≥ 150 |
+| `rcs` (df = 3) | ≥ 100 |
+| `rcs` (df = 4+) | ≥ 200 |
+
+These are approximate thresholds for reliable parameter estimation. With smaller
+samples, `fp2` and `rcs` fits may converge to spurious shapes due to overfitting.
+Consider restricting `nonlinear` to `c("linear", "log")` for studies with N < 100.
+
+## 9  When to Use Each Transformation
+
+| Transformation | Scenario |
+|----------------|---------|
+| `"log"` | Right-skewed exposures (C~max~, AUC); receptor occupancy with saturation hint; log-scale PK parameters |
+| `"sqrt"` | Mild sub-linearity; variance-stabilising for count-like covariates (e.g., number of prior medications) |
+| `"fp1"` | Unknown functional form; moderate sample sizes; want a single-df flexible shape |
+| `"fp2"` | U-shaped or S-shaped relationships (e.g., body weight with a complex scaling exponent); requires N ≥ 150 |
+| `"rcs"` | Smooth local flexibility without global assumptions; best for large studies (N ≥ 200) where overfitting risk is low |
+
+The **default auto set** (`c("linear", "log", "fp1", "fp2")`) covers the most common
+pharmacometric scenarios. Add `"rcs"` explicitly when flexibility in the tails is
+scientifically important (e.g., investigating a threshold effect for a safety endpoint
+at very high exposures).
+
+## References
+
+Royston P, Altman DG (1994). Regression using fractional polynomials of continuous
+covariates: parsimonious parametric modelling. *Applied Statistics*, 43(3), 429–467.
+
+Harrell FE (2015). *Regression Modeling Strategies*, 2nd ed. Springer.
+
+European Medicines Agency (2007). *Guideline on Reporting the Results of Population
+Pharmacokinetic Analyses* (CHMP/EWP/185990/06).

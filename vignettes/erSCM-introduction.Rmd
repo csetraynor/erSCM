@@ -1,0 +1,196 @@
+---
+title: "Introduction to erSCM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to erSCM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## Introduction
+
+The **erSCM** package provides tools for Stepwise Covariate Modeling (SCM) in
+Exposure–Response and Exposure–Safety (ERES) analyses. It supports both binary
+outcomes (logistic GLM via `scm_glm()`) and time-to-event outcomes (Cox
+proportional hazards via `scm_coxph()`).
+
+Key features include:
+
+- Automated forward selection and backward elimination
+- Interaction term testing with hierarchy constraints
+- Variable metadata specification for publication-ready outputs
+- Forest plots, VPCs, and covariate term plots
+
+## Setup
+
+```{r load}
+library(erSCM)
+data("demo_eres")
+```
+
+## Defining Variable Metadata
+
+The `var_spec` parameter lets you define variable labels and units once at the
+point of analysis. This metadata propagates automatically to all downstream
+outputs: forest plot labels, `print()` summaries, and coefficient tables.
+
+```{r var-spec}
+# Named vector: units are extracted from the last parenthetical
+my_spec <- c(
+  CMAXss = "Cmax,ss (ng/mL)",
+  CMINss = "Cmin,ss (ng/mL)",
+  AUCss  = "AUC,ss (ng*h/mL)",
+  WT     = "Body Weight (kg)",
+  AGE    = "Age (years)",
+  EGFR   = "eGFR (mL/min/1.73m2)",
+  ALB    = "Albumin (g/dL)",
+  BMI    = "BMI (kg/m2)",
+  SEX    = "Sex",
+  AAG    = "AAG (mg/dL)",
+  AST    = "AST (U/L)",
+  ALT    = "ALT (U/L)"
+)
+```
+
+## Data Preparation
+
+Only minimal preprocessing is needed. Scaling and centering are handled
+automatically by `scm_coxph()` and `scm_glm()` via the `center` parameter:
+
+```{r prep}
+demo_eres <- demo_eres |>
+  dplyr::mutate(
+    SEX  = as.factor(SEX),
+    DVID = "ALL"
+  )
+
+all_covariates <- c("WT", "AGE", "EGFR", "ALB", "BMI", "SEX", "AAG", "AST", "ALT")
+all_exposure   <- c("CMAXss", "CMINss", "AUCss")
+```
+
+## Running SCM — Cox Proportional Hazards
+
+Use `scm_coxph()` with `center = TRUE`. Continuous covariates are subtracted by
+their medians internally before fitting, so coefficients represent effects
+relative to the typical patient:
+
+```{r scm-coxph}
+surv_search <- scm_coxph(
+  eres_data          = demo_eres,
+  covariates         = all_covariates,
+  exposure_vars      = all_exposure,
+  dv_col             = "sim_status",
+  time_col           = "sim_time",
+  significance_level = c(0.01, 0.001),
+  dvid               = "ALL",
+  dvid_col           = "DVID",
+  var_spec           = my_spec,
+  center             = TRUE
+)
+```
+
+The returned object uses your labels throughout:
+
+```{r print-coxph}
+surv_search
+surv_search$path
+surv_search$summary
+```
+
+## Visualization — Forest Plot
+
+`plot()` automatically uses the variable metadata from `var_spec`. No separate
+naming data frame is needed:
+
+```{r forest-coxph, fig.height=6, eval=FALSE}
+plot(surv_search)
+```
+
+The forest plot displays:
+
+- **Continuous variables**: hazard ratios at the 5th, 25th, 75th, and 95th
+  percentiles relative to the median, with values on the original scale
+  (e.g., "62.3 kg" rather than "-0.05 U")
+- **Categorical variables**: hazard ratios relative to the reference level,
+  with sample sizes per group
+
+## Visualization — VPC
+
+Assess model fit with a Visual Predictive Check:
+
+```{r vpc, fig.height=4, eval=FALSE}
+vpc_coxph(surv_search)
+```
+
+## Running SCM — Logistic GLM
+
+For binary endpoints, the same `var_spec` system works with `scm_glm()`:
+
+```{r scm-glm}
+lr_search <- scm_glm(
+  eres_data          = demo_eres,
+  covariates         = all_covariates,
+  exposure_vars      = all_exposure,
+  dv_col             = "sim_status",
+  significance_level = c(0.05, 0.01),
+  var_spec           = my_spec,
+  center             = TRUE
+)
+
+lr_search
+```
+
+```{r forest-glm, fig.height=6, eval=FALSE}
+plot(lr_search)
+```
+
+## Alternative: Median-Relative Scaling
+
+If you prefer coefficients expressed as "effect per fold-change from median"
+(common in pharmacometric publications), use `scale_to_median = TRUE` instead
+of `center = TRUE`:
+
+```{r scm-scaled, eval=FALSE}
+surv_scaled <- scm_coxph(
+  eres_data          = demo_eres,
+  covariates         = all_covariates,
+  exposure_vars      = all_exposure,
+  dv_col             = "sim_status",
+  time_col           = "sim_time",
+  significance_level = c(0.01, 0.001),
+  dvid               = "ALL",
+  dvid_col           = "DVID",
+  var_spec           = my_spec,
+  scale_to_median    = TRUE,
+  center             = FALSE
+)
+```
+
+With `scale_to_median = TRUE`, all continuous variables are divided by their
+medians before fitting. Coefficients represent the log-HR per doubling (or
+halving) from median. Forest plot labels still show original-scale values.
+
+## Summary Tables
+
+The `get_sum_tbl_coxph()` function produces tidy coefficient tables from the
+final model:
+
+```{r sumtbl}
+get_sum_tbl_coxph(surv_search$final_model, exponentiate = TRUE, include_conf_int = TRUE)
+```
+
+## Next Steps
+
+- See `vignette("interactions", package = "erSCM")` for interaction term
+  modeling
+- See `vignette("var_spec", package = "erSCM")` for advanced variable
+  specification (YAML files, category labels, custom back-transformations)

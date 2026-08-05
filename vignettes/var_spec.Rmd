@@ -1,0 +1,223 @@
+---
+title: "Variable Specification with var_spec"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Variable Specification with var_spec}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## Overview
+
+The `var_spec` system lets you define variable metadata — labels, units, and
+category mappings — once at analysis setup. This metadata propagates
+automatically to:
+
+- Forest plot axis labels and quantile annotations
+- `print()` output
+- Summary tables
+- Interaction term labels
+
+This follows the yspec philosophy common in pharmacometric workflows: define
+metadata once, use everywhere.
+
+## Input Formats
+
+### Named Character Vector
+
+The simplest format. Units are extracted from the last parenthetical:
+
+```{r vector-format}
+library(erSCM)
+
+spec_vector <- c(
+  CMAXss = "Cmax,ss (ng/mL)",
+  AUCss  = "AUC,ss (ng*h/mL)",
+  WT     = "Body Weight (kg)",
+  AGE    = "Age (years)",
+  SEX    = "Sex"
+)
+
+parsed <- parse_var_spec(spec_vector)
+print(parsed)
+```
+
+The `label` column holds the display text; `units` is extracted from the
+parenthetical and stored separately.
+
+### Data Frame
+
+More structured, with explicit columns for each field. Supports category labels
+via a pipe-separated `categories` column:
+
+```{r df-format}
+spec_df <- data.frame(
+  col_name   = c("CMAXss", "AUCss", "WT", "AGE", "SEX", "RACE"),
+  label      = c("Cmax,ss", "AUC,ss", "Body Weight", "Age", "Sex", "Race"),
+  units      = c("ng/mL", "ng*h/mL", "kg", "years", NA, NA),
+  categories = c(NA, NA, NA, NA, "Female|Male", "White|Black|Asian|Other"),
+  stringsAsFactors = FALSE
+)
+
+parsed_df <- parse_var_spec(spec_df)
+print(parsed_df)
+```
+
+### YAML File
+
+For reproducible multi-analyst workflows, store specifications in a
+version-controlled YAML file. Requires the `yaml` package:
+
+```{r yaml-format, eval=FALSE}
+# Contents of spec.yaml:
+#
+# CMAXss:
+#   label: "Cmax,ss"
+#   units: "ng/mL"
+#   type: continuous
+# WT:
+#   label: "Body Weight"
+#   units: "kg"
+#   type: continuous
+# SEX:
+#   label: "Sex"
+#   type: categorical
+#   categories:
+#     F: "Female"
+#     M: "Male"
+
+spec_from_yaml <- parse_var_spec("path/to/spec.yaml")
+```
+
+## Using var_spec in Analysis
+
+Pass the spec to `scm_coxph()` or `scm_glm()` via the `var_spec` argument.
+Validation happens automatically: missing columns trigger a warning and are
+removed, while model variables not covered by the spec emit an informational
+message and fall back to the column name as the label.
+
+```{r pipeline}
+data("demo_eres")
+demo_eres <- demo_eres |>
+  dplyr::mutate(SEX = as.factor(SEX), DVID = "ALL")
+
+fit <- scm_coxph(
+  eres_data          = demo_eres,
+  covariates         = c("WT", "AGE", "SEX"),
+  exposure_vars      = "CMAXss",
+  dv_col             = "sim_status",
+  time_col           = "sim_time",
+  significance_level = c(0.05, 0.01),
+  dvid               = "ALL",
+  dvid_col           = "DVID",
+  var_spec           = spec_vector,
+  center             = TRUE
+)
+
+# var_spec is stored in the fit object
+print(fit$var_spec[, c("col_name", "label", "units", "transform")])
+```
+
+After fitting with `center = TRUE`, the `transform` and `median_point` columns
+are populated automatically for continuous variables:
+
+```{r var-spec-stored}
+# transform and median_point are filled in after fitting
+cols <- intersect(c("col_name", "label", "units", "median_point", "transform"),
+                  colnames(fit$var_spec))
+print(fit$var_spec[, cols])
+```
+
+## How Forest Plot Labels Work
+
+When `var_spec` is present in the fit object, `make_forest_plot()` uses it
+automatically. No separate `namings` argument is required:
+
+```{r forest, eval=FALSE}
+plot(fit)  # labels come from var_spec stored in fit
+```
+
+Quantile annotation values are back-transformed to the original scale using the
+`transform` and `median_point` metadata. For example, a model fitted with
+`center = TRUE` on body weight stores `median_point = 76.2` and
+`transform = "centered"`. When the forest plot shows the Q0.05 row for WT, it
+displays `"56.1 kg"` rather than `"-20.1 U"`.
+
+The dispatch table for back-transformation:
+
+| `transform` value          | Back-transform applied               |
+|----------------------------|--------------------------------------|
+| `"none"`                   | VAL (no change)                      |
+| `"centered"`               | VAL + median\_point                  |
+| `"median_scaled"`          | VAL × median\_point                  |
+| `"median_scaled_and_centered"` | (VAL + 1) × median\_point       |
+| `"log_transformed"`        | exp(VAL)                             |
+
+## Variables Not in var_spec
+
+If a model selects a covariate not covered by `var_spec`, the column name is
+used as a fallback label:
+
+```{r fallback, eval=FALSE}
+# Only CMAXss and WT are specified:
+partial_spec <- c(CMAXss = "Cmax,ss (ng/mL)", WT = "Body Weight (kg)")
+
+# If the model also selects AGE, it appears as "AGE" in outputs
+# A message is printed during fitting:
+#   "Variables not in var_spec (will use column name as label): AGE"
+```
+
+## Overriding in Plots
+
+Pass an explicit `namings` data frame to `make_forest_plot()` to override the
+stored `var_spec` for a specific plot. The priority order is:
+
+1. Explicit `namings` argument (highest priority)
+2. `fit$var_spec`
+3. `fit$naming_df` (legacy format, automatically converted)
+4. Centering values only (minimal fallback)
+
+```{r override, eval=FALSE}
+# Old-style override (still supported for backward compatibility)
+old_namings <- data.frame(
+  covname      = c("CMAXss", "WT"),
+  units        = c("ug*day/mL", "kg"),
+  median_point = c(145.3, 76.2)
+)
+make_forest_plot(fit, namings = old_namings)
+```
+
+## Accessor Functions
+
+Two helper functions are available for downstream use in custom summaries or
+report templates:
+
+```{r accessors}
+# Get display label (falls back to col_name if not in spec)
+get_var_label(fit$var_spec, "CMAXss")
+get_var_label(fit$var_spec, "MISSING_COL")  # returns "MISSING_COL"
+
+# Get units (returns NA if not in spec)
+get_var_units(fit$var_spec, "CMAXss")
+get_var_units(fit$var_spec, "SEX")
+```
+
+## Best Practices
+
+1. **Define var_spec in a central script** (e.g., `R/00_setup.R`) and source it
+   across all analyses in a project.
+2. **Use YAML for team projects** — version-control the specification alongside
+   analysis scripts so label changes are tracked in git.
+3. **Include all candidate variables**, not just those expected in the final
+   model. The spec is validated against data and unused entries are harmless.
+4. **Match pharmacometric conventions** — use the same labels as your
+   `define.xml` or analysis dataset specification document.

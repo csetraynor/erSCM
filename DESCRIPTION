@@ -1,0 +1,46 @@
+Package: erSCM
+Title: Stepwise Covariate Modeling for Exposure–Response and Exposure–Safety
+Version: 0.1.2
+Authors@R: 
+    person("Carlos", "Traynor", , "carlos.traynor.qcp@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-3753-7552"))
+Description: Run Stepwise Covariate Modeling (SCM) for Exposure–Response (ER) and Exposure–Safety (ES) analyses. The package streamlines covariate screening, model building, and selection workflows (forward, backward, and hybrid stepwise strategies) with reproducible pipelines, audit-ready summaries, and visual diagnostics suitable for pharmacometric and clinical data. Utilities include automated candidate generation, interaction handling, model comparison, cross-validation, and standardized outputs to support decision-making in ERES contexts.
+License: GPL (>= 3)
+Encoding: UTF-8
+Language: en
+Depends: R (>= 4.1)
+Imports:
+    cli,
+    stats,
+    splines,
+    dplyr (>= 1.0.0),
+    tidyr (>= 1.2.0),
+    purrr (>= 0.3.0),
+    tibble (>= 3.1.0),
+    ggplot2 (>= 3.3.0),
+    patchwork (>= 1.1.0),
+    broom (>= 1.0.0),
+    magrittr,
+    survival (>= 3.2.0),
+    glue,
+    ggpubr,
+    scales,
+    stringr,
+    rlang,
+    tidyselect
+Suggests:
+    future,
+    future.apply,
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    withr,
+    covr,
+    yaml
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+URL: https://github.com/csetraynor/erSCM
+BugReports: https://github.com/csetraynor/erSCM/issues
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+LazyData: true

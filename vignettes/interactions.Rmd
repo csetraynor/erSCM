@@ -1,0 +1,244 @@
+---
+title: "Interaction Terms in erSCM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Interaction Terms in erSCM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## Why Test Interactions?
+
+In exposure–safety analyses, a key question is often: *does the
+exposure–safety relationship differ across patient subgroups?* For example:
+
+- Does the effect of Cmax on adverse event risk differ by body weight?
+- Is the exposure–response relationship steeper in elderly patients?
+- Does sex modify the protective effect of a covariate?
+
+These questions are formally tested through interaction terms.
+
+## Setup
+
+```{r load}
+library(erSCM)
+library(dplyr)
+data("demo_eres")
+
+all_covariates <- c("WT", "AGE", "EGFR", "ALB", "BMI", "SEX", "AAG", "AST", "ALT")
+all_exposure   <- c("CMAXss", "CMINss", "AUCss")
+
+my_spec <- c(
+  CMAXss = "Cmax,ss (ng/mL)",
+  CMINss = "Cmin,ss (ng/mL)",
+  AUCss  = "AUC,ss (ng*h/mL)",
+  WT     = "Body Weight (kg)",
+  AGE    = "Age (years)",
+  EGFR   = "eGFR (mL/min/1.73m2)",
+  ALB    = "Albumin (g/dL)",
+  BMI    = "BMI (kg/m2)",
+  SEX    = "Sex",
+  AAG    = "AAG (mg/dL)",
+  AST    = "AST (U/L)",
+  ALT    = "ALT (U/L)"
+)
+
+demo_eres <- demo_eres |>
+  mutate(SEX = as.factor(SEX), DVID = "ALL")
+```
+
+## Specifying Interaction Terms
+
+The `interactions` parameter accepts two formats.
+
+**Format 1: Explicit terms** (most control)
+
+```{r int-format1, eval=FALSE}
+interactions = c("CMAXss:WT", "CMAXss:SEX", "CMAXss:AGE")
+```
+
+**Format 2: Variable groups** (generates all pairwise combinations)
+
+```{r int-format2, eval=FALSE}
+interactions = list(c("CMAXss", "AGE", "WT", "SEX"))
+# Generates: CMAXss:AGE, CMAXss:WT, CMAXss:SEX, AGE:WT, AGE:SEX, WT:SEX
+```
+
+The **hierarchy constraint** is enforced automatically: an interaction `A:B` is
+only tested when both `A` and `B` are already in the model as main effects.
+
+## Baseline: Main Effects Only
+
+```{r baseline}
+surv_base <- scm_coxph(
+  eres_data          = demo_eres,
+  covariates         = all_covariates,
+  exposure_vars      = all_exposure,
+  dv_col             = "sim_status",
+  time_col           = "sim_time",
+  significance_level = c(0.05, 0.01),
+  dvid               = "ALL",
+  dvid_col           = "DVID",
+  var_spec           = my_spec,
+  center             = TRUE
+)
+surv_base
+```
+
+## Adding Interactions: "after_main" Strategy
+
+The recommended approach tests interactions **after** main-effect selection is
+complete:
+
+```{r after-main}
+surv_int <- scm_coxph(
+  eres_data            = demo_eres,
+  covariates           = all_covariates,
+  exposure_vars        = all_exposure,
+  dv_col               = "sim_status",
+  time_col             = "sim_time",
+  significance_level   = c(0.05, 0.01),
+  dvid                 = "ALL",
+  dvid_col             = "DVID",
+  var_spec             = my_spec,
+  center               = TRUE,
+  interactions         = list(c("CMAXss", "AGE", "WT", "SEX")),
+  interaction_strategy = "after_main",
+  p_interaction        = c(1, 0.5)
+)
+surv_int
+```
+
+## Interpreting Results
+
+```{r interpret}
+main_effects         <- get_main_effect_columns(surv_int$metadata$finalRelation)
+interactions_in_model <- get_interaction_terms(surv_int$metadata$finalRelation)
+
+cat("Main effects:", paste(main_effects, collapse = ", "), "\n")
+cat("Interactions:", paste(interactions_in_model, collapse = ", "), "\n")
+```
+
+### Key Interpretation Points
+
+When `center = TRUE` and an interaction `CMAXss:WT` is in the model:
+
+- `coef(CMAXss)` = effect of Cmax,ss **at the median body weight**
+- `coef(WT)` = effect of Body Weight **at the median Cmax,ss**
+- `coef(CMAXss:WT)` = how much the Cmax,ss effect changes per unit increase in WT
+
+The hazard ratio for Cmax,ss depends on the patient's body weight:
+
+$$HR_{Cmax}(at\ WT=w) = \exp\bigl[(\beta_{Cmax} + \beta_{Cmax:WT} \cdot w) \cdot \Delta_{Cmax}\bigr]$$
+
+## Forest Plot with Interactions
+
+```{r forest-int, fig.height=8, eval=FALSE}
+plot(surv_int)
+```
+
+The interaction panel shows conditional effects of the exposure variable at
+several modifier quantiles. Each row corresponds to one combination: for
+example, "Q0.05 | Body Weight=Q0.25" is the effect of low Cmax,ss in
+lighter patients.
+
+If the interaction is meaningful you will see the hazard ratios diverge across
+modifier levels.
+
+## The "Non-Significant Interaction" Paradox
+
+A common question: the interaction p-value is not significant (e.g., p = 0.43),
+but the conditional CIs in the forest plot exclude 1.0. Is this a contradiction?
+
+It is not. The interaction p-value tests whether the *slope* changes across
+modifier levels. The conditional CIs test whether the *effect* is non-null at
+each specific level. These are different hypotheses, and both answers can be
+correct simultaneously.
+
+## p-Value Thresholds
+
+Use stricter thresholds for interactions to reduce overfitting:
+
+```{r strict, eval=FALSE}
+surv_strict <- scm_coxph(
+  eres_data            = demo_eres,
+  covariates           = all_covariates,
+  exposure_vars        = all_exposure,
+  dv_col               = "sim_status",
+  time_col             = "sim_time",
+  significance_level   = c(0.05, 0.01),
+  dvid                 = "ALL",
+  dvid_col             = "DVID",
+  var_spec             = my_spec,
+  center               = TRUE,
+  interactions         = list(c("CMAXss", "AGE", "WT", "SEX")),
+  interaction_strategy = "after_main",
+  p_interaction        = c(0.01, 0.001)
+)
+```
+
+## Hierarchy in Backward Elimination
+
+During backward elimination, main effects with child interactions are protected
+from removal:
+
+```{r hierarchy}
+example_relation <- c("CMAXss", "AGE", "WT", "SEX", "CMAXss:AGE", "WT:SEX")
+protected <- get_protected_main_effects(example_relation)
+cat("Protected (cannot be removed):", paste(protected, collapse = ", "), "\n")
+removable <- setdiff(example_relation, protected)
+cat("Eligible for removal:         ", paste(removable, collapse = ", "), "\n")
+```
+
+## Simultaneous Strategy
+
+An alternative to `"after_main"`: interactions compete with main effects at
+each forward step. An interaction can enter the model at any point once its
+parent main effects are present.
+
+```{r simultaneous, eval=FALSE}
+surv_sim <- scm_coxph(
+  eres_data            = demo_eres,
+  covariates           = all_covariates,
+  exposure_vars        = all_exposure,
+  dv_col               = "sim_status",
+  time_col             = "sim_time",
+  significance_level   = c(0.05, 0.01),
+  dvid                 = "ALL",
+  dvid_col             = "DVID",
+  var_spec             = my_spec,
+  center               = TRUE,
+  interactions         = list(c("CMAXss", "AGE", "WT", "SEX")),
+  interaction_strategy = "simultaneous",
+  p_interaction        = c(0.05, 0.01)
+)
+```
+
+## GLM with Interactions
+
+The same system works for logistic regression:
+
+```{r glm-int, eval=FALSE}
+lr_int <- scm_glm(
+  eres_data            = demo_eres,
+  covariates           = all_covariates,
+  exposure_vars        = all_exposure,
+  dv_col               = "sim_status",
+  significance_level   = c(0.05, 0.01),
+  var_spec             = my_spec,
+  center               = TRUE,
+  interactions         = c("CMAXss:WT", "CMAXss:SEX"),
+  interaction_strategy = "after_main",
+  p_interaction        = c(0.05, 0.01)
+)
+plot(lr_int)
+```
