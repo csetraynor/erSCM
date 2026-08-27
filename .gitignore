@@ -9,3 +9,6 @@
 *.tar.gz
 .Rcheck/
 Rplots.pdf
+.claude/
+examples/
+reports/

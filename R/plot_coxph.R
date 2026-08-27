@@ -201,17 +201,28 @@ plot_cox_terms <- function(fit, covariate_term, ci = 0.95, n_bins = 4, plot = TR
 
   ci_label <- paste0("Cox model (",round(ci*100),"% CI)")
   
-  stratas <- obs %>%
-    dplyr::distinct(strata) %>%
-    dplyr::pull()
-  
-  # Predicted baseline survival function (depends on chosen ref profile via lp=0 vs newdata)
+  # Build the survfit-style strata label for EACH reference profile directly
+  # from its own key column so that predicted curves are matched to the
+  # CORRECT stratum by identity rather than by lexical position. The previous
+  # implementation named the predicted curves positionally from
+  # `distinct(strata)` (lexically ordered by dplyr::arrange), which misaligns
+  # whenever the bin/level labels do not sort lexically in numeric order
+  # (e.g. var_spec back-transformed labels using "<=", ">", en-dash, or
+  # n_bins >= 10 where "Q10" < "Q2"). Under dplyr's C-locale arrange() default
+  # (>= 1.0.0) this produced predicted curves attached to the wrong facet.
+  strata_var   <- if (is_covariate_numeric) "quartile_cat" else covariate_term
+  ref_keys     <- as.character(
+    dplyr::pull(dplyr::ungroup(ref_data_expanded), !!rlang::sym(strata_var))
+  )
+  strata_names <- paste0(strata_var, "=", ref_keys)
+
+  # Predicted survival function per reference profile (row of ref_data_expanded)
   base_surv <- seq_len(nrow(ref_data_expanded)) %>% purrr::map(function(i){
     survival::survfit(fit$final_model, newdata = ref_data_expanded %>% dplyr::ungroup() %>% dplyr::slice(i) )
   })
   
   cox_ph <- base_surv %>% purrr::map(function(x) broom::tidy(x, conf.level = ci) %>% dplyr::mutate(origin = ci_label) ) %>%
-    rlang::set_names(stratas ) %>% dplyr::bind_rows(.id = "strata")
+    rlang::set_names(strata_names) %>% dplyr::bind_rows(.id = "strata")
   
   vpc_ds <- dplyr::bind_rows(obs, cox_ph) %>% dplyr::mutate(strata = base::gsub("=", "\n", strata) ) 
   

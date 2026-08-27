@@ -2,7 +2,7 @@
 # For documented workflows, see vignette("introduction", package = "erSCM")
 
 # library(erSCM)
-devtools::document()
+devtools::document('~/Documents/d853/erSCM')
 library(dplyr)
 
 data("demo_eres")

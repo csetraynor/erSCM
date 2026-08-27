@@ -2,6 +2,10 @@
 
 ## Bug Fixes
 
+* Bug fix (critical): `plot_cox_terms()` previously assigned predicted survival
+  curves to strata by position, causing silent mislabelling when bin labels did
+  not sort in numeric order (e.g., with var_spec back-transformed labels or
+  n_bins >= 10). Curves are now matched by bin/level identity.
 * `scm_glm()` now returns a proper `eres_scm_glm` S3 object even when no
   exposure variable reaches the entry significance threshold. Previously it
   returned a plain list, which caused downstream functions (`print`,
