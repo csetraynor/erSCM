@@ -1,52 +1,43 @@
 #' Visual Predictive Check (VPC) for Cox Proportional Hazards Models
 #'
-#' Performs a visual predictive check (VPC) for a fitted Cox proportional hazards
-#' model (`coxph`), by simulating survival data under the fitted model, computing
-#' summary statistics (e.g., survival probabilities or cumulative hazards) over
-#' time, and comparing simulated prediction intervals with the observed Kaplan-Meier
-#' estimates. This helps assess model calibration and the adequacy of the
-#' proportional hazards assumption in terms of predicted survival patterns.
+#' Produces an analytical overlay for a fitted Cox proportional hazards model
+#' from \code{\link{scm_coxph}} by contrasting observed Kaplan-Meier curves with
+#' model-implied survival curves and their confidence band at reference profiles.
+#' This is a confidence-band diagnostic (not a simulation-based predictive check).
 #'
-#' @param fit A list from \code{scm_coxph()} containing model results.
-#' @param ci Numeric; confidence level for the prediction interval. Default 0.95.
-#' @param n_bins Integer; number of bins (currently unused). Default 1.
+#' @param fit An object of class \code{eres_scm_coxph} returned by
+#'   \code{\link{scm_coxph}}.
+#' @param ci Numeric scalar in \code{(0, 1)}; confidence level for the model
+#'   survival band. Default 0.95.
+#' @param n_bins Integer scalar \code{>= 1}. Default 1.
 #' @param plot Logical; if \code{TRUE} (default), return a \code{ggplot} object.
 #'   If \code{FALSE}, return the computed summaries only.
 #'
 #' @details
-#' The VPC procedure simulates survival data from the fitted Cox model by:
-#' 1) computing linear predictors for each subject, 2) sampling event times
-#' under the estimated baseline hazard and covariate effects, and optionally
-#' 3) sampling censoring times to reflect the observed censoring pattern.
-#' For each simulation, survival curves (or cumulative hazards) are summarized
-#' at \code{times}. Across simulations, pointwise prediction intervals are
-#' computed and contrasted with the observed Kaplan-Meier or Nelson-Aalen
-#' estimates.
+#' The function builds one or more reference profiles from the fitted-model data
+#' (grouped by categorical covariates and averaged over numeric covariates), then
+#' obtains model-implied survival curves with \code{survival::survfit()} at those
+#' profiles. The band shown is the pointwise \code{ci} confidence interval from
+#' \code{survfit()} for each model-implied curve.
 #'
-#' Assumptions include adequate model fit, correct specification of the baseline
-#' hazard estimation and covariate effects, and--when \code{censoring = TRUE}--
-#' that the censoring mechanism is non-informative and adequately approximated.
-#' Stratified VPCs enable visual checks within covariate-defined subgroups.
+#' Observed curves are unadjusted Kaplan-Meier estimates from
+#' \code{survival::survfit(survival::Surv(TIME, DV) ~ ...)} on
+#' \code{fit$model_data}. The overlay is therefore an analytical
+#' confidence-band diagnostic over time, not a parametric-bootstrap predictive
+#' band. A simulation-based predictive-check path is deferred to
+#' \code{reports/vpc_coxph_v2_plan.md}.
 #'
 #' @return If \code{plot = TRUE}, a \code{ggplot2} object showing:
-#' - Observed curve (Kaplan-Meier survival or Nelson-Aalen cumulative hazard)
-#' - Simulated median curve
-#' - Shaded prediction interval ribbon (defined by \code{ci})
-#' Optionally faceted by \code{stratify}. If \code{plot = FALSE}, returns a
-#' list with components:
-#' - \code{observed}: data frame of observed summary statistics by time and stratum
-#' - \code{sim_q}: data frame of simulated quantiles by time and stratum
-#' - \code{sim_median}: data frame of simulated medians by time and stratum
-#' - \code{times}: evaluation times used
-#' - \code{meta}: settings and fit details
+#' - Observed Kaplan-Meier curve(s)
+#' - Model-implied survival curve(s)
+#' - Shaded \code{ci} confidence band around the model-implied curve(s)
+#' Optionally faceted by stratum. If \code{plot = FALSE}, returns the bare long
+#' data frame used for plotting.
 #'
 #' @section Simulation Approach:
-#' Event times can be simulated via inversion using the estimated baseline
-#' cumulative hazard \eqn{\hat{H}_0(t)} and linear predictor \eqn{\eta = x^\top \hat{\beta}},
-#' with \eqn{H(t|x) = \hat{H}_0(t) \exp(\eta)}. Draw \eqn{U \sim \mathrm{Uniform}(0,1)},
-#' set \eqn{T = H^{-1}(-\log(U))}, and optionally apply censoring. Baseline hazards
-#' may be approximated using Breslow's estimator, spline-smoothed hazards, or
-#' piecewise-constant segments depending on implementation.
+#' The current implementation is analytical and does not simulate event times.
+#' A simulation-based predictive VPC for Cox models is deferred to
+#' \code{reports/vpc_coxph_v2_plan.md}.
 #'
 #' @examples
 #' data(demo_eres)
@@ -57,7 +48,9 @@
 #' )
 #' vpc_coxph(fit)
 #'
-#' @seealso \code{\link[survival]{coxph}}, \code{\link[survival]{Surv}}
+#' @seealso \code{\link{vpc_coxph_sim}}, \code{\link{vpc_logistic}}, \code{\link{plot_cox_terms}},
+#'   \code{\link{scm_coxph}}, \code{\link[survival]{coxph}},
+#'   \code{\link[survival]{Surv}}
 #'
 #' @importFrom survival coxph Surv basehaz survfit
 #' @importFrom stats runif model.matrix
@@ -69,6 +62,27 @@
 #'
 #' @export
 vpc_coxph <- function(fit, ci = 0.95, n_bins = 1, plot = TRUE) {
+
+  if (!inherits(fit, "eres_scm_coxph")) {
+    cli::cli_abort(c(
+      "{.arg fit} must be an {.cls eres_scm_coxph} object from {.fun scm_coxph}.",
+      "x" = "Got an object of class {.cls {class(fit)}}."
+    ))
+  }
+  if (is.null(fit$final_model)) {
+    cli::cli_abort(c(
+      "{.arg fit} has no {.field final_model}.",
+      "i" = "No model was selected, so there is nothing to check."
+    ))
+  }
+  if (!is.numeric(ci) || length(ci) != 1L || is.na(ci) || ci <= 0 || ci >= 1) {
+    cli::cli_abort("{.arg ci} must be a numeric scalar in (0, 1).")
+  }
+  if (!is.numeric(n_bins) || length(n_bins) != 1L || is.na(n_bins) ||
+      n_bins != as.integer(n_bins) || n_bins < 1) {
+    cli::cli_abort("{.arg n_bins} must be a single integer >= 1.")
+  }
+  n_bins <- as.integer(n_bins)
 
   var_spec_obj <- fit$var_spec
 
@@ -101,6 +115,14 @@ vpc_coxph <- function(fit, ci = 0.95, n_bins = 1, plot = TRUE) {
     colnames()
   
   finalNumeric <- dplyr::select(tmp_data, dplyr::where(is.numeric)) %>% colnames()
+
+  if (n_bins > 1L && length(finalNumeric) > 0L) {
+    cli::cli_abort(c(
+      "{.arg n_bins} > 1 is not implemented for numeric covariates in {.fun vpc_coxph}.",
+      "x" = "Numeric terms in the fitted main effects: {.val {finalNumeric}}.",
+      "i" = "This numeric-binning path is deferred; see {.file reports/vpc_coxph_v2_plan.md}."
+    ))
+  }
   
   with_numeric <- length(finalNumeric) > 0
   with_bins <- with_numeric & n_bins > 1 
@@ -109,8 +131,11 @@ vpc_coxph <- function(fit, ci = 0.95, n_bins = 1, plot = TRUE) {
   
   ref_data <-   tmp_data %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(finalCharacters))) %>%
-    dplyr::summarise( dplyr::across(dplyr::all_of(finalNumeric), ~ mean(.x, na.rm = TRUE)), n = dplyr::n() ) %>%
-    dplyr::ungroup() %>%
+    dplyr::summarise(
+      dplyr::across(dplyr::all_of(finalNumeric), ~ mean(.x, na.rm = TRUE)),
+      n = dplyr::n(),
+      .groups = "drop"
+    ) %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(finalCharacters), ~ factor(as.character(.x), levels = sort(unique(as.character(.x)))))) %>%
     dplyr::arrange(dplyr::across(dplyr::all_of(finalCharacters))) %>% 
     dplyr::mutate(ID = dplyr::row_number()) 
@@ -123,12 +148,14 @@ vpc_coxph <- function(fit, ci = 0.95, n_bins = 1, plot = TRUE) {
 
   # Observed KM (unadjusted)
   if(model_with_categories) {
+    # TIME/DV are hard-coded here because scm_coxph() normalizes model_data by
+    # renaming user-specified time_col/dv_col to TIME/DV internally.
     survformula <- paste0("survival::Surv(TIME, DV) ~", paste(finalCharacters, collapse = "+") )
   } else {
     survformula <- "survival::Surv(TIME, DV) ~ 1" 
   }
 
-  km_fit <- survival::survfit(as.formula(survformula), data = fit$model_data)
+  km_fit <- survival::survfit(stats::as.formula(survformula), data = fit$model_data)
   
   obs <- broom::tidy(km_fit) %>%
     dplyr::mutate(origin = "Observed KM")
@@ -144,7 +171,7 @@ vpc_coxph <- function(fit, ci = 0.95, n_bins = 1, plot = TRUE) {
         dplyr::filter(dplyr::row_number() == 1) %>% 
         dplyr::mutate(n.event = 0, time = 0,
                       estimate = 1, conf.high = 1, conf.low = 1) ) %>%
-        dplyr::arrange(strata, time, desc(estimate))
+        dplyr::arrange(strata, time, dplyr::desc(estimate))
     
     stratas <- obs %>%
       dplyr::distinct(strata) %>% dplyr::pull()
@@ -173,6 +200,10 @@ vpc_coxph <- function(fit, ci = 0.95, n_bins = 1, plot = TRUE) {
         }
       }
     }
+
+    # Preserve identity-derived strata order for facets (avoid lexical sorting).
+    strata_levels <- unique(vpc_ds$strata)
+    vpc_ds$strata <- factor(vpc_ds$strata, levels = strata_levels, ordered = TRUE)
     
   } else {
     cox_ph <- base_surv %>% purrr::map(function(x) broom::tidy(x, conf.level = ci) %>% dplyr::mutate(origin = ci_label) ) %>%

@@ -45,10 +45,16 @@ expand_interactions <- function(interactions, max_interaction_order = 2) {
       if (!is.character(group) || length(group) < 2) {
         cli::cli_abort("Each element in {.arg interactions} must be a character vector of length >= 2.")
       }
-      for (order in 2:min(max_interaction_order, length(group))) {
-        combos <- utils::combn(group, order, simplify = FALSE)
-        terms <- vapply(combos, function(x) paste(x, collapse = ":"), character(1))
-        all_interactions <- c(all_interactions, terms)
+      # Only orders 2..min(max_interaction_order, length(group)) are valid
+      # interactions. Guard against max_interaction_order < 2, where the naive
+      # `2:min(...)` would descend to c(2, 1) and emit spurious 1-way "terms".
+      upper_order <- min(max_interaction_order, length(group))
+      if (upper_order >= 2) {
+        for (order in seq.int(2, upper_order)) {
+          combos <- utils::combn(group, order, simplify = FALSE)
+          terms <- vapply(combos, function(x) paste(x, collapse = ":"), character(1))
+          all_interactions <- c(all_interactions, terms)
+        }
       }
     }
     return(unique(all_interactions))

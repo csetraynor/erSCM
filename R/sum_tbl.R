@@ -111,7 +111,7 @@ get_sum_tbl <- function(model, p_min = 0.001, include_conf_int = FALSE, exponent
 
     # Logical ordering: adjusted first, then selected, then base
     type_order <- c("adjusted", "selected", "base")
-    result <- result[order(match(result$term_type, type_order)), ]
+    result <- result[base::order(match(result$term_type, type_order)), ]
 
     if (show_terms != "all") {
       result <- result[result$term_type == show_terms, ]
@@ -169,7 +169,7 @@ run_sum_tbl <- function(data, covariates, family, standardize = FALSE, continuou
 
   if(standardize){
     df <- df %>%
-      dplyr::mutate(dplyr::across(dplyr::all_of(continuous_covariates[continuous_covariates %in% covariates]), ~ . / median(.)))
+      dplyr::mutate(dplyr::across(dplyr::all_of(continuous_covariates[continuous_covariates %in% covariates]), ~ . / stats::median(.)))
   }
   formul <- as.formula(paste("DV ~", paste0(covariates, collapse = " + ") ))
 
@@ -284,7 +284,7 @@ run_sum_tbl_coxph <- function(data, covariates, standardize = FALSE, continuous_
 
   if(standardize){
     df <- df %>%
-      dplyr::mutate(dplyr::across(dplyr::all_of(continuous_covariates[continuous_covariates %in% covariates]), ~ . / median(.)))
+      dplyr::mutate(dplyr::across(dplyr::all_of(continuous_covariates[continuous_covariates %in% covariates]), ~ . / stats::median(.)))
   }
   formul <- as.formula(paste("survival::Surv( TIME, DV) ~", paste0(covariates, collapse = " + ") ))
 

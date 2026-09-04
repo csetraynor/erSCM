@@ -149,7 +149,7 @@ make_forest_plot <- function(fit,
     for(i in seq_along(exposurecovars)) {
       vname <- exposurecovars[i]
       df_x <- tmp_data %>% dplyr::rename(x := !!vname)
-      med_x <- median(df_x$x)
+      med_x <- stats::median(df_x$x)
       # Back-transform center offset for display labels
       center_offset <- if (!is.null(centering_values) && vname %in% names(centering_values)) centering_values[[vname]] else 0
 
@@ -158,7 +158,7 @@ make_forest_plot <- function(fit,
                         breaks=quantile(unique(df_x[,c('x','id')])$x,c(0,.25,.5,.75,1), na.rm =TRUE),
                         include.lowest=TRUE,
                         labels=paste0("Q",c(1,2,3,4)))) %>%
-        dplyr::summarise( med = median(x,na.rm=TRUE),
+        dplyr::summarise( med = stats::median(x,na.rm=TRUE),
                    qlow =quantile(x,na.rm=TRUE,p=0.05),
                    q25=quantile(x,na.rm=TRUE,p=0.25),
                    q75=quantile(x,na.rm=TRUE,p=0.75),
@@ -184,7 +184,7 @@ make_forest_plot <- function(fit,
     for(i in seq_along(contcovars)) {
       vname <- contcovars[i]
       df_x <- tmp_data %>% dplyr::rename(x := !!vname)
-      med_x <- median(df_x$x)
+      med_x <- stats::median(df_x$x)
       center_offset <- if (!is.null(centering_values) && vname %in% names(centering_values)) centering_values[[vname]] else 0
 
       tmp_numdata[[i]] <- df_x %>%
@@ -192,7 +192,7 @@ make_forest_plot <- function(fit,
                         breaks=quantile(unique(df_x[,c('x','id')])$x,c(0,.25,.5,.75,1), na.rm =TRUE),
                         include.lowest=TRUE,
                         labels=paste0("Q",c(1,2,3,4)))) %>%
-        dplyr::summarise( med = median(x,na.rm=TRUE),
+        dplyr::summarise( med = stats::median(x,na.rm=TRUE),
                    qlow =quantile(x,na.rm=TRUE,p=0.05),
                    q25=quantile(x,na.rm=TRUE,p=0.25),
                    q75=quantile(x,na.rm=TRUE,p=0.75),

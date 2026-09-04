@@ -573,17 +573,32 @@
     )
   }
 
+  # ---- Reproducible per-replicate RNG streams (Finding #5) -------------------
+  # Derive a per-replicate L'Ecuyer-CMRG seed vector from `seed` and apply it
+  # uniformly to BOTH the sequential and parallel paths, so scm_bootstrap()
+  # returns identical resamples for the same seed regardless of `parallel`.
+  # The caller's RNG kind and .Random.seed are saved and restored on exit so the
+  # internal switch to L'Ecuyer-CMRG does not leak into the caller's session.
+  # Stream generation and state save/restore are factored into the shared
+  # helper .make_rng_streams() (see R/rng_helpers.R), which vpc_logistic() reuses.
+  rng     <- .make_rng_streams(n_boot, seed)
+  on.exit(rng$restore(), add = TRUE)
+  streams <- rng$streams
+
   if (parallel) {
+    # future.seed accepts a list of pre-generated L'Ecuyer-CMRG streams; this is
+    # the officially supported way to inject them and guarantees parity with the
+    # sequential path below.
     future.apply::future_lapply(
       seq_len(n_boot),
       worker_fn,
-      future.seed = seed
+      future.seed = streams
     )
   } else {
-    set.seed(seed)
     results <- vector("list", n_boot)
     cli::cli_progress_bar("Bootstrapping SCM", total = n_boot)
     for (i in seq_len(n_boot)) {
+      assign(".Random.seed", streams[[i]], envir = .GlobalEnv)
       results[[i]] <- worker_fn(i)
       cli::cli_progress_update()
     }

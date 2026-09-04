@@ -489,5 +489,16 @@ make_bin_labels <- function(breaks, var_spec, col_name) {
   if (transform == "median_scaled") return(function(x) x * mp)
   if (transform == "median_scaled_and_centered") return(function(x) (x + 1.0) * mp)
   if (transform == "log_transformed") return(exp)
-  identity
+
+  # Unrecognized transform: previously fell through to identity(), silently
+  # producing wrong-scale axis/bin labels with no diagnostic. The set of valid
+  # transforms is closed (set internally by scm_glm/scm_coxph and parse_var_spec)
+  # so an unknown value here indicates a typo or an unsupported spec, which we
+  # surface loudly rather than mislabel.
+  known_transforms <- c("none", "centered", "median_scaled",
+                        "median_scaled_and_centered", "log_transformed")
+  cli::cli_abort(c(
+    "Unrecognized {.field transform} {.val {transform}} for column {.val {col_name}}.",
+    "i" = "Known transforms: {.val {known_transforms}}."
+  ))
 }

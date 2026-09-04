@@ -713,7 +713,7 @@ plot.scm_bootstrap <- function(x,
 
   # Factor for ordering (highest prob at top of horizontal bar)
   df$term_fct <- factor(df$term,
-                        levels = rev(df$term[order(df$inclusion_prob)]))
+                        levels = rev(df$term[base::order(df$inclusion_prob)]))
 
   colour_map <- c(
     stable   = "#2E8B57",
@@ -847,7 +847,7 @@ plot.scm_bootstrap <- function(x,
   df$ci_upper <- ci_mat["upper", ]
 
   df$exposure_fct <- factor(df$exposure_var,
-                            levels = rev(df$exposure_var[order(df$selection_prob)]))
+                            levels = rev(df$exposure_var[base::order(df$selection_prob)]))
 
   p <- ggplot2::ggplot(
     df,

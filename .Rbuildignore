@@ -6,3 +6,5 @@
 ^docs$
 ^examples$
 ^\.github$
+^\.vscode$
+^reports$

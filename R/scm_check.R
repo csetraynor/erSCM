@@ -60,12 +60,11 @@
   x <- run_summary
   Relation <- relation
   if (!all(is.na(x$Run[x$Model == x$SELECT]))) {
-    finalforward <- x$Run[x$Model == x$SELECT]
+    finalforward <- x$Run[x$Model == x$SELECT][1L]
     Relation <- c(Relation, x$Model[x$Model == x$SELECT])
   } else {
-    finalforward <- NA
+    finalforward <- NA_real_
     Relation <- Relation
-    final_fit <- x
   }
   flagforst <- FALSE
   if (any(!is.na(x$Run[x$Model == x$SELECT]))) {

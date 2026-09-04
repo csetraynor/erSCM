@@ -10,7 +10,7 @@ utils::globalVariables(c(
 "predicted_prob", "term_value",
 
 # scm_bootstrap_methods
-"stability_class", "ci_lower", "ci_upper", "term_type",
+"stability_class",
 "row_var", "col_var", "co_inclusion_value",
 "in_original", "label_text", "inclusion_prob",
 "term_fct", "fill_val", "tile_col",
@@ -27,11 +27,11 @@ utils::globalVariables(c(
 "finalforward", "flagforst", "group", "group_level", "group_level_f",
 "hi", "id", "label", "lo", "logLik", "lower", "lower2", "med",
 "medcov", "median_point", "mid", "min2LL", "n", "n.event", "name",
-"nobs", "order", "origin", "paramname", "pvalue", "qhigh", "qlow",
+"nobs", "origin", "paramname", "pvalue", "qhigh", "qlow",
 "quartile_cat", "quartile_mean", "row", "se.coef.", "std.error",
 "strata", "term", "time", "toto_tot", "units", "upper", "upper2",
 "val", "value", "x", "2.5 %", "97.5 %", "p.value", "statistic",
-":=", "desc", "all_of", "median",
+":=",
 
 # plot_nonlinear
 "x_val", "predicted", "ci_lower_nl", "ci_upper_nl", "observed",
@@ -40,7 +40,7 @@ utils::globalVariables(c(
 "prop", "transform", "transform_fct", "variable_fct",
 
 # scm_bootstrap_helpers (Phase 6 -- categorical diagnostics)
-"variable", "level", "n_obs", "n_events", "issue",
+"variable", "n_events", "issue",
 
 # scm_bootstrap (Phase 6 -- convergence issues tibble)
 "replicate", "reason",

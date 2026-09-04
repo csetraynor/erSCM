@@ -22,6 +22,9 @@
 #'   \code{"log(CMAX)"}).
 #' @keywords internal
 .fp_term <- function(var_name, power) {
+  if (!is.finite(power)) {
+    cli::cli_abort(".fp_term(): power must be a finite numeric; got {.val {power}}.")
+  }
   if (power == 0) {
     paste0("log(", var_name, ")")
   } else if (power == 1) {
@@ -245,6 +248,19 @@
   degree <- as.integer(degree)
   if (!degree %in% 1L:2L) {
     cli::cli_abort("{.arg degree} must be 1 or 2, got {.val {degree}}.")
+  }
+
+  # Screen candidate powers against the allowed FP power set. An element not in
+  # `.FP_POWERS` (including NA/non-finite) would otherwise flow into `.fp_term`
+  # and either error obscurely or build an invalid formula fragment.
+  bad_powers <- fp_powers[!fp_powers %in% .FP_POWERS]
+  if (length(bad_powers) > 0) {
+    allowed_powers <- .FP_POWERS
+    cli::cli_abort(c(
+      "{.arg fp_powers} contains {length(bad_powers)} value{?s} outside the allowed FP power set.",
+      "x" = "Offending value{?s}: {.val {bad_powers}}.",
+      "i" = "Allowed powers: {.val {allowed_powers}}."
+    ))
   }
 
   # Build list of candidate term sets

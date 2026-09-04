@@ -1,0 +1,188 @@
+---
+title: "Confidence-Band Diagnostics for Cox Models with vpc_coxph()"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Confidence-Band Diagnostics for Cox Models with vpc_coxph()}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+After fitting a Cox model and reviewing covariate-effect panels, analysts usually ask a practical follow-up: how tight is the model-implied survival curve, and does the observed Kaplan-Meier pattern in each stratum actually sit where that model says it should? This vignette addresses that question with `vpc_coxph()` on the bundled `demo_eres` cohort, using the same body-weight framing as the paired Cox and logistic vignettes so comparisons stay intuitive. The emphasis is interpretation, not mechanics: what agreement between observed KM and fitted-curve confidence bands can support, what persistent departures may signal, and where this diagnostic stops. You should read the figure as an observed-curve versus fitted-curve uncertainty comparison at reference profiles, then decide whether the pattern is locally reassuring or systematically concerning before moving to broader model checks.
+
+> **What this diagnostic is:** A confidence-band diagnostic that overlays fitted survival curves at reference covariate profiles (with `survfit` confidence bands) on observed Kaplan-Meier curves stratified by covariate.  
+> **What it is not:** It is not a simulation-based predictive check; the band reflects precision of the fitted reference-profile curve, not a predictive band for future observations across the population.  
+> **For a predictive check:** See the simulation-based logistic analogue in `vpc_logistic()` and the planned Cox predictive path in `reports/vpc_coxph_v2_plan.md`.
+
+> **A note on evaluation.** The code in this vignette is shown for illustration and is **not executed** when the vignette is built. Outputs shown below are illustrative structure only and are reproducible locally by running the chunks in an interactive session.
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse   = TRUE,
+  comment    = "#>",
+  fig.width  = 7,
+  fig.height = 5,
+  eval       = FALSE
+)
+```
+
+## 1  Setup and model fit
+
+This vignette reuses the same dataset and weight-oriented framing as
+`vignette("cox-covariate-effect-plots", package = "erSCM")` so the two can be
+read side by side.
+
+```{r load}
+# library(erSCM)
+devtools::document()
+data("demo_eres")
+
+demo_eres <- demo_eres |>
+  dplyr::mutate(SEX = as.factor(SEX))
+```
+
+Variable metadata is declared once and then reused in plot labels and stratum
+captions.
+
+```{r var-spec}
+my_spec <- parse_var_spec(c(
+  CMAXss = "Cmax,ss (ng/mL)",
+  WT     = "Body Weight (kg)",
+  AGE    = "Age (years)",
+  SEX    = "Sex"
+))
+```
+
+## 2  Primary illustrative path: categorical stratification
+
+The fully supported v1 workflow is categorical stratification. To make that path
+explicit, we derive a weight-category factor from `WT` and fit a Cox SCM using
+that categorical term.
+
+```{r make-wt-group}
+demo_eres_cat <- demo_eres |>
+  dplyr::mutate(
+    WT_GROUP = factor(
+      dplyr::ntile(WT, 4),
+      levels = 1:4,
+      labels = c("Q1 (lowest WT)", "Q2", "Q3", "Q4 (highest WT)"),
+      ordered = TRUE
+    )
+  )
+```
+
+```{r fit-cox-categorical}
+surv_fit_cat <- scm_coxph(
+  eres_data          = demo_eres_cat,
+  exposure_vars      = "CMAXss",
+  covariates         = c("WT_GROUP", "AGE", "SEX"),
+  dv_col             = "sim_status",
+  time_col           = "sim_time",
+  significance_level = c(0.1, 0.05),
+  var_spec           = my_spec,
+  center             = TRUE
+)
+```
+
+```{r vpc-coxph-primary}
+vpc_coxph(surv_fit_cat)
+```
+
+> **Figure 1.** Figure 1 compares observed Kaplan-Meier survival curves with fitted Cox reference-profile survival curves and their confidence bands over time, faceted by stratum, so agreement is read as observed-curve alignment with fitted-curve uncertainty rather than as a population predictive band check.
+
+`vpc_coxph()` keeps strata in ordered facet sequence rather than lexical label
+order, so multi-panel comparisons are read in covariate order, not string order.
+
+## 3  Reading the visual comparison
+
+`vpc_coxph()` shows one observed Kaplan-Meier step curve and one fitted survival
+curve (with confidence ribbon) per stratum, over time. Read each panel as a
+curve-versus-curve comparison with uncertainty around the fitted curve. Focus on
+whether observed KM stays mostly inside the fitted band over the clinically
+relevant range, where the band widens as risk sets thin, and whether any
+departure is local (for example, only in the late tail) or systematic across the
+whole trajectory.
+
+Good agreement looks like KM tracking within the confidence ribbon for most of
+the timeline, with wider uncertainty where fewer subjects remain at risk.
+Systematic disagreement, such as KM persistently above or below the fitted band
+in one stratum, is a diagnostic signal for possible unmodelled heterogeneity,
+functional-form mismatch, or pressure on proportional-hazards assumptions.
+
+The limit is important and deliberate: this band is confidence around the fitted
+reference-profile curve, not a predictive population band for future outcomes.
+Agreement is therefore consistent with model adequacy for this narrower
+question, but it does not by itself establish full predictive calibration.
+
+## 4  The default call and return shape
+
+The default API remains unchanged (`ci = 0.95`, `n_bins = 1`, `plot = TRUE`).
+
+```{r fit-cox-default}
+surv_fit_default <- scm_coxph(
+  eres_data          = demo_eres,
+  exposure_vars      = "CMAXss",
+  covariates         = c("WT", "AGE", "SEX"),
+  dv_col             = "sim_status",
+  time_col           = "sim_time",
+  significance_level = c(0.05, 0.01),
+  var_spec           = my_spec,
+  center             = TRUE
+)
+```
+
+```{r vpc-coxph-default}
+vpc_coxph(surv_fit_default)
+```
+
+Set `plot = FALSE` to retrieve the long data frame behind the figure.
+
+```{r vpc-coxph-data}
+vpc_df <- vpc_coxph(surv_fit_cat, plot = FALSE)
+```
+
+Illustrative structure; run locally to reproduce:
+
+```text
+# data.frame (~120 rows x 6 columns)
+# one row per time step per stratum per curve origin
+# columns: time, estimate, conf.low, conf.high, strata, origin
+```
+
+## 5  Supported and deferred stratification paths
+
+In v1, categorical stratification is the intended path and is fully supported.
+By design, `n_bins > 1` for models with numeric main-effect terms raises a clear
+error. That behavior is intentional and prevents silent misuse of a deferred
+path. The planned numeric-binning design and simulation-based predictive-check
+extension are tracked in `reports/vpc_coxph_v2_plan.md`.
+
+## 6  How this differs from vpc_logistic()
+
+The logistic and Cox VPCs are intentionally different diagnostics because their
+observed objects differ. `vpc_logistic()` is a simulation-based calibration check
+that compares observed per-bin event proportions to a simulated predictive band.
+`vpc_coxph()` v1 compares observed KM curves with fitted survival curves and
+confidence bands at reference profiles. In short: logistic v1 is band-versus-
+points predictive calibration, while Cox v1 is observed-curve-versus-fitted-
+curve confidence diagnostics.
+
+## 7  What this diagnostic does not do
+
+`vpc_coxph()` in its current form is deliberately an analytical confidence-band
+diagnostic, not a simulation-based predictive VPC. It tells you how observed
+Kaplan-Meier trajectories compare with fitted reference-profile survival curves
+and their uncertainty, stratum by stratum. That is useful and often
+informative, but it does not directly answer whether the model reproduces
+population survival variation under repeated sampling. A simulation-based Cox
+predictive-check path is planned and scoped separately in
+`reports/vpc_coxph_v2_plan.md`.
+
+## See also
+
+- `vignette("cox-covariate-effect-plots", package = "erSCM")` for the
+  covariate-effect counterpart on the same cohort and weight framing.
+- `vignette("vpc-logistic", package = "erSCM")` for the logistic
+  simulation-based predictive-check analogue.
+- `plot_cox_terms()` for covariate-effect term plots with observed/predicted
+  overlays.
+- `scm_coxph()` for the Cox SCM fit consumed by this diagnostic.

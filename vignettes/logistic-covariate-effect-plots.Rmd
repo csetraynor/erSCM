@@ -1,0 +1,163 @@
+---
+title: "Visualising Logistic Covariate Effects"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Visualising Logistic Covariate Effects}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  eval      = FALSE
+)
+```
+
+> **A note on evaluation.** The code in this vignette is shown for illustration
+> and is **not executed** when the vignette is built, so no figures or printed
+> output are embedded here. Every chunk runs as-is against the bundled
+> `demo_eres` dataset; copy them into an interactive session to reproduce the
+> diagnostics locally.
+
+## 1  A diagnostic question, not an inferential one
+
+A fitted logistic model is only as trustworthy as the picture it paints. After a
+stepwise covariate search settles on body weight as a predictor of the binary
+safety endpoint, the natural next question is diagnostic rather than inferential:
+does the model's predicted event probability actually track the observed rates we
+see in the data, stratum by stratum? In this vignette we fit an exposure–safety
+logistic model to the bundled `demo_eres` cohort, attach human-readable weight
+labels through a variable specification, and compare predicted probability curves
+against binned observed event rates across weight strata. The emphasis is on
+getting the comparison *right* — ensuring the axis and bin labels reflect the
+original weight scale, so that "≤ 62" and "> 80" mean exactly what a clinician
+expects, whether we use a handful of bins or many.
+
+This vignette is the logistic-regression companion to
+`vignette("cox-covariate-effect-plots", package = "erSCM")`. It uses the same
+cohort and the same weight-stratification idea so the two diagnostics read in
+parallel.
+
+## 2  Setup
+
+```{r load}
+library(erSCM)
+data("demo_eres")
+
+demo_eres <- demo_eres |>
+  dplyr::mutate(SEX = as.factor(SEX))
+```
+
+As on the Cox side, variable metadata is declared once and reused for the plot
+labels.
+
+```{r var-spec}
+my_spec <- parse_var_spec(c(
+  CMAXss = "Cmax,ss (ng/mL)",
+  WT     = "Body Weight (kg)",
+  AGE    = "Age (years)",
+  SEX    = "Sex"
+))
+```
+
+## 3  Fit the logistic SCM
+
+```{r fit-glm}
+lr_fit <- scm_glm(
+  eres_data          = demo_eres,
+  exposure_vars      = "CMAXss",
+  covariates         = c("WT", "AGE", "SEX"),
+  dv_col             = "sim_status",
+  significance_level = c(0.05, 0.01),
+  var_spec           = my_spec,
+  center             = TRUE
+)
+```
+
+## 4  Predicted probability vs. observed rates by weight
+
+`plot_logistic_terms()` draws the smooth predicted-probability curve with a
+confidence ribbon and overlays binned observed event rates. The binning follows
+the same quantile logic used on the Cox side, so the two vignettes describe the
+weight axis identically.
+
+```{r plot-glm-default}
+plot_logistic_terms(lr_fit, "WT")
+```
+
+The binned observed points carry back-transformed weight labels on the original
+scale. Those labels are produced from a small, explicit vocabulary of
+transformations — none, centred, median-scaled, median-scaled-and-centred, and
+log-transformed — and the function stops with a clear error rather than emitting a
+mislabelled axis if it is ever handed an unrecognised transform. In practice this
+means "≤ 62" and "> 80" always denote kilograms, never a centred or scaled proxy.
+
+## 5  Finer bins and the raw components
+
+As with the Cox term plot, increasing `n_bins` keeps the labels on the original
+scale and keeps each observed point aligned with the interval it summarises.
+
+```{r plot-glm-fine, fig.height = 6}
+plot_logistic_terms(lr_fit, "WT", n_bins = 12)
+```
+
+Set `plot = FALSE` to retrieve the prediction grid and the binned observations as
+tibbles, ready for bespoke plotting or tabulation.
+
+```{r plot-glm-data}
+glm_parts <- plot_logistic_terms(lr_fit, "WT", plot = FALSE)
+head(glm_parts$predictions)
+head(glm_parts$observed)
+```
+
+## 6  Non-linear covariate forms via the fitting API
+
+Body weight need not enter linearly. The fractional-polynomial and spline
+machinery is exposed through the `scm_glm()` fitting arguments, so a non-linear
+weight effect is requested at fit time and then visualised with the same term
+plot. The candidate powers for the fractional polynomial are validated against
+the supported set `c(-2, -1, -0.5, 0, 0.5, 1, 2, 3)`, and an out-of-set power is
+rejected rather than silently coerced.
+
+```{r fit-glm-nonlinear}
+lr_fit_nl <- scm_glm(
+  eres_data          = demo_eres,
+  exposure_vars      = "CMAXss",
+  covariates         = c("WT", "AGE"),
+  dv_col             = "sim_status",
+  significance_level = c(0.05, 0.01),
+  var_spec           = my_spec,
+  center             = TRUE,
+  nonlinear          = list(WT = c("linear", "log", "fp2")),
+  linearity_alpha    = 0.05,
+  fp_powers          = c(-2, -1, -0.5, 0, 0.5, 1, 2, 3)
+)
+```
+
+`plot_nonlinear_effect()` renders the selected functional form for `WT`; see
+`vignette("nonlinear-transformations", package = "erSCM")` for the full treatment
+of the non-linear search.
+
+```{r plot-glm-nonlinear}
+plot_nonlinear_effect(lr_fit_nl, "WT", scale = "link", rug = TRUE)
+```
+
+## 7  A note on quiet internals
+
+As on the Cox side, the grouped summaries and joins that build these diagnostics
+are silent by construction: `plot_logistic_terms()` does not print `dplyr`
+"joining by" messages or grouped-output notes, so it is safe to embed in reports
+and loops.
+
+## See also
+
+- `vignette("cox-covariate-effect-plots", package = "erSCM")` — the
+  time-to-event counterpart, built on the same cohort and stratification.
+- `vignette("nonlinear-transformations", package = "erSCM")` — the full
+  fractional-polynomial and spline search behind `nonlinear`, `fp_powers`, and
+  `spline_df`.
+- `plot_model_terms()` for a class-dispatching wrapper over the term plots.

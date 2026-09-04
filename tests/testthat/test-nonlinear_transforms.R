@@ -7,6 +7,24 @@ test_that(".fp_term generates correct formula for various powers", {
   expect_identical(.fp_term("X", -2),   "I(X^(-2))")
 })
 
+test_that(".fp_term aborts on non-finite power (NA / Inf / -Inf)", {
+  # A valid finite power still succeeds.
+  expect_identical(.fp_term("X", 3), "I(X^(3))")
+  # Non-finite powers previously produced an invalid term or `if (NA)` error.
+  expect_error(.fp_term("X", NA_real_), "finite numeric")
+  expect_error(.fp_term("X", Inf),      "finite numeric")
+  expect_error(.fp_term("X", -Inf),     "finite numeric")
+})
+
+test_that(".find_best_fp rejects fp_powers outside the allowed FP power set", {
+  dat <- .make_test_data_glm(n = 50, seed = 1)
+  expect_error(
+    .find_best_fp("AGE", degree = 1L, current_rhs = "1", data = dat,
+                  response_lhs = "DV", fp_powers = c(0.5, 4)),
+    "allowed FP power set"
+  )
+})
+
 test_that(".fp2_terms handles distinct powers", {
   terms <- .fp2_terms("AGE", -1, 2)
   expect_length(terms, 2L)

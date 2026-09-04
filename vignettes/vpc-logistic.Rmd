@@ -1,0 +1,181 @@
+---
+title: "Calibration Checks for Logistic Models with vpc_logistic()"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Calibration Checks for Logistic Models with vpc_logistic()}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  eval      = FALSE
+)
+```
+
+> **A note on evaluation.** The code in this vignette is shown for illustration
+> and is **not executed** when the vignette is built, so no figures or printed
+> output are embedded here. Every chunk runs as-is against the bundled
+> `demo_eres` dataset; copy them into an interactive session to reproduce the
+> diagnostics locally.
+
+## 1  A curve that will not sit on the points
+
+At the end of `vignette("logistic-covariate-effect-plots", package = "erSCM")`, a
+natural question surfaces: the smooth probability curve from
+`plot_logistic_terms()` does not sit neatly on top of the binned observed rates —
+so is the model wrong? Almost always, no. That plot is a *covariate-effect*
+picture: it sweeps body weight across its range while holding every other
+covariate at a reference value (a median for numeric predictors, a mode for
+categorical ones), so the curve describes one idealised patient profile, not the
+mixed population the points summarise. The comparison the eye wants to make there
+— curve against cloud — is simply not the comparison the plot is built for. To
+ask whether the model *reproduces the observed event rates*, we need a predictive
+check that simulates data under the fitted model and compares it, like for like,
+against what we saw. That is what `vpc_logistic()` provides.
+
+## 2  Setup and fit
+
+We reuse the exact model from the covariate-effect vignette, on the same cohort
+and the same weight predictor, so the two diagnostics can be read side by side.
+
+```{r load}
+#library(erSCM)
+devtools::document()
+data("demo_eres")
+
+demo_eres <- demo_eres |>
+  dplyr::mutate(SEX = as.factor(SEX))
+
+my_spec <- parse_var_spec(c(
+  CMAXss = "Cmax,ss (ng/mL)",
+  WT     = "Body Weight (kg)",
+  AGE    = "Age (years)",
+  SEX    = "Sex"
+))
+
+lr_fit <- scm_glm(
+  eres_data          = demo_eres,
+  exposure_vars      = "CMAXss",
+  covariates         = c("WT", "AGE", "SEX"),
+  dv_col             = "sim_status",
+  significance_level = c(0.05, 0.01),
+  var_spec           = my_spec,
+  center             = TRUE
+)
+```
+
+## 3  Reproducing the impression
+
+`plot_logistic_terms()` draws the model-implied probability curve, with a
+confidence ribbon around that curve, and overlays binned observed event rates for
+context.
+
+```{r plot-effect}
+plot_logistic_terms(lr_fit, "WT")
+```
+
+> **Figure 1.** A covariate-effect plot: the smooth curve is the model's
+> predicted event probability across body weight at a fixed reference profile —
+> read the *shape of the curve*, not the gap between the curve and the binned
+> points.
+
+The ribbon here quantifies uncertainty about *the curve*, evaluated with age,
+sex, and exposure pinned at their reference values. Each binned point, by
+contrast, aggregates patients whose other covariates vary freely. The curve and
+the cloud therefore describe different populations, and expecting them to overlap
+tightly asks the plot to answer a question it was never posed.
+
+## 4  The right tool: a visual predictive check
+
+`vpc_logistic()` reframes the question as one of calibration. For each of
+`n_sim` replicates it draws a coefficient vector from the fitted model's sampling
+distribution (a parametric bootstrap using the variance–covariance matrix of the
+coefficients), evaluates the implied event probabilities on the **observed**
+design, simulates binary outcomes, and records the event proportion within each
+weight bin. The pointwise 5th, 50th, and 95th percentiles of those simulated
+proportions form a prediction band, which is then compared against the observed
+proportion in the same bins.
+
+```{r vpc-call}
+vpc_logistic(lr_fit, "WT", n_bins = 4, n_sim = 300)
+```
+
+> **Figure 2.** A visual predictive check: the shaded band is the 5th–95th
+> percentile of simulated event proportions per weight bin, and the points are
+> observed proportions with Wilson intervals — calibration is judged by whether
+> the *points fall inside the band*, not by any curve.
+
+The `n_sim = 300` above keeps the snippet quick; the function default is `1000`,
+and larger values give a smoother band. Set `plot = FALSE` to obtain the per-bin
+summary behind the figure — one row per bin, with the observed rate and its
+Wilson interval alongside the simulated band edges.
+
+```{r vpc-data}
+vpc_tbl <- vpc_logistic(lr_fit, "WT", n_bins = 4, n_sim = 300, plot = FALSE)
+vpc_tbl
+```
+
+The following is illustrative output from a smoke run during `vpc_logistic()`
+implementation (`n_sim = 80`, so the band edges are indicative rather than
+re-rendered at knit time; the observed columns do not depend on `n_sim` or the
+seed). Because the fit uses `center = TRUE`, the `bin` intervals and `mean_x` are
+on the centred weight scale, while the plotted x-axis is back-transformed to
+kilograms through the variable specification.
+
+```
+# A tibble: 4 x 11
+  bin           level          mean_x     n events obs_rate obs_lo obs_hi sim_lo sim_mid sim_hi
+  <ord>         <chr>           <dbl> <int>  <dbl>    <dbl>  <dbl>  <dbl>  <dbl>   <dbl>  <dbl>
+1 [-20.4,-8.89] [-20.4,-8.89]  -15.3     35     20    0.571  0.434  0.699  0.343   0.486  0.716
+2 (-8.89,0]     (-8.89,0]       -4.16    35     25    0.714  0.577  0.821  0.657   0.771  0.857
+3 (0,9.08]      (0,9.08]         3.67    35     30    0.857  0.734  0.929  0.743   0.886  0.971
+4 (9.08,38.4]   (9.08,38.4]     17.6     35     35    1      0.928  1      0.884   0.971  1
+```
+
+(Source: `reports/assets/2026-08-27/vpc_logistic_WT_smoke.csv`.)
+
+## 5  Reading the two plots
+
+The figures answer different questions and reward different eyes. In Figure 1 the
+object of interest is a single smooth curve with a ribbon *around the model
+curve*, evaluated at one reference profile; the overlaid points are context, not
+a calibration target, because each aggregates patients whose other covariates
+differ from that fixed reference. Follow the shape of the curve, not the gap to
+the cloud.
+
+In Figure 2 the object is a *band of simulated event proportions* per bin,
+evaluated on the observed design, with observed proportions and Wilson intervals
+overlaid. The comparison is deliberately band versus points. Good calibration
+looks like roughly ninety per cent of observed points falling inside the 5–95%
+band, with no systematic drift above or below the median across bins, and the
+band widening where a bin is sparse or the covariate reaches beyond its bulk. A
+mis-calibration signal is the opposite: observed points sitting consistently on
+one side of the band (bias), or observed scatter that a suspiciously tight band
+cannot cover (an over-confident model). The covariate-effect plot cannot show
+this, because its fixed reference profile does not represent the marginal event
+rate the point cloud embodies.
+
+## 6  Reproducibility
+
+`vpc_logistic()` is seeded (`seed = 42` by default) and derives one independent
+random-number stream per replicate, so a given seed reproduces the same band
+whether `parallel = FALSE` or, with a `future::plan(future::multisession)` in
+place, `parallel = TRUE`; the caller's RNG state is restored on exit. This is the
+same Phase D reproducibility guarantee that `scm_bootstrap()` carries, and for
+the same reason results from earlier package versions do not reproduce
+bit-for-bit — see `NEWS.md` for the details.
+
+## See also
+
+- `vignette("logistic-covariate-effect-plots", package = "erSCM")` — the
+  covariate-effect companion, built on the same cohort and weight predictor;
+  Figure 1 above is drawn from it.
+- `plot_logistic_terms()` — the covariate-effect plot itself.
+- `vpc_coxph()` — the time-to-event counterpart, a population-level visual
+  predictive check for a fitted Cox model.
+- `scm_glm()` — the stepwise logistic fit that both diagnostics consume.

@@ -83,7 +83,7 @@ plot_cox_terms <- function(fit, covariate_term, ci = 0.95, n_bins = 4, plot = TR
   
   ref_data <-   tmp_data %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(finalCharacters))) %>%
-    dplyr::summarise( dplyr::across(dplyr::all_of(finalNumeric), ~ mean(.x, na.rm = TRUE)), n = dplyr::n() ) %>%
+    dplyr::summarise( dplyr::across(dplyr::all_of(finalNumeric), ~ mean(.x, na.rm = TRUE)), n = dplyr::n(), .groups = "drop" ) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(dplyr::across(dplyr::all_of(finalCharacters), ~ factor(as.character(.x), levels = sort(unique(as.character(.x)))))) %>%
     dplyr::arrange(dplyr::across(dplyr::all_of(finalCharacters))) %>%
@@ -94,7 +94,7 @@ plot_cox_terms <- function(fit, covariate_term, ci = 0.95, n_bins = 4, plot = TR
     ref_data <-   ref_data %>%
       tidyr::pivot_longer(dplyr::all_of(finalCharacters)) %>%
       dplyr::group_by(name) %>%
-      dplyr::filter(n > quantile(n, .8)) %>%
+      dplyr::filter(n > stats::quantile(n, .8)) %>%
       dplyr::filter(dplyr::row_number() == 1) %>%
       dplyr::ungroup() %>%
       tidyr::pivot_wider(names_from = "name", values_from = "value")
@@ -105,7 +105,7 @@ plot_cox_terms <- function(fit, covariate_term, ci = 0.95, n_bins = 4, plot = TR
     ref_data <-   ori_data %>%
       dplyr::select(-TIME, -DV) %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(finalCharacters))) %>%
-      dplyr::summarise( dplyr::across(dplyr::all_of(finalNumeric), ~ mean(.x, na.rm = TRUE)), n = dplyr::n() ) %>%
+      dplyr::summarise( dplyr::across(dplyr::all_of(finalNumeric), ~ mean(.x, na.rm = TRUE)), n = dplyr::n(), .groups = "drop" ) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(ID = dplyr::row_number())
 
@@ -146,26 +146,45 @@ plot_cox_terms <- function(fit, covariate_term, ci = 0.95, n_bins = 4, plot = TR
     ref_data_expanded <- ori_data %>%
       dplyr::select(-TIME, -DV) %>%
       dplyr::group_by(.data$quartile_cat) %>%
-      dplyr::summarise(dplyr::across(tidyselect::where(is.numeric), stats::median)) %>%
-      dplyr::bind_cols(ref_data %>% dplyr::select(dplyr::all_of(finalCharacters) ) )
+      dplyr::summarise(dplyr::across(tidyselect::where(is.numeric), stats::median), .groups = "drop")
+
+    # Broadcast the single modal reference profile for any categorical covariate
+    # in the model across every numeric bin. Assert exactly one such profile row
+    # rather than relying on `bind_cols()`'s silent size-1 recycling, which
+    # errors cryptically (or mis-recycles) if the upstream modal-profile
+    # reduction did not collapse to one row.
+    ref_factor_profile <- ref_data %>% dplyr::select(dplyr::all_of(finalCharacters))
+    if (ncol(ref_factor_profile) > 0) {
+      if (nrow(ref_factor_profile) != 1) {
+        cli::cli_abort(c(
+          "Expected exactly one modal reference profile for the categorical covariate(s).",
+          "x" = "Got {nrow(ref_factor_profile)} row{?s} for {.val {finalCharacters}}.",
+          "i" = "The upstream modal-profile reduction did not collapse to a single row."
+        ))
+      }
+      ref_data_expanded <- dplyr::bind_cols(ref_data_expanded, ref_factor_profile)
+    }
 
     survformula <- "survival::Surv(TIME, DV) ~ quartile_cat"
 
   } else {
     
     ref_data_categorical <- ref_data %>% 
-      dplyr::select(dplyr::all_of(finalCharacters), -all_of(covariate_term) )
+      dplyr::select(dplyr::all_of(finalCharacters), -tidyselect::all_of(covariate_term) )
     
     if(ncol(ref_data_categorical) > 0) {
+      # Join key = the categorical covariates other than the one being stratified
+      # on (the right table is `ref_data` restricted to exactly those columns).
+      cat_join_keys <- base::setdiff(finalCharacters, covariate_term)
       ref_data_expanded <-  fit$model_data %>%
         dplyr::select(dplyr::all_of(main_effect_cols)) %>%
-        dplyr::inner_join(ref_data %>% dplyr::select(dplyr::all_of(finalCharacters), -dplyr::all_of(covariate_term) ) ) %>%
+        dplyr::inner_join(ref_data %>% dplyr::select(dplyr::all_of(finalCharacters), -dplyr::all_of(covariate_term) ), by = cat_join_keys ) %>%
         dplyr::group_by(dplyr::across(dplyr::all_of(finalCharacters))) %>%
         dplyr::summarise(dplyr::across(tidyselect::where(is.numeric), stats::median), .groups = "drop")
       
       ori_data <- fit$model_data %>%
         dplyr::select(TIME, DV, dplyr::all_of(main_effect_cols)) %>%
-        dplyr::inner_join(ref_data %>% dplyr::select(dplyr::all_of(finalCharacters), -dplyr::all_of(covariate_term) ) )
+        dplyr::inner_join(ref_data %>% dplyr::select(dplyr::all_of(finalCharacters), -dplyr::all_of(covariate_term) ), by = cat_join_keys )
       
       
     } else {
@@ -174,7 +193,7 @@ plot_cox_terms <- function(fit, covariate_term, ci = 0.95, n_bins = 4, plot = TR
         dplyr::mutate(dplyr::across(dplyr::all_of(finalCharacters), ~ factor(as.character(.x), levels = sort(unique(as.character(.x)))))) %>%
         dplyr::arrange(dplyr::across(dplyr::all_of(finalCharacters))) %>% 
         dplyr::group_by(dplyr::across(dplyr::all_of(covariate_term))) %>%
-        dplyr::summarise(dplyr::across(tidyselect::where(is.numeric), stats::median))
+        dplyr::summarise(dplyr::across(tidyselect::where(is.numeric), stats::median), .groups = "drop")
       
       ori_data <-  fit$model_data 
     }
@@ -196,7 +215,7 @@ plot_cox_terms <- function(fit, covariate_term, ci = 0.95, n_bins = 4, plot = TR
         dplyr::filter(dplyr::row_number() == 1) %>% 
         dplyr::mutate(n.event = 0, time = 0,
                       estimate = 1, conf.high = 1, conf.low = 1) ) %>%
-      dplyr::arrange(strata, time, desc(estimate))
+      dplyr::arrange(strata, time, dplyr::desc(estimate))
   }
 
   ci_label <- paste0("Cox model (",round(ci*100),"% CI)")
@@ -223,28 +242,58 @@ plot_cox_terms <- function(fit, covariate_term, ci = 0.95, n_bins = 4, plot = TR
   
   cox_ph <- base_surv %>% purrr::map(function(x) broom::tidy(x, conf.level = ci) %>% dplyr::mutate(origin = ci_label) ) %>%
     rlang::set_names(strata_names) %>% dplyr::bind_rows(.id = "strata")
-  
-  vpc_ds <- dplyr::bind_rows(obs, cox_ph) %>% dplyr::mutate(strata = base::gsub("=", "\n", strata) ) 
-  
-  if(is_covariate_numeric) {
-    vpc_ds <- vpc_ds %>% dplyr::mutate(strata = base::gsub("quartile_cat", legend_title, strata) )
-  } else {
-    # For categorical, replace raw column name with display label in strata strings
-    vpc_ds <- vpc_ds %>%
-      dplyr::mutate(strata = base::gsub(
-        paste0("^", covariate_term, "="), paste0(legend_title, "="), strata))
-    # Relabel factor levels in strata using var_spec categories if available
-    cats <- get_var_categories(var_spec_obj, covariate_term)
-    if (!is.null(cats)) {
-      for (raw_lev in names(cats)) {
-        vpc_ds <- vpc_ds %>%
-          dplyr::mutate(strata = base::gsub(
-            paste0("=\n", raw_lev, "$"), paste0("=\n", cats[[raw_lev]]), strata))
+
+  # Display-only label transformation. Encapsulated in a single function so the
+  # exact same steps are applied to (a) the plotted strata values and (b) the
+  # derived facet-level order below, guaranteeing they always agree. This does
+  # NOT alter label *content* and does NOT touch the identity-based strata join
+  # built above (Phase A).
+  transform_strata_labels <- function(s) {
+    s <- base::gsub("=", "\n", s)
+    if (is_covariate_numeric) {
+      s <- base::gsub("quartile_cat", legend_title, s)
+    } else {
+      # For categorical, replace raw column name with display label in strata strings
+      s <- base::gsub(paste0("^", covariate_term, "="), paste0(legend_title, "="), s)
+      # Relabel factor levels in strata using var_spec categories if available
+      cats <- get_var_categories(var_spec_obj, covariate_term)
+      if (!is.null(cats)) {
+        for (raw_lev in names(cats)) {
+          s <- base::gsub(paste0("=\n", raw_lev, "$"), paste0("=\n", cats[[raw_lev]]), s)
+        }
       }
     }
+    s
   }
-  
-  
+
+  vpc_ds <- dplyr::bind_rows(obs, cox_ph) %>%
+    dplyr::mutate(strata = transform_strata_labels(strata))
+
+  # Finding #3 (display-only): render facets in the bin/level order taken from
+  # `ref_data_expanded` (the identity source of truth used by the Phase A fix)
+  # instead of the lexical order of the transformed label strings. `strata_names`
+  # is built row-wise from `ref_data_expanded`, so it is already in
+  # numeric-ascending (numeric) / factor-level (categorical) order; applying the
+  # SAME label transform makes the level vector match the displayed labels
+  # exactly.
+  ordered_strata_levels <- unique(transform_strata_labels(strata_names))
+
+  # Never silently drop panels: every plotted stratum must map to a known level.
+  unmatched_strata <- base::setdiff(
+    unique(as.character(vpc_ds$strata)), ordered_strata_levels
+  )
+  if (length(unmatched_strata) > 0) {
+    cli::cli_abort(c(
+      "Internal error: plotted strata not found in the derived facet ordering.",
+      "x" = "Unmatched strata label{?s}: {.val {unmatched_strata}}.",
+      "i" = "This means {.var vpc_ds$strata} diverged from {.var ref_data_expanded} keys."
+    ))
+  }
+
+  vpc_ds <- vpc_ds %>%
+    dplyr::mutate(strata = factor(strata, levels = ordered_strata_levels, ordered = TRUE))
+
+
   if(!plot) {
     
     return(vpc_ds)

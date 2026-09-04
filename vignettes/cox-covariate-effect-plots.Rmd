@@ -1,0 +1,139 @@
+---
+title: "Visualising Cox Covariate Effects with Correct Strata"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Visualising Cox Covariate Effects with Correct Strata}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  eval      = FALSE
+)
+```
+
+> **A note on evaluation.** The code in this vignette is shown for illustration
+> and is **not executed** when the vignette is built, so no figures or printed
+> output are embedded here. Every chunk runs as-is against the bundled
+> `demo_eres` dataset; copy them into an interactive session to reproduce the
+> diagnostics locally.
+
+## 1  A diagnostic question, not an inferential one
+
+A fitted Cox model is only as trustworthy as the picture it paints. After a
+stepwise covariate search settles on body weight as a predictor of the
+time-to-event endpoint, the natural next question is diagnostic rather than
+inferential: does the model's predicted survival actually track what we observe
+in the data, stratum by stratum? In this vignette we fit an exposure–safety Cox
+model to the bundled `demo_eres` cohort, attach human-readable weight labels
+through a variable specification, and overlay observed Kaplan–Meier curves
+against model predictions across weight strata. The emphasis is on getting the
+overlay *right* — ensuring each predicted curve lands on the stratum it belongs
+to, even when weight bins carry back-transformed labels such as "≤ 62" and
+"> 80", and even when we ask for many narrow bins.
+
+## 2  Setup
+
+```{r load}
+library(erSCM)
+data("demo_eres")
+
+demo_eres <- demo_eres |>
+  dplyr::mutate(SEX = as.factor(SEX))
+```
+
+We define variable metadata once. `plot_cox_terms()` uses these labels for the
+axis titles and stratum captions, so the units the analyst sees on the plot are
+the units they specified here.
+
+```{r var-spec}
+my_spec <- parse_var_spec(c(
+  CMAXss = "Cmax,ss (ng/mL)",
+  WT     = "Body Weight (kg)",
+  AGE    = "Age (years)"
+))
+```
+
+## 3  Fit the Cox SCM
+
+```{r fit-cox}
+surv_fit <- scm_coxph(
+  eres_data          = demo_eres,
+  exposure_vars      = "CMAXss",
+  covariates         = c("WT", "AGE"),
+  dv_col             = "sim_status",
+  time_col           = "sim_time",
+  significance_level = c(0.05, 0.01),
+  var_spec           = my_spec,
+  center             = TRUE
+)
+```
+
+## 4  Observed vs. predicted survival by weight stratum
+
+`plot_cox_terms()` bins a numeric covariate into `n_bins` strata and, for each
+stratum, overlays the observed Kaplan–Meier step curve against the
+model-predicted survival curve with a confidence ribbon.
+
+```{r plot-cox-default}
+plot_cox_terms(surv_fit, "WT")
+```
+
+Each predicted curve is matched to its stratum **by identity**, not by relying
+on an incidental ordering of the panels. That distinction matters as soon as the
+labels are back-transformed to the original weight scale: a facet captioned
+"> 80" carries the prediction computed for patients above 80 kg, and the
+adjacent "≤ 62" facet carries the prediction for the lightest group. The panels
+are laid out in ascending numeric order rather than alphabetical string order,
+so "9–10" never sorts before "80–90".
+
+## 5  Asking for finer strata
+
+The same identity-based matching holds as the stratification becomes finer. Here
+we request twelve narrow weight bins:
+
+```{r plot-cox-fine, fig.height = 7}
+plot_cox_terms(surv_fit, "WT", n_bins = 12)
+```
+
+With many bins the labels span a wide numeric range, which is exactly the case
+where a purely lexicographic panel order would misorder the facets. The plot
+keeps the strata in numeric sequence and keeps each observed/predicted pair
+together.
+
+## 6  The underlying data frame
+
+Set `plot = FALSE` to obtain the tidy data behind the figure — one row per
+time point, stratum, and curve origin. This is convenient for custom layouts or
+for tabulating landmark survival probabilities.
+
+```{r plot-cox-data}
+cox_curves <- plot_cox_terms(surv_fit, "WT", plot = FALSE)
+head(cox_curves)
+```
+
+The returned frame carries a `strata` column whose labels match the facet
+captions exactly, and an `origin` column distinguishing the observed
+Kaplan–Meier curve from the model prediction — the same identity link that the
+plotted version relies on.
+
+## 7  A note on quiet internals
+
+Building these overlays involves several grouped summaries and joins. Those
+internal steps are deliberately silent: `plot_cox_terms()` does not emit
+`dplyr` "joining by" messages or grouped-output notes, so the function is safe to
+call inside reports and loops without polluting the console.
+
+## See also
+
+- `vignette("logistic-covariate-effect-plots", package = "erSCM")` — the
+  logistic-regression counterpart, built on the same `demo_eres` cohort and the
+  same weight-stratification idea.
+- `vpc_coxph()` for a population-level visual predictive check of the fitted Cox
+  model.
+- `plot_model_terms()` for a class-dispatching wrapper over the term plots.

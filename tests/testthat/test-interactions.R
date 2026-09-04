@@ -28,6 +28,21 @@ test_that("expand_interactions handles list with max_interaction_order = 3", {
   expect_true("B:C" %in% result)
 })
 
+test_that("expand_interactions with max_interaction_order = 1 yields no spurious terms", {
+  # Regression (Finding #7): the naive `2:min(max_interaction_order, ...)`
+  # descended to c(2, 1) when max_interaction_order == 1, emitting bogus
+  # 1-way "interactions". No interaction of order >= 2 is possible, so the
+  # result must be empty.
+  result <- expand_interactions(list(c("A", "B", "C")), max_interaction_order = 1)
+  expect_identical(result, character(0))
+
+  # And with multiple groups it must still be empty (never 1-way terms).
+  result2 <- expand_interactions(
+    list(c("A", "B"), c("C", "D", "E")), max_interaction_order = 1
+  )
+  expect_identical(result2, character(0))
+})
+
 test_that("expand_interactions rejects invalid input types", {
   expect_error(expand_interactions(42), "must be NULL, a character vector, or a list")
 })

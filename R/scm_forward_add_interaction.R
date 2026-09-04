@@ -1,3 +1,32 @@
+#' Extract the LRT p-value from an \code{anova()} comparison table
+#'
+#' Locates the p-value column by name so the extraction is robust to the
+#' differing \code{anova()} layouts of \code{glm} (column \code{"Pr(>Chi)"}) and
+#' \code{coxph} (column \code{"Pr(>|Chi|)"}) objects, rather than relying on a
+#' hard-coded positional index that silently breaks if the table layout changes.
+#'
+#' @param anova_tab An \code{anova} comparison table, e.g. the result of
+#'   \code{anova(null_fit, full_fit, test = "Chisq")}.
+#' @return Numeric scalar: the p-value from row 2 (the "vs. null/reduced" row,
+#'   matching the interaction-LRT usage).
+#' @keywords internal
+.anova_pvalue <- function(anova_tab) {
+  cols <- colnames(anova_tab)
+  # Locate the chi-square p-value column by name rather than a hard-coded
+  # positional index. The exact spelling differs by model class: `glm` anova()
+  # uses "Pr(>Chi)", while `survival::coxph` anova() uses "P(>|Chi|)" (some
+  # survival methods spell it "Pr(>|Chi|)"). The regex matches all variants.
+  pcol <- grep("^Pr?\\(>.*Chi", cols)
+  if (length(pcol) == 0L) {
+    cli::cli_abort(c(
+      "Could not locate the LRT p-value column in the {.fun anova} table.",
+      "x" = "No chi-square p-value column (e.g. {.val Pr(>Chi)}, {.val P(>|Chi|)}) is present.",
+      "i" = "Available columns: {.val {cols}}."
+    ))
+  }
+  anova_tab[2L, pcol[1L]]
+}
+
 #' Forward Addition of Interaction Terms (GLM)
 #'
 #' Executes a single forward-addition iteration for interaction terms in the SCM
@@ -149,7 +178,7 @@ scm_forward_add_interaction <- function(
 
     nul <- mod_nul
     fit <- mod_obj[[i]]
-    pval.fitx <- round(anova(nul, fit, test = "Chisq")[2, 5], 10)
+    pval.fitx <- round(.anova_pvalue(anova(nul, fit, test = "Chisq")), 10)
     out.tab$pvalue <- pval.fitx
     outtab <- rbind(outtab, out.tab)
   }
@@ -380,7 +409,7 @@ scm_forward_add_interaction_coxph <- function(
 
     nul <- mod_nul
     fit <- mod_obj[[i]]
-    pval.fitx <- round(anova(nul, fit, test = "Chisq")[2, 4], 10)
+    pval.fitx <- round(.anova_pvalue(anova(nul, fit, test = "Chisq")), 10)
     out.tab$pvalue <- pval.fitx
     outtab <- rbind(outtab, out.tab)
   }

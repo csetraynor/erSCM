@@ -170,14 +170,32 @@ disable all safeguards (restores pre-Phase-6 behavior).
 \section{Parallelisation}{
 
 When \code{parallel = TRUE}, the function uses
-\code{future.apply::future_lapply()} with \code{future.seed = seed} for
-reproducible parallel random number generation. Set up a parallel backend
-before calling:
+\code{future.apply::future_lapply()} with pre-generated per-replicate
+L'Ecuyer-CMRG streams (see the Reproducibility section) for reproducible
+parallel random number generation. Set up a parallel backend before calling:
 \preformatted{
 future::plan(future::multisession, workers = 4)
 stability <- scm_bootstrap(fit, n_boot = 500, parallel = TRUE)
 future::plan(future::sequential)  # reset
 }
+}
+
+\section{Reproducibility}{
+
+\code{scm_bootstrap()} returns \strong{identical resamples for the same
+\code{seed} regardless of the \code{parallel} argument}. Internally, a
+per-replicate seed vector of length \code{n_boot} is derived from \code{seed}
+using an L'Ecuyer-CMRG stream: the RNG kind is switched to
+\code{"L'Ecuyer-CMRG"}, \code{seed} is set, and successive streams are built
+with \code{parallel::nextRNGStream()}. The sequential path assigns stream
+\code{i} before generating replicate \code{i}; the parallel path injects the
+same streams via \code{future.apply::future_lapply(future.seed = )}. Because
+both paths consume the same streams, they produce bit-identical resamples.
+The caller's RNG kind and \code{.Random.seed} are saved on entry and restored
+on exit, so the internal L'Ecuyer-CMRG switch does not affect the caller's
+session. Note that results from prior package versions (which seeded the
+sequential and parallel paths independently) will not match the current
+implementation.
 }
 
 \examples{

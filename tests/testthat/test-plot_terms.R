@@ -289,3 +289,26 @@ test_that("make_bin_labels back-transforms centered breaks", {
   expect_true(grepl("80", labels[4]),
               info = paste("Labels:", paste(labels, collapse = "; ")))
 })
+
+test_that(".get_back_transform_fn aborts on an unrecognized transform", {
+  # NULL var_spec, unmatched column, and none/NA transforms still return identity.
+  expect_identical(.get_back_transform_fn(NULL, "WT"), identity)
+  spec_none <- tibble::tibble(
+    col_name = "WT", label = "Weight", units = "kg",
+    var_type = "continuous", categories = list(NULL),
+    transform = "none", median_point = NA_real_
+  )
+  expect_identical(.get_back_transform_fn(spec_none, "WT"), identity)
+  expect_identical(.get_back_transform_fn(spec_none, "UNKNOWN"), identity)
+
+  # A typo / unsupported transform now aborts rather than silently mislabelling.
+  spec_bad <- tibble::tibble(
+    col_name = "WT", label = "Weight", units = "kg",
+    var_type = "continuous", categories = list(NULL),
+    transform = "log_scaled", median_point = 70.0
+  )
+  expect_error(.get_back_transform_fn(spec_bad, "WT"), "Unrecognized")
+  expect_error(make_bin_labels(c(-20, -10, 0, 10, 20), spec_bad, "WT"),
+               "Unrecognized")
+})
+
