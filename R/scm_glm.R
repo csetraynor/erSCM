@@ -442,14 +442,6 @@ scm_glm <- function(eres_data,
   selected_exp <- utils::tail(checks_step1$Relation, 1)
   if (verbose) message("  Exposure variable selected: ", selected_exp)
 
-  # initialize lists to capture all forward steps
-  covariate_list <- list()
-  finalforward_list <- list()
-  toto_list <- list()
-  toto_tot_list <- list()
-  Relation_list <- list()
-  flagforst_list <- list()
-
   forward_count = 2
 
   flagforst <- checks_step1$flagforst
@@ -466,12 +458,6 @@ scm_glm <- function(eres_data,
     if (verbose) message("  Pre-loaded start_covariates: ", paste(start_covariates, collapse = ", "))
   }
 
-  covariate_list[[1]]    <- covariates_scm
-  finalforward_list[[1]] <- finalforward
-  toto_list[[1]]         <- checks_step1$toto_tot
-  toto_tot_list[[1]]     <- checks_step1$toto_tot
-  Relation_list[[1]]     <- Relation
-  flagforst_list[[1]]    <- flagforst
   current_model <- checks_step1
   current_model$Relation <- Relation
   # Carry transform_registry in current_model for the nonlinear path
@@ -613,12 +599,6 @@ scm_glm <- function(eres_data,
     }
   }
 
-  # while loop - take steps until no covariates are selected
-
-  # initialize lists to capture all forward steps
-  covariate_list<-list()
-  finalrunlist<-list()
-  toto_back<-list()
   finalrun<-finalforward
 
   backward_count = 1
@@ -863,7 +843,6 @@ scm_backward_delete <- function(
   modds <- eres_data
   tmp_ref <- current_model$finalforward
   toto_tot <- current_model$toto_tot
-  Relation_forwardlast <- unique(current_model$Relation)
   Relation         <- unique(current_model$Relation)
   covariates_back1 <- unique(current_model$Relation)
 
@@ -889,14 +868,12 @@ scm_backward_delete <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(covback1))
   mod_sum <- vector(mode = "list", length = length(covback1))
-  mod_coef <- vector(mode = "list", length = length(covback1))
   mod_metric <- vector(mode = "list", length = length(covback1))
   summ.list <- vector(mode = "list", length = length(covback1))
 
   for (i in seq_along(covback1)) {
     mod_obj[[i]] <- stats::glm(build_model_formula("DV", covback1[i]), data = modds, family = family)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- removable_back1[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }
@@ -1167,14 +1144,12 @@ scm_forward_add <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(tmp_cov_combo))
   mod_sum <- vector(mode = "list", length = length(tmp_cov_combo))
-  mod_coef <- vector(mode = "list", length = length(tmp_cov_combo))
   mod_metric <- vector(mode = "list", length = length(tmp_cov_combo))
   summ.list <- vector(mode = "list", length = length(tmp_cov_combo))
 
   for (i in seq_along(tmp_cov)) {
     mod_obj[[i]] <- stats::glm(build_model_formula("DV", tmp_cov_combo[i]), data = modds, family = family)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- tmp_cov[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }
@@ -1403,7 +1378,6 @@ scm_forward_first_step <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(exposure_vars))
   mod_sum <- vector(mode = "list", length = length(exposure_vars))
-  mod_coef <- vector(mode = "list", length = length(exposure_vars))
   mod_metric <- vector(mode = "list", length = length(exposure_vars))
   summ.list <- vector(mode = "list", length = length(exposure_vars))
 
@@ -1411,7 +1385,6 @@ scm_forward_first_step <- function(
     cand_rhs <- paste(c(adjust_for, exposure_vars[i]), collapse = "+")
     mod_obj[[i]] <- stats::glm(build_model_formula("DV", cand_rhs), data = modds, family = family)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- exposure_vars[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }
@@ -1606,14 +1579,12 @@ fit_univariate_models <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(covariates))
   mod_sum <- vector(mode = "list", length = length(covariates))
-  mod_coef <- vector(mode = "list", length = length(covariates))
   mod_metric <- vector(mode = "list", length = length(covariates))
   summ.list <- vector(mode = "list", length = length(covariates))
 
   for (i in seq_along(covariates)) {
     mod_obj[[i]] <- stats::glm(build_model_formula("DV", covariates[i]), data = modds, family = family)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- covariates[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }

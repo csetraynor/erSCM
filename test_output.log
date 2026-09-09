@@ -1,0 +1,1205 @@
+✔ | F W  S  OK | Context
+⠏ |          0 | adjust_for-display                                        ⠋ |          1 | adjust_for-display                                        ⠙ |          2 | adjust_for-display                                        ⠼ |          5 | adjust_for-display                                        ⠇ |          9 | adjust_for-display                                        ⠏ |         10 | adjust_for-display                                        ⠙ |         12 | adjust_for-display                                        ⠹ |         13 | adjust_for-display                                        ✔ |         13 | adjust_for-display [4.6s]
+⠏ |          0 | adjust_for                                                ⠙ |          2 | adjust_for                                                ⠹ |          3 | adjust_for                                                ⠸ |          4 | adjust_for                                                ⠴ |          6 | adjust_for                                                ⠦ |          7 | adjust_for                                                ⠇ |          9 | adjust_for                                                ⠏ |         10 | adjust_for                                                ⠋ |         11 | adjust_for                                                ✔ |         12 | adjust_for [18.8s]
+⠏ |          0 | centering                                                 ⠸ |          4 | centering                                                 ⠧ |          8 | centering                                                 ⠇ |          9 | centering                                                 ⠙ |         12 | centering                                                 ⠹ |         13 | centering                                                 ⠸ |         14 | centering                                                 ⠼ |         15 | centering                                                 ⠴ |      1  15 | centering                                                 ⠦ |      1  16 | centering                                                 ⠏ |      1  19 | centering                                                 ⠙ |      1  21 | centering                                                 ⠸ |      1  23 | centering                                                 ✔ |      1  24 | centering [7.6s]
+⠏ |          0 | forest_plot                                               ⠋ |          1 | forest_plot                                               ⠹ |   1      2 | forest_plot                                               ⠸ |   2      2 | forest_plot                                               ⠼ |   2      3 | forest_plot                                               ✔ |   2      3 | forest_plot [4.2s]
+───────────────────────────────────────────────────────────────────────────
+Warning ('test-forest_plot.R:28:3'): make_forest_plot does not error on glm result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(lr_search, plot = TRUE) at test-forest_plot.R:28:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-forest_plot.R:28:3'): make_forest_plot does not error on glm result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(lr_search, plot = TRUE) at test-forest_plot.R:28:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+───────────────────────────────────────────────────────────────────────────
+⠏ |          0 | interactions                                              ⠸ |          4 | interactions                                              ⠇ |          9 | interactions                                              ⠼ |         15 | interactions                                              ⠦ |         17 | interactions                                              ⠋ |         21 | interactions                                              ⠙ |         22 | interactions                                              ⠼ |         25 | interactions                                              ⠧ |         28 | interactions                                              ⠋ |         31 | interactions                                              ⠸ |         34 | interactions                                              ⠴ |      1  35 | interactions                                              ⠙ |      1  41 | interactions                                              ⠏ |      1  49 | interactions                                              ⠋ |      1  50 | interactions                                              ⠹ |   1  1  51 | interactions                                              ⠸ |   2  1  51 | interactions                                              ⠼ |   2  1  52 | interactions                                              ⠴ |   2  1  53 | interactions                                              ⠧ |   3  1  54 | interactions                                              ⠇ |   4  1  54 | interactions                                              ⠏ |   5  1  54 | interactions                                              ⠋ |   6  1  54 | interactions                                              ⠙ |   7  1  54 | interactions                                              ⠹ |   8  1  54 | interactions                                              ⠸ |   9  1  54 | interactions                                              ⠼ |   10  1  54 | interactions                                             ⠴ |   11  1  54 | interactions                                             ⠦ |   12  1  54 | interactions                                             ⠧ |   13  1  54 | interactions                                             ⠇ |   14  1  54 | interactions                                             ⠏ |   14  1  55 | interactions                                             ⠋ |   14  1  56 | interactions                                             ⠹ |   14  1  58 | interactions                                             ⠸ |   14  1  59 | interactions                                             ⠴ |   14  1  61 | interactions                                             ⠦ |   14  1  62 | interactions                                             ⠧ |   14  1  63 | interactions                                             ⠇ |   14  1  64 | interactions                                             ⠏ |   14  1  65 | interactions                                             ✔ |   14  1  72 | interactions [78.3s]
+───────────────────────────────────────────────────────────────────────────
+Warning ('test-interactions.R:414:3'): make_forest_plot works with interaction terms in GLM result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:414:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:414:3'): make_forest_plot works with interaction terms in GLM result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:414:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-interactions.R:451:3'): make_forest_plot works with interaction terms in coxph result
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─erSCM::make_forest_plot(result, plot = TRUE) at test-interactions.R:451:3
+  2. │ └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+  3. │   └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+  4. └─purrr::map(...)
+  5.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+  6.     ├─purrr:::with_indexed_errors(...)
+  7.     │ └─base::withCallingHandlers(...)
+  8.     ├─purrr:::call_with_cleanup(...)
+  9.     └─erSCM (local) .f(.x[[i]], ...)
+ 10.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 11.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 12.           └─ggplot2:::deprecate_soft0(...)
+───────────────────────────────────────────────────────────────────────────
+⠏ |          0 | nonlinear_backward                                        ⠋ |          1 | nonlinear_backward                                        ⠦ |          7 | nonlinear_backward                                        ⠙ |         12 | nonlinear_backward                                        ⠧ |         18 | nonlinear_backward                                        ⠙ |         22 | nonlinear_backward                                        ⠦ |         27 | nonlinear_backward                                        ⠧ |         28 | nonlinear_backward                                        ⠋ |         31 | nonlinear_backward                                        ✔ |         33 | nonlinear_backward [4.4s]
+⠏ |          0 | nonlinear_bootstrap                                       ⠋ |          1 | nonlinear_bootstrap                                       ⠸ |          4 | nonlinear_bootstrap                                       ⠴ |          6 | nonlinear_bootstrap                                       ⠧ |          8 | nonlinear_bootstrap                                       ⠋ |         11 | nonlinear_bootstrap                                       ⠙ |         12 | nonlinear_bootstrap                                       ⠴ |         16 | nonlinear_bootstrap                                       ⠼ |         25 | nonlinear_bootstrap                                       ⠴ |         26 | nonlinear_bootstrap                                       ⠇ |         29 | nonlinear_bootstrap                                       ⠙ |         32 | nonlinear_bootstrap                                       ⠴ |         36 | nonlinear_bootstrap                                         AGE           [#...................]    6.7%        
+  WT            [....................]    0.0%        
+  CMAX          log (60%), linear (40%)
+  AGE           not_selected (93%), linear (7%)
+  WT            not_selected (100%)
+⠧ |         38 | nonlinear_bootstrap                                       ⠋ |         41 | nonlinear_bootstrap                                       ⠙ |         42 | nonlinear_bootstrap                                       ⠹ |         43 | nonlinear_bootstrap                                       ⠸ |         44 | nonlinear_bootstrap                                       ⠴ |         46 | nonlinear_bootstrap                                       ⠦ |         47 | nonlinear_bootstrap                                       ⠧ |         48 | nonlinear_bootstrap                                       ✔ |         50 | nonlinear_bootstrap [31.4s]
+⠏ |          0 | nonlinear_forward                                         ⠋ |          1 | nonlinear_forward                                         ⠸ |          4 | nonlinear_forward                                         ⠴ |          6 | nonlinear_forward                                         ⠏ |         10 | nonlinear_forward                                         ⠸ |         14 | nonlinear_forward                                         ⠴ |         16 | nonlinear_forward                                         ⠧ |         18 | nonlinear_forward                                         ⠇ |         19 | nonlinear_forward                                         ⠏ |         20 | nonlinear_forward                                         ⠋ |         21 | nonlinear_forward                                         ⠙ |         22 | nonlinear_forward                                         ⠹ |         23 | nonlinear_forward                                         ⠦ |         27 | nonlinear_forward                                         ⠏ |         30 | nonlinear_forward                                         ✔ |         31 | nonlinear_forward [8.4s]
+⠏ |          0 | nonlinear_plot                                            ⠋ |          1 | nonlinear_plot                                            ⠙ |      1   1 | nonlinear_plot                                            ⠹ |      1   2 | nonlinear_plot                                            ⠸ |      1   3 | nonlinear_plot                                            ⠴ |      1   5 | nonlinear_plot                                            ⠦ |      1   6 | nonlinear_plot                                            ⠧ |      1   7 | nonlinear_plot                                            ⠇ |      1   8 | nonlinear_plot                                            ⠋ |      2   9 | nonlinear_plot                                            ⠙ |      2  10 | nonlinear_plot                                            ⠼ |      2  13 | nonlinear_plot                                            ⠴ |      2  14 | nonlinear_plot                                            ⠦ |      2  15 | nonlinear_plot                                            ⠧ |      2  16 | nonlinear_plot                                            ⠇ |      2  17 | nonlinear_plot                                            ⠏ |      2  18 | nonlinear_plot                                            ⠋ |      2  19 | nonlinear_plot                                            ⠦ |      2  25 | nonlinear_plot                                            ✔ |      2  25 | nonlinear_plot [6.8s]
+⠏ |          0 | nonlinear_spec                                            ⠙ |          2 | nonlinear_spec                                            ⠏ |         10 | nonlinear_spec                                            ⠙ |         12 | nonlinear_spec                                            ⠦ |         17 | nonlinear_spec                                            ⠏ |         20 | nonlinear_spec                                            ✔ |         21 | nonlinear_spec
+⠏ |          0 | nonlinear_transforms                                      ⠦ |          7 | nonlinear_transforms                                      ⠸ |         14 | nonlinear_transforms                                      ⠧ |         18 | nonlinear_transforms                                      ⠼ |         25 | nonlinear_transforms                                      ⠇ |         29 | nonlinear_transforms                                      ⠙ |         32 | nonlinear_transforms                                      ⠼ |         35 | nonlinear_transforms                                      ✔ |         39 | nonlinear_transforms [1.3s]
+⠏ |          0 | normalize_inputs                                          ⠙ |          2 | normalize_inputs                                          ⠦ |          7 | normalize_inputs                                          ⠇ |          9 | normalize_inputs                                          ⠹ |         13 | normalize_inputs                                          ⠸ |         14 | normalize_inputs                                          ⠧ |   1     17 | normalize_inputs                                          ⠋ |   1     20 | normalize_inputs                                          ⠼ |   2     23 | normalize_inputs                                          ⠧ |   2     26 | normalize_inputs                                          ⠇ |   2     27 | normalize_inputs                                          ⠋ |   3     28 | normalize_inputs                                          ⠹ |   4     29 | normalize_inputs                                          ⠼ |   5     30 | normalize_inputs                                          ⠴ |   5     31 | normalize_inputs                                          ⠧ |   5     33 | normalize_inputs                                          ⠏ |   6     34 | normalize_inputs                                          ⠋ |   6     35 | normalize_inputs                                          ✔ |   6     35 | normalize_inputs [5.9s]
+───────────────────────────────────────────────────────────────────────────
+Warning ('test-normalize_inputs.R:80:3'): scm_glm with normalize_inputs produces naming_df with correct transform_type
+`normalize_inputs` is deprecated. Use `scale_to_median` instead.
+Backtrace:
+    ▆
+ 1. └─erSCM::scm_glm(...) at test-normalize_inputs.R:80:3
+
+Warning ('test-normalize_inputs.R:128:3'): scm_coxph with normalize_inputs produces naming_df with correct transform_type
+`normalize_inputs` is deprecated. Use `scale_to_median` instead.
+Backtrace:
+    ▆
+ 1. └─erSCM::scm_coxph(...) at test-normalize_inputs.R:128:3
+
+Warning ('test-normalize_inputs.R:155:3'): scm_glm stores scaling_method in metadata
+`normalize_inputs` is deprecated. Use `scale_to_median` instead.
+Backtrace:
+    ▆
+ 1. └─erSCM::scm_glm(...) at test-normalize_inputs.R:155:3
+
+Warning ('test-normalize_inputs.R:170:3'): forest plot handles naming_df with transform_type dispatch correctly
+`normalize_inputs` is deprecated. Use `scale_to_median` instead.
+Backtrace:
+    ▆
+ 1. └─erSCM::scm_glm(...) at test-normalize_inputs.R:170:3
+
+Warning ('test-normalize_inputs.R:189:3'): forest plot backward compat: old naming_df without transform_type column (median_scaled branch)
+`normalize_inputs` is deprecated. Use `scale_to_median` instead.
+Backtrace:
+    ▆
+ 1. └─erSCM::scm_glm(...) at test-normalize_inputs.R:189:3
+
+Warning ('test-normalize_inputs.R:239:3'): model fit equivalence: normalize_inputs only scales input, final predictions proportional
+`normalize_inputs` is deprecated. Use `scale_to_median` instead.
+Backtrace:
+    ▆
+ 1. └─erSCM::scm_glm(...) at test-normalize_inputs.R:239:3
+───────────────────────────────────────────────────────────────────────────
+⠏ |          0 | plot_glm                                                  ⠋ |          1 | plot_glm                                                  ⠙ |          2 | plot_glm                                                  ⠹ |          3 | plot_glm                                                  ⠦ |          7 | plot_glm                                                  ⠋ |         11 | plot_glm                                                  ⠙ |         12 | plot_glm                                                  ⠸ |         14 | plot_glm                                                  ⠧ |         18 | plot_glm                                                  ⠏ |         20 | plot_glm                                                  ⠋ |         21 | plot_glm                                                  ⠙ |         22 | plot_glm                                                  ⠹ |         23 | plot_glm                                                  ⠸ |         24 | plot_glm                                                  ⠼ |         25 | plot_glm                                                  ⠴ |         26 | plot_glm                                                  ⠦ |         27 | plot_glm                                                  ⠧ |         28 | plot_glm                                                  ⠙ |         32 | plot_glm                                                  ⠸ |         34 | plot_glm                                                  ⠼ |         35 | plot_glm                                                  ⠴ |         36 | plot_glm                                                  ✔ |         36 | plot_glm [7.5s]
+⠏ |          0 | plot_terms                                                ⠋ |          1 | plot_terms                                                ⠙ |      1   1 | plot_terms                                                ⠹ |      1   2 | plot_terms                                                ⠸ |      1   3 | plot_terms                                                ⠼ |      1   4 | plot_terms                                                ⠴ |      1   5 | plot_terms                                                ⠦ |      1   6 | plot_terms                                                ⠧ |      1   7 | plot_terms                                                ⠇ |      1   8 | plot_terms                                                ⠋ |      2   9 | plot_terms                                                ⠙ |      2  10 | plot_terms                                                ⠹ |      2  11 | plot_terms                                                ⠸ |      2  12 | plot_terms                                                ⠼ |      2  13 | plot_terms                                                ⠴ |      2  14 | plot_terms                                                ⠧ |      2  16 | plot_terms                                                ⠇ |      2  17 | plot_terms                                                ⠏ |      2  18 | plot_terms                                                ⠋ |      2  19 | plot_terms                                                ⠙ |      2  20 | plot_terms                                                ⠦ |      2  25 | plot_terms                                                ⠋ |      2  29 | plot_terms                                                ✔ |      2  29 | plot_terms [16.4s]
+⠏ |          0 | run_scm                                                   ⠋ |          1 | run_scm                                                   ⠙ |          2 | run_scm                                                   ⠹ |          3 | run_scm                                                   ⠸ |          4 | run_scm                                                   ⠼ |          5 | run_scm                                                   ⠦ |          7 | run_scm                                                   ⠏ |         10 | run_scm                                                   ⠹ |         13 | run_scm                                                   ⠼ |         15 | run_scm                                                   ⠴ |         16 | run_scm                                                   ✔ |         17 | run_scm [2.5s]
+⠏ |          0 | s3_methods_coxph                                          ⠋ |          1 | s3_methods_coxph                                          ⠸ |          4 | s3_methods_coxph                                          ⠼ |          5 | s3_methods_coxph                                          ⠦ |   1      6 | s3_methods_coxph                                          ⠧ |   2      6 | s3_methods_coxph                                          ⠇ |   3      6 | s3_methods_coxph                                          ⠏ |   4      6 | s3_methods_coxph                                          ⠋ |   5      6 | s3_methods_coxph                                          ⠙ |   6      6 | s3_methods_coxph                                          ⠹ |   7      6 | s3_methods_coxph                                          ⠸ |   8      6 | s3_methods_coxph                                          ⠼ |   9      6 | s3_methods_coxph                                          ⠴ |   9      7 | s3_methods_coxph                                          ✔ |   9      7 | s3_methods_coxph [12.9s]
+───────────────────────────────────────────────────────────────────────────
+Warning ('test-s3_methods_coxph.R:114:3'): plot.eres_scm_coxph runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_coxph.R:114:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_coxph(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:169:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-s3_methods_coxph.R:114:3'): plot.eres_scm_coxph runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_coxph.R:114:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_coxph(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:169:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-s3_methods_coxph.R:114:3'): plot.eres_scm_coxph runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_coxph.R:114:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_coxph(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:169:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-s3_methods_coxph.R:114:3'): plot.eres_scm_coxph runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_coxph.R:114:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_coxph(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:169:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-s3_methods_coxph.R:114:3'): plot.eres_scm_coxph runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_coxph.R:114:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_coxph(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:169:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-s3_methods_coxph.R:114:3'): plot.eres_scm_coxph runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_coxph.R:114:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_coxph(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:169:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-s3_methods_coxph.R:114:3'): plot.eres_scm_coxph runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_coxph.R:114:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_coxph(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:169:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-s3_methods_coxph.R:114:3'): plot.eres_scm_coxph runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_coxph.R:114:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_coxph(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:169:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-s3_methods_coxph.R:114:3'): plot.eres_scm_coxph runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_coxph.R:114:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_coxph(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:169:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+───────────────────────────────────────────────────────────────────────────
+⠏ |          0 | s3_methods_glm                                            ⠋ |          1 | s3_methods_glm                                            ⠸ |          4 | s3_methods_glm                                            ⠼ |          5 | s3_methods_glm                                            ⠦ |   1      6 | s3_methods_glm                                            ⠧ |   2      6 | s3_methods_glm                                            ⠇ |   2      7 | s3_methods_glm                                            ✔ |   2      7 | s3_methods_glm [13.3s]
+───────────────────────────────────────────────────────────────────────────
+Warning ('test-s3_methods_glm.R:100:3'): plot.eres_scm_glm runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_glm.R:100:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_glm(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:144:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-s3_methods_glm.R:100:3'): plot.eres_scm_glm runs without error
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result)) at test-s3_methods_glm.R:100:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result)
+ 13. ├─erSCM:::plot.eres_scm_glm(result)
+ 14. │ └─erSCM::make_forest_plot(fit = x, ...) at erSCM/R/eres_scm_methods.R:144:3
+ 15. │   └─erSCM::plot_grouped_ratios(...) at erSCM/R/forest_plot.R:497:3
+ 16. │     └─groups %>% ... at erSCM/R/forest_plot.R:990:3
+ 17. └─purrr::map(...)
+ 18.   └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+ 19.     ├─purrr:::with_indexed_errors(...)
+ 20.     │ └─base::withCallingHandlers(...)
+ 21.     ├─purrr:::call_with_cleanup(...)
+ 22.     └─erSCM (local) .f(.x[[i]], ...)
+ 23.       └─erSCM (local) build_forest(...) at erSCM/R/forest_plot.R:1001:7
+ 24.         └─ggplot2::geom_errorbarh(...) at erSCM/R/forest_plot.R:909:5
+ 25.           └─ggplot2:::deprecate_soft0(...)
+───────────────────────────────────────────────────────────────────────────
+⠏ |          0 | scm_bootstrap_categorical                                 ⠙ |          2 | scm_bootstrap_categorical                                 ⠦ |          7 | scm_bootstrap_categorical                                 ⠇ |          9 | scm_bootstrap_categorical                                 ⠙ |   1     11 | scm_bootstrap_categorical                                 ⠸ |   13     11 | scm_bootstrap_categorical                                ⠏ |   19     11 | scm_bootstrap_categorical                                ⠋ |   19     12 | scm_bootstrap_categorical                                ⠸ |   19     15 | scm_bootstrap_categorical                                ✔ |   19     15 | scm_bootstrap_categorical [7.8s]
+───────────────────────────────────────────────────────────────────────────
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+
+Warning ('test-scm_bootstrap_categorical.R:87:3'): variable_exclusion_rate is populated when factor exclusions occur
+glm.fit: fitted probabilities numerically 0 or 1 occurred
+Backtrace:
+     ▆
+  1. └─erSCM::scm_glm(...) at test-scm_bootstrap_categorical.R:87:3
+  2.   └─erSCM::scm_forward_add(...) at erSCM/R/scm_glm.R:507:9
+  3.     ├─broom::tidy(mod_obj[[i]], conf.int = TRUE) at erSCM/R/scm_glm.R:1177:5
+  4.     └─broom:::tidy.glm(mod_obj[[i]], conf.int = TRUE)
+  5.       └─broom:::broom_confint_terms(x, level = conf.level)
+  6.         ├─base::suppressMessages(confint(x, ...))
+  7.         │ └─base::withCallingHandlers(...)
+  8.         ├─stats::confint(x, ...)
+  9.         └─stats:::confint.glm(x, ...)
+ 10.           ├─stats::profile(...)
+ 11.           └─stats:::profile.glm(...)
+ 12.             └─stats::glm.fit(...)
+───────────────────────────────────────────────────────────────────────────
+⠏ |          0 | scm_bootstrap_helpers                                     ⠦ |          7 | scm_bootstrap_helpers                                     ⠙ |         12 | scm_bootstrap_helpers                                     ⠇ |         19 | scm_bootstrap_helpers                                     ⠋ |         21 | scm_bootstrap_helpers                                     ⠧ |         28 | scm_bootstrap_helpers                                     ⠋ |         31 | scm_bootstrap_helpers                                     ⠧ |         38 | scm_bootstrap_helpers                                     ⠇ |         39 | scm_bootstrap_helpers                                     ⠋ |         41 | scm_bootstrap_helpers                                     ⠧ |         48 | scm_bootstrap_helpers                                     ⠹ |         53 | scm_bootstrap_helpers                                     ⠴ |         56 | scm_bootstrap_helpers                                     ⠦ |         57 | scm_bootstrap_helpers                                     ⠧ |         58 | scm_bootstrap_helpers                                     ⠇ |         59 | scm_bootstrap_helpers                                     ⠋ |         61 | scm_bootstrap_helpers                                     ⠙ |         62 | scm_bootstrap_helpers                                     ⠇ |         69 | scm_bootstrap_helpers                                     ⠼ |         75 | scm_bootstrap_helpers                                     ⠙ |         82 | scm_bootstrap_helpers                                     ✔ |         94 | scm_bootstrap_helpers [9.5s]
+⠏ |          0 | scm_bootstrap_integration                                 ⠋ |          1 | scm_bootstrap_integration                                 ⠙ |          2 | scm_bootstrap_integration                                 ⠴ |   1      5 | scm_bootstrap_integration                                 ⠇ |   1      8 | scm_bootstrap_integration                                 ⠏ |   1      9 | scm_bootstrap_integration                                 ⠙ |   1     11 | scm_bootstrap_integration                                 ⠼ |   2     13 | scm_bootstrap_integration                                 ⠦ |   2     15 | scm_bootstrap_integration                                 ⠧ |   2     16 | scm_bootstrap_integration                                 ⠋ |   3     18 | scm_bootstrap_integration                                 ⠼ |   3     22 | scm_bootstrap_integration                                 ⠇ |   3     26 | scm_bootstrap_integration                                 ⠏ |   3     27 | scm_bootstrap_integration                                 ⠋ |   3     28 | scm_bootstrap_integration                                 ⠙ |   3  1  28 | scm_bootstrap_integration                                 ⠹ |   3  1  29 | scm_bootstrap_integration                                 ⠼ |   3  1  31 | scm_bootstrap_integration                                 ⠋ |   3  1  37 | scm_bootstrap_integration                                 ⠸ |   3  1  40 | scm_bootstrap_integration                                 ⠼ |   3  1  41 | scm_bootstrap_integration                                 ⠴ |   3  1  42 | scm_bootstrap_integration                                 ✔ |   3  1  42 | scm_bootstrap_integration [59.0s]
+───────────────────────────────────────────────────────────────────────────
+Warning ('test-scm_bootstrap_integration.R:25:3'): GLM full pipeline: fit → bootstrap → print → summary → plot
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─base::plot(stability, type = "inclusion") at test-scm_bootstrap_integration.R:25:3
+ 2. └─erSCM:::plot.scm_bootstrap(stability, type = "inclusion")
+ 3.   └─erSCM:::.plot_inclusion(x, threshold, ci_method, n_top, show_original) at erSCM/R/scm_bootstrap_methods.R:631:5
+ 4.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:726:3
+ 5.       └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-scm_bootstrap_integration.R:51:3'): CoxPH full pipeline: fit → bootstrap → print → summary → plot
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─base::plot(stability, type = "inclusion") at test-scm_bootstrap_integration.R:51:3
+ 2. └─erSCM:::plot.scm_bootstrap(stability, type = "inclusion")
+ 3.   └─erSCM:::.plot_inclusion(x, threshold, ci_method, n_top, show_original) at erSCM/R/scm_bootstrap_methods.R:631:5
+ 4.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:726:3
+ 5.       └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-scm_bootstrap_integration.R:71:3'): multi-exposure pipeline: fit → bootstrap → exposure plot → summary tibble
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─base::plot(stability, type = "exposure") at test-scm_bootstrap_integration.R:71:3
+ 2. └─erSCM:::plot.scm_bootstrap(stability, type = "exposure")
+ 3.   └─erSCM:::.plot_exposure_stability(x, ci_method, show_original) at erSCM/R/scm_bootstrap_methods.R:637:5
+ 4.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:852:3
+ 5.       └─ggplot2:::deprecate_soft0(...)
+───────────────────────────────────────────────────────────────────────────
+⠏ |          0 | scm_bootstrap_methods                                     ⠋ |          1 | scm_bootstrap_methods                                       AGE           [#...................]    6.7%        
+  SEX           [#...................]    6.7%      * 
+  WT            [....................]    0.0%      * 
+⠙ |          2 | scm_bootstrap_methods                                       AGE           [#...................]    6.7%        
+  SEX           [#...................]    6.7%      * 
+  WT            [....................]    0.0%      * 
+⠸ |          4 | scm_bootstrap_methods                                     ⠼ |          5 | scm_bootstrap_methods                                     ⠴ |          6 | scm_bootstrap_methods                                     ⠧ |          8 | scm_bootstrap_methods                                     ⠏ |         10 | scm_bootstrap_methods                                     ⠋ |         11 | scm_bootstrap_methods                                     ⠙ |         12 | scm_bootstrap_methods                                     ⠹ |         13 | scm_bootstrap_methods                                     ⠸ |         14 | scm_bootstrap_methods                                     ⠼ |      1  14 | scm_bootstrap_methods                                     ⠴ |      2  14 | scm_bootstrap_methods                                     ⠦ |      2  15 | scm_bootstrap_methods                                     ⠧ |      2  16 | scm_bootstrap_methods                                     ⠇ |      2  17 | scm_bootstrap_methods                                     ⠋ |      2  19 | scm_bootstrap_methods                                     ⠙ |      2  20 | scm_bootstrap_methods                                      rank term inclusion_prob stability_class   term_type in_original
+    1  AGE          0.067        unstable main_effect            
+    2  SEX          0.067        unstable main_effect           x
+    3   WT          0.000        unstable main_effect           x
+⠹ |      2  21 | scm_bootstrap_methods                                     ⠼ |   1  2  22 | scm_bootstrap_methods                                     ⠦ |   1  2  24 | scm_bootstrap_methods                                     ⠧ |   2  2  24 | scm_bootstrap_methods                                     ⠇ |   2  2  25 | scm_bootstrap_methods                                     ⠏ |   2  2  26 | scm_bootstrap_methods                                     ⠋ |   3  2  26 | scm_bootstrap_methods                                     ⠹ |   4  2  27 | scm_bootstrap_methods                                     ⠼ |   5  2  28 | scm_bootstrap_methods                                     ⠦ |   6  2  29 | scm_bootstrap_methods                                     ⠧ |   6  2  30 | scm_bootstrap_methods                                     ⠇ |   7  2  30 | scm_bootstrap_methods                                     ⠋ |   7  2  32 | scm_bootstrap_methods                                     ⠙ |   7  2  33 | scm_bootstrap_methods                                     ⠹ |   7  2  34 | scm_bootstrap_methods                                     ⠸ |   7  2  35 | scm_bootstrap_methods                                     ⠼ |   7  2  36 | scm_bootstrap_methods                                     ⠴ |   7  2  37 | scm_bootstrap_methods                                     ⠇ |   7  2  40 | scm_bootstrap_methods                                     ⠏ |   7  2  41 | scm_bootstrap_methods                                     ⠙ |   7  2  43 | scm_bootstrap_methods                                     ⠹ |   7  2  44 | scm_bootstrap_methods                                     ⠸ |   8  2  44 | scm_bootstrap_methods                                     ⠼ |   8  2  45 | scm_bootstrap_methods                                     ⠴ |   9  2  45 | scm_bootstrap_methods                                     ⠧ |   9  2  47 | scm_bootstrap_methods                                     ⠋ |   9  2  50 | scm_bootstrap_methods                                     ✔ |   9  2  52 | scm_bootstrap_methods [196.8s]
+───────────────────────────────────────────────────────────────────────────
+Warning ('test-scm_bootstrap_methods.R:185:3'): plot.scm_bootstrap() type='inclusion' returns ggplot
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─base::plot(result, type = "inclusion") at test-scm_bootstrap_methods.R:185:3
+ 2. └─erSCM:::plot.scm_bootstrap(result, type = "inclusion")
+ 3.   └─erSCM:::.plot_inclusion(x, threshold, ci_method, n_top, show_original) at erSCM/R/scm_bootstrap_methods.R:631:5
+ 4.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:726:3
+ 5.       └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-scm_bootstrap_methods.R:202:3'): plot.scm_bootstrap() type='both' returns ggplot or patchwork
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─base::plot(result, type = "both") at test-scm_bootstrap_methods.R:202:3
+ 2. └─erSCM:::plot.scm_bootstrap(result, type = "both")
+ 3.   └─erSCM:::.plot_inclusion(x, threshold, ci_method, n_top, show_original) at erSCM/R/scm_bootstrap_methods.R:631:5
+ 4.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:726:3
+ 5.       └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-scm_bootstrap_methods.R:222:3'): plot.scm_bootstrap() is returned invisibly
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─base::withVisible(plot(result, type = "inclusion")) at test-scm_bootstrap_methods.R:222:3
+ 2. ├─base::plot(result, type = "inclusion")
+ 3. └─erSCM:::plot.scm_bootstrap(result, type = "inclusion")
+ 4.   └─erSCM:::.plot_inclusion(x, threshold, ci_method, n_top, show_original) at erSCM/R/scm_bootstrap_methods.R:631:5
+ 5.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:726:3
+ 6.       └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-scm_bootstrap_methods.R:230:3'): plot.scm_bootstrap() respects threshold argument
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─testthat::expect_s3_class(plot(result, threshold = 0.3), "ggplot") at test-scm_bootstrap_methods.R:230:3
+ 2. │ └─testthat::quasi_label(enquo(object), arg = "object")
+ 3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+ 4. ├─base::plot(result, threshold = 0.3)
+ 5. └─erSCM:::plot.scm_bootstrap(result, threshold = 0.3)
+ 6.   └─erSCM:::.plot_inclusion(x, threshold, ci_method, n_top, show_original) at erSCM/R/scm_bootstrap_methods.R:631:5
+ 7.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:726:3
+ 8.       └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-scm_bootstrap_methods.R:231:3'): plot.scm_bootstrap() respects threshold argument
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─testthat::expect_s3_class(plot(result, threshold = 0.9), "ggplot") at test-scm_bootstrap_methods.R:231:3
+ 2. │ └─testthat::quasi_label(enquo(object), arg = "object")
+ 3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+ 4. ├─base::plot(result, threshold = 0.9)
+ 5. └─erSCM:::plot.scm_bootstrap(result, threshold = 0.9)
+ 6.   └─erSCM:::.plot_inclusion(x, threshold, ci_method, n_top, show_original) at erSCM/R/scm_bootstrap_methods.R:631:5
+ 7.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:726:3
+ 8.       └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-scm_bootstrap_methods.R:238:3'): plot.scm_bootstrap() respects ci_method='exact'
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─base::plot(result, ci_method = "exact") at test-scm_bootstrap_methods.R:238:3
+ 2. └─erSCM:::plot.scm_bootstrap(result, ci_method = "exact")
+ 3.   └─erSCM:::.plot_inclusion(x, threshold, ci_method, n_top, show_original) at erSCM/R/scm_bootstrap_methods.R:631:5
+ 4.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:726:3
+ 5.       └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-scm_bootstrap_methods.R:248:3'): plot.scm_bootstrap() handles empty inclusion_prob gracefully
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+     ▆
+  1. ├─testthat::expect_no_error(plot(result, type = "inclusion")) at test-scm_bootstrap_methods.R:248:3
+  2. │ └─testthat:::expect_no_(...)
+  3. │   └─testthat:::quasi_capture(enquo(object), NULL, capture)
+  4. │     ├─testthat (local) .capture(...)
+  5. │     │ └─rlang::try_fetch(...)
+  6. │     │   ├─base::tryCatch(...)
+  7. │     │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+  8. │     │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+  9. │     │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 10. │     │   └─base::withCallingHandlers(...)
+ 11. │     └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo))
+ 12. ├─base::plot(result, type = "inclusion")
+ 13. └─erSCM:::plot.scm_bootstrap(result, type = "inclusion")
+ 14.   └─erSCM:::.plot_inclusion(x, threshold, ci_method, n_top, show_original) at erSCM/R/scm_bootstrap_methods.R:631:5
+ 15.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:726:3
+ 16.       └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-scm_bootstrap_methods.R:350:3'): plot.scm_bootstrap() type='exposure' returns a ggplot (multi)
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─base::plot(result, type = "exposure") at test-scm_bootstrap_methods.R:350:3
+ 2. └─erSCM:::plot.scm_bootstrap(result, type = "exposure")
+ 3.   └─erSCM:::.plot_exposure_stability(x, ci_method, show_original) at erSCM/R/scm_bootstrap_methods.R:637:5
+ 4.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:852:3
+ 5.       └─ggplot2:::deprecate_soft0(...)
+
+Warning ('test-scm_bootstrap_methods.R:358:3'): plot.scm_bootstrap() type='exposure' works with single exposure
+`geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+i Please use the `orientation` argument of `geom_errorbar()` instead.
+Backtrace:
+    ▆
+ 1. ├─base::plot(result, type = "exposure") at test-scm_bootstrap_methods.R:358:3
+ 2. └─erSCM:::plot.scm_bootstrap(result, type = "exposure")
+ 3.   └─erSCM:::.plot_exposure_stability(x, ci_method, show_original) at erSCM/R/scm_bootstrap_methods.R:637:5
+ 4.     └─ggplot2::geom_errorbarh(...) at erSCM/R/scm_bootstrap_methods.R:852:3
+ 5.       └─ggplot2:::deprecate_soft0(...)
+───────────────────────────────────────────────────────────────────────────
+⠏ |          0 | scm_bootstrap                                             ⠹ |          3 | scm_bootstrap                                             ⠸ |          4 | scm_bootstrap                                             ⠦ |          7 | scm_bootstrap                                             ⠧ |          8 | scm_bootstrap                                             ⠇ |          9 | scm_bootstrap                                             ⠏ |         10 | scm_bootstrap                                             ⠸ |         14 | scm_bootstrap                                             ⠼ |         15 | scm_bootstrap                                             ⠴ |         16 | scm_bootstrap                                             ⠦ |         17 | scm_bootstrap                                             ⠧ |         18 | scm_bootstrap                                             ⠋ |         21 | scm_bootstrap                                             ⠙ |         22 | scm_bootstrap                                             ⠹ |         23 | scm_bootstrap                                             ⠦ |         27 | scm_bootstrap                                             ⠧ |         28 | scm_bootstrap                                             ⠇ |         29 | scm_bootstrap                                             ⠏ |         30 | scm_bootstrap                                             ⠋ |         31 | scm_bootstrap                                             ⠙ |         32 | scm_bootstrap                                             ⠸ |         34 | scm_bootstrap                                             ⠴ |         36 | scm_bootstrap                                             ⠦ |         37 | scm_bootstrap                                             ⠏ |         40 | scm_bootstrap                                             ⠸ |         44 | scm_bootstrap                                             ⠼ |         45 | scm_bootstrap                                             ⠴ |         46 | scm_bootstrap                                             ⠦ |         47 | scm_bootstrap                                             ⠇ |         49 | scm_bootstrap                                             ⠙ |         52 | scm_bootstrap                                             ⠹ |         53 | scm_bootstrap                                             ⠸ |         54 | scm_bootstrap                                             ⠴ |         56 | scm_bootstrap                                             ⠏ |         60 | scm_bootstrap                                             ⠹ |         63 | scm_bootstrap                                             ⠸ |         64 | scm_bootstrap                                             ⠇ |         69 | scm_bootstrap                                             ⠋ |         71 | scm_bootstrap                                             ⠹ |         73 | scm_bootstrap                                             ⠦ |         77 | scm_bootstrap                                             ⠏ |         80 | scm_bootstrap                                             ⠹ |         83 | scm_bootstrap                                             ⠼ |         85 | scm_bootstrap                                             ✔ |         85 | scm_bootstrap [163.4s]
+⠏ |          0 | scm_check                                                 ✔ |          3 | scm_check
+⠏ |          0 | scm_coxph                                                 ⠋ |          1 | scm_coxph                                                 ⠴ |          6 | scm_coxph                                                 ✔ |          6 | scm_coxph [2.2s]
+⠏ |          0 | scm_glm                                                   ⠋ |          1 | scm_glm                                                   ⠏ |         10 | scm_glm                                                   ⠙ |         12 | scm_glm                                                   ⠹ |         13 | scm_glm                                                   ⠸ |         14 | scm_glm                                                   ✔ |         18 | scm_glm [3.3s]
+⠏ |          0 | scm_start_covariates                                      ⠋ |          1 | scm_start_covariates                                      ⠹ |          3 | scm_start_covariates                                      ⠼ |          5 | scm_start_covariates                                      ⠦ |          7 | scm_start_covariates                                      ⠧ |          8 | scm_start_covariates                                      ⠇ |          9 | scm_start_covariates                                      ⠋ |         11 | scm_start_covariates                                      ⠙ |         12 | scm_start_covariates                                      ⠸ |         14 | scm_start_covariates                                      ⠦ |         17 | scm_start_covariates                                      ⠇ |         19 | scm_start_covariates                                      ⠋ |         21 | scm_start_covariates                                      ✔ |         22 | scm_start_covariates [7.2s]
+⠏ |          0 | sum_tbl                                                   ⠼ |          5 | sum_tbl                                                   ✔ |          6 | sum_tbl
+⠏ |          0 | var_spec                                                  ⠴ |          6 | var_spec                                                  ⠸ |         14 | var_spec                                                  ⠼ |         15 | var_spec                                                  ⠋ |         21 | var_spec                                                  ⠙ |         22 | var_spec                                                  ⠼ |         25 | var_spec                                                  ⠇ |         29 | var_spec                                                  ⠋ |         31 | var_spec                                                  ⠦ |         37 | var_spec                                                  ⠧ |         38 | var_spec                                                  ⠇ |         39 | var_spec                                                  ⠏ |         40 | var_spec                                                  ⠙ |         42 | var_spec                                                  ⠹ |         43 | var_spec                                                  ⠸ |         44 | var_spec                                                  ⠴ |         46 | var_spec                                                  ⠦ |         47 | var_spec                                                  ⠧ |         48 | var_spec                                                  ⠇ |         49 | var_spec                                                  ⠏ |         50 | var_spec                                                  ⠙ |         52 | var_spec                                                  ⠹ |      1  52 | var_spec                                                  ✔ |      1  52 | var_spec [6.9s]
+
+══ Results ════════════════════════════════════════════════════════════════
+Duration: 690.8 s
+
+── Skipped tests (10) ─────────────────────────────────────────────────────
+• empty test (6): 'test-centering.R:205:1', 'test-interactions.R:257:1',
+  'test-scm_bootstrap_integration.R:121:1',
+  'test-scm_bootstrap_methods.R:102:1',
+  'test-scm_bootstrap_methods.R:114:1', 'test-var_spec.R:364:1'
+• no categorical term in model (1): 'test-plot_terms.R:138:3'
+• no categorical term selected (1): 'test-plot_terms.R:62:3'
+• No registry (2): 'test-nonlinear_plot.R:125:3',
+  'test-nonlinear_plot.R:218:3'
+
+[ FAIL 0 | WARN 64 | SKIP 10 | PASS 849 ]
