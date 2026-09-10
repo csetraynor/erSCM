@@ -393,8 +393,7 @@ test_that("var_spec transform = 'centered' correctly back-transforms values in f
   # Back-transformed quantile labels should be in original scale (~100 ± 3*20)
   num_labels <- suppressWarnings(as.numeric(gsub("[^0-9.-]", "", exp_rows$group_level)))
   non_na <- num_labels[!is.na(num_labels) & num_labels != 0]
-  if (length(non_na) > 0) {
-    expect_true(any(abs(non_na - 100) < 4 * 20),
-                info = paste("Label values:", paste(round(non_na, 1), collapse = ", ")))
-  }
+  skip_if(length(non_na) == 0, "no numeric labels in forest plot")
+  expect_true(any(abs(non_na - 100) < 4 * 20),
+              info = paste("Label values:", paste(round(non_na, 1), collapse = ", ")))
 })

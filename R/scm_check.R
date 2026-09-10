@@ -96,8 +96,6 @@
   } else {
     if (!is.null(dvid)) {
       cli::cli_abort("{.arg dvid} is set but {.arg dvid_col} is NULL; provide {.arg dvid_col} to filter the dataset.")
-    } else {
-      cli::cli_inform("{.arg dvid_col} is NULL; model run without filtering the dataset by DVID.")
     }
   }
 
@@ -141,8 +139,6 @@
   } else {
     if (!is.null(dvid)) {
       cli::cli_abort("{.arg dvid} is set but {.arg dvid_col} is NULL; provide {.arg dvid_col} to filter the dataset.")
-    } else {
-      cli::cli_inform("{.arg dvid_col} is NULL; model run without filtering the dataset by DVID.")
     }
   }
 
