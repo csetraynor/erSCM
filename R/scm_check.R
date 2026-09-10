@@ -70,12 +70,8 @@
   if (any(!is.na(x$Run[x$Model == x$SELECT]))) {
     flagforst <- TRUE
   }
-  
-  if(!flagforst) {
-    message("Exposure relationship not significant at the selected level.")
-  }
-  
-  return(list(toto_tot = x, Relation = Relation, finalforward =finalforward, flagforst = flagforst  ) )
+
+  return(list(toto_tot = x, Relation = Relation, finalforward = finalforward, flagforst = flagforst))
 }
 
 

@@ -100,14 +100,14 @@ test_that("non-existent YAML path gives informative error", {
 test_that("all col_names present in data produces no warning", {
   df <- data.frame(WT = 1:5, AGE = 11:15)
   spec <- parse_var_spec(c(WT = "Weight (kg)", AGE = "Age (years)"))
-  expect_no_warning(validate_var_spec(spec, df, "WT", "AGE"))
+  expect_no_warning(erSCM:::validate_var_spec(spec, df, "WT", "AGE"))
 })
 
 test_that("missing col_names in data produce warning and are filtered out", {
   df <- data.frame(WT = 1:5)
   spec <- parse_var_spec(c(WT = "Weight (kg)", MISSING = "Ghost"))
   result <- expect_warning(
-    validate_var_spec(spec, df, "WT", character(0)),
+    erSCM:::validate_var_spec(spec, df, "WT", character(0)),
     regexp = "not found in data"
   )
   expect_false("MISSING" %in% result$col_name)
@@ -118,7 +118,7 @@ test_that("model variables not in spec trigger message and are auto-added", {
   spec <- parse_var_spec(c(WT = "Weight (kg)"))
   msgs <- character(0)
   result <- withCallingHandlers(
-    validate_var_spec(spec, df, "WT", "AGE"),
+    erSCM:::validate_var_spec(spec, df, "WT", "AGE"),
     message = function(m) {
       msgs <<- c(msgs, conditionMessage(m))
       invokeRestart("muffleMessage")
@@ -136,7 +136,7 @@ test_that("var_type auto-detection: numeric -> continuous, factor -> categorical
     units = NA_character_, var_type = NA_character_,
     categories = list(NULL, NULL), transform = "none"
   )
-  result <- validate_var_spec(spec, df, c("WT", "SEX"), character(0))
+  result <- erSCM:::validate_var_spec(spec, df, c("WT", "SEX"), character(0))
   expect_equal(result$var_type[result$col_name == "WT"],  "continuous")
   expect_equal(result$var_type[result$col_name == "SEX"], "categorical")
 })
