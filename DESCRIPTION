@@ -1,6 +1,6 @@
 Package: erSCM
 Title: Stepwise Covariate Modeling for Exposure–Response and Exposure–Safety
-Version: 0.1.2
+Version: 0.1.4
 Authors@R: 
     person("Carlos", "Traynor", , "carlos.traynor.qcp@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3753-7552"))

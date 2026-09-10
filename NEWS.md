@@ -1,4 +1,4 @@
-# erSCM 0.1.4 (development)
+# erSCM 0.1.4
 
 ## New Features
 

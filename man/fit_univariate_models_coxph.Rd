@@ -64,6 +64,7 @@ Returns estimates, test statistics, and p-values to inform subsequent SCM steps.
 }
 \examples{
 data(demo_eres)
+\donttest{
 uni <- fit_univariate_models_coxph(
   eres_data = demo_eres,
   covariates = c("AGE", "WT"),
@@ -72,6 +73,7 @@ uni <- fit_univariate_models_coxph(
   significance_level = c(0.05, 0.01)
 )
 uni$step1_sum
+}
 
 }
 \seealso{

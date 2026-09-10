@@ -88,6 +88,7 @@ data(demo_eres)
 # NOTE: unlike scm_glm(), this low-level step does not rename dv_col for
 # you -- the outcome column must already be literally called "DV".
 demo_eres$DV <- demo_eres$sim_status
+\donttest{
 best1 <- scm_forward_first_step(
   eres_data = demo_eres,
   exposure_vars = c("CMAXss", "AUCss"),
@@ -98,6 +99,7 @@ best1 <- scm_forward_first_step(
   run_tag = "ERES_step1"
 )
 best1$step1_sum
+}
 
 }
 \seealso{

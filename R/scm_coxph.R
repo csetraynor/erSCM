@@ -170,6 +170,7 @@
 #' @examples
 #' data(demo_eres)
 #' demo_eres$SEX <- as.factor(demo_eres$SEX)
+#' \donttest{
 #' res <- scm_coxph(
 #'   eres_data = demo_eres,
 #'   covariates = c("AGE", "WT"),
@@ -179,6 +180,7 @@
 #'   time_col = "sim_time"
 #' )
 #' res$summary
+#' }
 #'
 #' @export
 scm_coxph <- function(
@@ -831,7 +833,7 @@ scm_coxph <- function(
 #' data(demo_eres)
 #' demo_eres$DV <- demo_eres$sim_status
 #' demo_eres$TIME <- demo_eres$sim_time
-#'
+#' \donttest{
 #' # Build a small current_model with two terms already selected (see
 #' # scm_forward_add_coxph() for how this list is constructed step by step;
 #' # this bookkeeping is normally done for you inside scm_coxph()).
@@ -864,6 +866,7 @@ scm_coxph <- function(
 #' )
 #' step_b$Relation
 #' setdiff(step_add$Relation, step_b$Relation)
+#' }
 #'
 #' @seealso \code{\link{scm_forward_add_coxph}}, \code{\link{scm_coxph}}, \code{\link{fit_univariate_models_coxph}}
 #' @inheritParams scm_coxph
@@ -1098,7 +1101,7 @@ scm_backward_delete_coxph <- function(
 #' data(demo_eres)
 #' demo_eres$DV <- demo_eres$sim_status
 #' demo_eres$TIME <- demo_eres$sim_time
-#'
+#' \donttest{
 #' # Build the current_model list expected by scm_forward_add_coxph() from the
 #' # output of scm_forward_first_step_coxph() (this bookkeeping is normally
 #' # done for you inside scm_coxph()).
@@ -1125,6 +1128,7 @@ scm_backward_delete_coxph <- function(
 #' )
 #' step$Relation
 #' setdiff(step$Relation, current_model$Relation)
+#' }
 #'
 #' @seealso \code{\link{scm_forward_first_step_coxph}}, \code{\link{scm_coxph}}, \code{\link{fit_univariate_models_coxph}}
 #' @inheritParams scm_coxph
@@ -1327,6 +1331,7 @@ scm_forward_add_coxph <- function(
 #' # for you -- the columns must already be literally called "DV" and "TIME".
 #' demo_eres$DV <- demo_eres$sim_status
 #' demo_eres$TIME <- demo_eres$sim_time
+#' \donttest{
 #' best1 <- scm_forward_first_step_coxph(
 #'   eres_data = demo_eres,
 #'   exposure_vars = c("CMAXss", "AUCss"),
@@ -1336,6 +1341,7 @@ scm_forward_add_coxph <- function(
 #'   run_tag = "ERES_step1"
 #' )
 #' best1$step1_sum
+#' }
 #'
 #' @seealso \code{\link{scm_coxph}}, \code{\link{fit_univariate_models_coxph}}
 #' @inheritParams scm_coxph
@@ -1503,6 +1509,7 @@ scm_forward_first_step_coxph <- function(
 #'
 #' @examples
 #' data(demo_eres)
+#' \donttest{
 #' uni <- fit_univariate_models_coxph(
 #'   eres_data = demo_eres,
 #'   covariates = c("AGE", "WT"),
@@ -1511,6 +1518,7 @@ scm_forward_first_step_coxph <- function(
 #'   significance_level = c(0.05, 0.01)
 #' )
 #' uni$step1_sum
+#' }
 #'
 #' @seealso \code{\link[survival]{coxph}}, \code{\link{scm_coxph}}
 #' @importFrom broom glance

@@ -100,7 +100,7 @@ directly rather than chaining these step functions by hand.
 \examples{
 data(demo_eres)
 demo_eres$DV <- demo_eres$sim_status
-
+\donttest{
 # Build the current_model list expected by scm_forward_add() from the
 # output of scm_forward_first_step() (this bookkeeping is normally done for
 # you inside scm_glm()).
@@ -128,6 +128,7 @@ step <- scm_forward_add(
 )
 step$Relation
 setdiff(step$Relation, current_model$Relation)
+}
 
 }
 \seealso{

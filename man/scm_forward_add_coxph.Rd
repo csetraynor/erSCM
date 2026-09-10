@@ -109,7 +109,7 @@ orchestrated internally by \code{\link{scm_coxph}}; most users should call
 data(demo_eres)
 demo_eres$DV <- demo_eres$sim_status
 demo_eres$TIME <- demo_eres$sim_time
-
+\donttest{
 # Build the current_model list expected by scm_forward_add_coxph() from the
 # output of scm_forward_first_step_coxph() (this bookkeeping is normally
 # done for you inside scm_coxph()).
@@ -136,6 +136,7 @@ step <- scm_forward_add_coxph(
 )
 step$Relation
 setdiff(step$Relation, current_model$Relation)
+}
 
 }
 \seealso{

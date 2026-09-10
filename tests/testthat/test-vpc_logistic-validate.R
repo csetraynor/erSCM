@@ -22,10 +22,12 @@
 }
 
 test_that("vpc_logistic() rejects a non-eres_scm_glm object", {
+  skip_on_cran()
   expect_error(vpc_logistic(list(1, 2), "AGE"), "eres_scm_glm")
 })
 
 test_that("vpc_logistic() rejects a Cox fit", {
+  skip_on_cran()
   data(demo_eres)
   demo_eres$SEX <- as.factor(demo_eres$SEX)
   cox <- suppressMessages(
@@ -39,16 +41,19 @@ test_that("vpc_logistic() rejects a Cox fit", {
 })
 
 test_that("vpc_logistic() rejects interaction terms", {
+  skip_on_cran()
   fit <- .fit_vpc_valid_scm_glm()
   expect_error(vpc_logistic(fit, "CMAX:AGE"), "interaction")
 })
 
 test_that("vpc_logistic() rejects an unknown covariate", {
+  skip_on_cran()
   fit <- .fit_vpc_valid_scm_glm()
   expect_error(vpc_logistic(fit, "NOPE"), "predictor")
 })
 
 test_that("vpc_logistic() rejects invalid n_bins, n_sim, and probs", {
+  skip_on_cran()
   fit <- .fit_vpc_valid_scm_glm()
   expect_error(vpc_logistic(fit, "AGE", n_bins = 1L), "n_bins")
   expect_error(vpc_logistic(fit, "AGE", n_sim = 0L), "n_sim")

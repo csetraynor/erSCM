@@ -65,6 +65,7 @@ Returns estimates, test statistics, and p-values to inform subsequent SCM steps.
 }
 \examples{
 data(demo_eres)
+\donttest{
 uni <- fit_univariate_models(
   eres_data = demo_eres,
   covariates = c("AGE", "WT"),
@@ -73,6 +74,7 @@ uni <- fit_univariate_models(
   family = "binomial"
 )
 uni$step1_sum
+}
 
 }
 \seealso{

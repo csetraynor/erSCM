@@ -243,6 +243,7 @@ required, or pre-transform the column and set \code{nonlinear = NULL}.
 \examples{
 data(demo_eres)
 demo_eres$SEX <- as.factor(demo_eres$SEX)
+\donttest{
 res <- scm_coxph(
   eres_data = demo_eres,
   covariates = c("AGE", "WT"),
@@ -252,6 +253,7 @@ res <- scm_coxph(
   time_col = "sim_time"
 )
 res$summary
+}
 
 }
 \seealso{

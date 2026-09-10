@@ -125,6 +125,7 @@
 #' @examples
 #' data(demo_eres)
 #' demo_eres$SEX <- as.factor(demo_eres$SEX)
+#' \donttest{
 #' fit <- scm_glm(
 #'   eres_data = demo_eres,
 #'   exposure_vars = "CMAXss",
@@ -133,6 +134,7 @@
 #'   significance_level = c(0.05, 0.01)
 #' )
 #' fit$summary
+#' }
 #'
 #' @export
 scm_glm <- function(eres_data,
@@ -787,7 +789,7 @@ scm_glm <- function(eres_data,
 #' @examples
 #' data(demo_eres)
 #' demo_eres$DV <- demo_eres$sim_status
-#'
+#' \donttest{
 #' # Build a small current_model with two terms already selected (see
 #' # scm_forward_add() for how this list is constructed step by step; this
 #' # bookkeeping is normally done for you inside scm_glm()).
@@ -821,6 +823,7 @@ scm_glm <- function(eres_data,
 #' )
 #' step_b$Relation
 #' setdiff(step_add$Relation, step_b$Relation)
+#' }
 #'
 #' @seealso \code{\link{scm_forward_add}}, \code{\link{scm_glm}}, \code{\link{fit_univariate_models}}
 #' @inheritParams scm_glm
@@ -1077,7 +1080,7 @@ scm_backward_delete <- function(
 #' @examples
 #' data(demo_eres)
 #' demo_eres$DV <- demo_eres$sim_status
-#'
+#' \donttest{
 #' # Build the current_model list expected by scm_forward_add() from the
 #' # output of scm_forward_first_step() (this bookkeeping is normally done for
 #' # you inside scm_glm()).
@@ -1105,6 +1108,7 @@ scm_backward_delete <- function(
 #' )
 #' step$Relation
 #' setdiff(step$Relation, current_model$Relation)
+#' }
 #'
 #' @seealso \code{\link{scm_forward_first_step}}, \code{\link{scm_glm}}, \code{\link{fit_univariate_models}}
 #' @inheritParams scm_glm
@@ -1328,6 +1332,7 @@ scm_forward_add <- function(
 #' # NOTE: unlike scm_glm(), this low-level step does not rename dv_col for
 #' # you -- the outcome column must already be literally called "DV".
 #' demo_eres$DV <- demo_eres$sim_status
+#' \donttest{
 #' best1 <- scm_forward_first_step(
 #'   eres_data = demo_eres,
 #'   exposure_vars = c("CMAXss", "AUCss"),
@@ -1338,6 +1343,7 @@ scm_forward_add <- function(
 #'   run_tag = "ERES_step1"
 #' )
 #' best1$step1_sum
+#' }
 #'
 #' @seealso \code{\link{scm_glm}}, \code{\link{fit_univariate_models}}
 #' @inheritParams scm_glm
@@ -1527,6 +1533,7 @@ scm_forward_first_step <- function(
 #'
 #' @examples
 #' data(demo_eres)
+#' \donttest{
 #' uni <- fit_univariate_models(
 #'   eres_data = demo_eres,
 #'   covariates = c("AGE", "WT"),
@@ -1535,6 +1542,7 @@ scm_forward_first_step <- function(
 #'   family = "binomial"
 #' )
 #' uni$step1_sum
+#' }
 #'
 #' @seealso \code{\link[stats]{glm}}, \code{\link{scm_glm}}
 #' @importFrom broom glance

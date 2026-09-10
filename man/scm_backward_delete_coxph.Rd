@@ -114,7 +114,7 @@ rather than chaining these step functions by hand.
 data(demo_eres)
 demo_eres$DV <- demo_eres$sim_status
 demo_eres$TIME <- demo_eres$sim_time
-
+\donttest{
 # Build a small current_model with two terms already selected (see
 # scm_forward_add_coxph() for how this list is constructed step by step;
 # this bookkeeping is normally done for you inside scm_coxph()).
@@ -147,6 +147,7 @@ step_b <- scm_backward_delete_coxph(
 )
 step_b$Relation
 setdiff(step_add$Relation, step_b$Relation)
+}
 
 }
 \seealso{

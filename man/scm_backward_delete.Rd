@@ -115,7 +115,7 @@ than chaining these step functions by hand.
 \examples{
 data(demo_eres)
 demo_eres$DV <- demo_eres$sim_status
-
+\donttest{
 # Build a small current_model with two terms already selected (see
 # scm_forward_add() for how this list is constructed step by step; this
 # bookkeeping is normally done for you inside scm_glm()).
@@ -149,6 +149,7 @@ step_b <- scm_backward_delete(
 )
 step_b$Relation
 setdiff(step_add$Relation, step_b$Relation)
+}
 
 }
 \seealso{

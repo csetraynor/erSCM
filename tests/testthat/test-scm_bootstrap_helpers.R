@@ -5,6 +5,7 @@
 # ---- .generate_bootstrap_sample() -------------------------------------------
 
 test_that(".generate_bootstrap_sample() row-level returns same dimensions", {
+  skip_on_cran()
   df   <- data.frame(x = seq_len(100L), y = rnorm(100L))
   boot <- erSCM:::.generate_bootstrap_sample(df, subject_col = NULL)
   expect_equal(nrow(boot), 100L)
@@ -12,12 +13,14 @@ test_that(".generate_bootstrap_sample() row-level returns same dimensions", {
 })
 
 test_that(".generate_bootstrap_sample() row-level is a data.frame", {
+  skip_on_cran()
   df   <- data.frame(x = seq_len(50L), y = rnorm(50L))
   boot <- erSCM:::.generate_bootstrap_sample(df)
   expect_s3_class(boot, "data.frame")
 })
 
 test_that(".generate_bootstrap_sample() row-level produces variation", {
+  skip_on_cran()
   set.seed(42L)
   df <- data.frame(x = seq_len(100L))
   b1 <- erSCM:::.generate_bootstrap_sample(df)
@@ -27,6 +30,7 @@ test_that(".generate_bootstrap_sample() row-level produces variation", {
 })
 
 test_that(".generate_bootstrap_sample() patient-level preserves all rows for sampled IDs", {
+  skip_on_cran()
   df <- data.frame(
     SUBJID = rep(paste0("S", seq_len(20L)), each = 5L),
     x      = rnorm(100L),
@@ -41,6 +45,7 @@ test_that(".generate_bootstrap_sample() patient-level preserves all rows for sam
 })
 
 test_that(".generate_bootstrap_sample() patient-level samples with replacement (same nrow, subset of IDs)", {
+  skip_on_cran()
   df <- data.frame(
     SUBJID = rep(paste0("S", seq_len(10L)), each = 3L),
     x      = rnorm(30L)
@@ -58,6 +63,7 @@ test_that(".generate_bootstrap_sample() patient-level samples with replacement (
 # ---- .compute_inclusion_prob() ----------------------------------------------
 
 test_that(".compute_inclusion_prob() returns correctly named vector", {
+  skip_on_cran()
   boot_models <- list(c("A", "B"), c("A", "C"), c("B", "C"))
   candidates  <- c("A", "B", "C", "D")
   probs       <- erSCM:::.compute_inclusion_prob(boot_models, candidates)
@@ -65,6 +71,7 @@ test_that(".compute_inclusion_prob() returns correctly named vector", {
 })
 
 test_that(".compute_inclusion_prob() computes proportions correctly", {
+  skip_on_cran()
   boot_models <- list(c("A", "B"), c("A", "C"), c("A"), c("B", "C"), c("A", "B", "C"))
   candidates  <- c("A", "B", "C", "D")
   probs       <- erSCM:::.compute_inclusion_prob(boot_models, candidates)
@@ -75,17 +82,20 @@ test_that(".compute_inclusion_prob() computes proportions correctly", {
 })
 
 test_that(".compute_inclusion_prob() handles empty boot_models", {
+  skip_on_cran()
   probs <- erSCM:::.compute_inclusion_prob(list(), c("A", "B"))
   expect_equal(unname(probs), c(0, 0))
 })
 
 test_that(".compute_inclusion_prob() handles empty candidates", {
+  skip_on_cran()
   boot_models <- list(c("A"), c("B"))
   probs       <- erSCM:::.compute_inclusion_prob(boot_models, character(0L))
   expect_length(probs, 0L)
 })
 
 test_that(".compute_inclusion_prob() values are in [0, 1]", {
+  skip_on_cran()
   boot_models <- list(c("A", "B"), c("B"), c("C"), c("A", "C"), c("A", "B", "C"))
   probs       <- erSCM:::.compute_inclusion_prob(boot_models, c("A", "B", "C"))
   expect_true(all(probs >= 0 & probs <= 1))
@@ -94,6 +104,7 @@ test_that(".compute_inclusion_prob() values are in [0, 1]", {
 # ---- .compute_co_inclusion_matrix() -----------------------------------------
 
 test_that(".compute_co_inclusion_matrix() is symmetric", {
+  skip_on_cran()
   boot_models <- list(c("A", "B"), c("A", "C"), c("B", "C"))
   all_terms   <- c("A", "B", "C")
   mat         <- erSCM:::.compute_co_inclusion_matrix(boot_models, all_terms)
@@ -101,6 +112,7 @@ test_that(".compute_co_inclusion_matrix() is symmetric", {
 })
 
 test_that(".compute_co_inclusion_matrix() off-diagonal values are correct", {
+  skip_on_cran()
   boot_models <- list(c("A", "B"), c("A", "C"), c("B", "C"))
   all_terms   <- c("A", "B", "C")
   mat         <- erSCM:::.compute_co_inclusion_matrix(boot_models, all_terms)
@@ -111,6 +123,7 @@ test_that(".compute_co_inclusion_matrix() off-diagonal values are correct", {
 })
 
 test_that(".compute_co_inclusion_matrix() diagonal equals marginal inclusion", {
+  skip_on_cran()
   boot_models <- list(c("A", "B"), c("A"), c("B"))
   all_terms   <- c("A", "B")
   mat         <- erSCM:::.compute_co_inclusion_matrix(boot_models, all_terms)
@@ -119,18 +132,21 @@ test_that(".compute_co_inclusion_matrix() diagonal equals marginal inclusion", {
 })
 
 test_that(".compute_co_inclusion_matrix() all values in [0, 1]", {
+  skip_on_cran()
   boot_models <- list(c("A", "B"), c("A", "B", "C"), c("C"))
   mat         <- erSCM:::.compute_co_inclusion_matrix(boot_models, c("A", "B", "C"))
   expect_true(all(mat >= 0 & mat <= 1))
 })
 
 test_that(".compute_co_inclusion_matrix() handles empty boot_models", {
+  skip_on_cran()
   mat <- erSCM:::.compute_co_inclusion_matrix(list(), c("A", "B"))
   expect_equal(dim(mat), c(2L, 2L))
   expect_true(all(mat == 0))
 })
 
 test_that(".compute_co_inclusion_matrix() handles empty terms", {
+  skip_on_cran()
   boot_models <- list(c("A"), c("B"))
   mat         <- erSCM:::.compute_co_inclusion_matrix(boot_models, character(0L))
   expect_equal(dim(mat), c(0L, 0L))
@@ -139,6 +155,7 @@ test_that(".compute_co_inclusion_matrix() handles empty terms", {
 # ---- .identify_modal_model() ------------------------------------------------
 
 test_that(".identify_modal_model() finds the most frequent model", {
+  skip_on_cran()
   boot_models <- list(
     c("A", "B"), c("A", "B"), c("A", "B"),
     c("A", "C"), c("B", "C")
@@ -149,6 +166,7 @@ test_that(".identify_modal_model() finds the most frequent model", {
 })
 
 test_that(".identify_modal_model() handles empty character vectors (null model)", {
+  skip_on_cran()
   boot_models <- list(character(0L), character(0L), c("A"))
   result      <- erSCM:::.identify_modal_model(boot_models)
   expect_equal(result$model,     character(0L))
@@ -156,6 +174,7 @@ test_that(".identify_modal_model() handles empty character vectors (null model)"
 })
 
 test_that(".identify_modal_model() tie-breaking is deterministic (alphabetical)", {
+  skip_on_cran()
   # Both "A" and "B" appear twice as singleton models → table sorts by name
   boot_models <- list(c("A"), c("B"), c("A"), c("B"))
   result      <- erSCM:::.identify_modal_model(boot_models)
@@ -171,12 +190,14 @@ test_that(".identify_modal_model() tie-breaking is deterministic (alphabetical)"
 })
 
 test_that(".identify_modal_model() handles a single replicate", {
+  skip_on_cran()
   result <- erSCM:::.identify_modal_model(list(c("A", "B")))
   expect_equal(sort(result$model), c("A", "B"))
   expect_equal(result$frequency, 1)
 })
 
 test_that(".identify_modal_model() handles empty input", {
+  skip_on_cran()
   result <- erSCM:::.identify_modal_model(list())
   expect_equal(result$model,     character(0L))
   expect_true(is.na(result$frequency))
@@ -185,18 +206,21 @@ test_that(".identify_modal_model() handles empty input", {
 # ---- .binom_ci() ------------------------------------------------------------
 
 test_that(".binom_ci() Wilson CI contains the point estimate", {
+  skip_on_cran()
   ci <- erSCM:::.binom_ci(30L, 100L, method = "wilson")
   expect_true(ci["lower"] <= 0.30)
   expect_true(ci["upper"] >= 0.30)
 })
 
 test_that(".binom_ci() exact (Clopper-Pearson) CI contains point estimate", {
+  skip_on_cran()
   ci <- erSCM:::.binom_ci(30L, 100L, method = "exact")
   expect_true(ci["lower"] <= 0.30)
   expect_true(ci["upper"] >= 0.30)
 })
 
 test_that(".binom_ci() returns values in [0, 1] at x=0", {
+  skip_on_cran()
   ci <- erSCM:::.binom_ci(0L, 100L, method = "wilson")
   expect_true(ci["lower"] >= 0)
   expect_true(ci["upper"] <= 1)
@@ -204,6 +228,7 @@ test_that(".binom_ci() returns values in [0, 1] at x=0", {
 })
 
 test_that(".binom_ci() returns values in [0, 1] at x=n", {
+  skip_on_cran()
   ci <- erSCM:::.binom_ci(100L, 100L, method = "wilson")
   expect_true(ci["lower"] >= 0)
   expect_true(ci["upper"] <= 1)
@@ -211,12 +236,14 @@ test_that(".binom_ci() returns values in [0, 1] at x=n", {
 })
 
 test_that(".binom_ci() handles n=0 edge case", {
+  skip_on_cran()
   ci <- erSCM:::.binom_ci(0L, 0L, method = "wilson")
   expect_equal(unname(ci["lower"]), 0)
   expect_equal(unname(ci["upper"]), 1)
 })
 
 test_that(".binom_ci() lower < upper for interior proportions", {
+  skip_on_cran()
   ci <- erSCM:::.binom_ci(50L, 100L, method = "wilson")
   expect_true(ci["lower"] < ci["upper"])
   ci2 <- erSCM:::.binom_ci(50L, 100L, method = "exact")
@@ -224,6 +251,7 @@ test_that(".binom_ci() lower < upper for interior proportions", {
 })
 
 test_that(".binom_ci() Wilson and exact agree closely for n=1000", {
+  skip_on_cran()
   ci_w <- erSCM:::.binom_ci(300L, 1000L, method = "wilson")
   ci_e <- erSCM:::.binom_ci(300L, 1000L, method = "exact")
   expect_true(abs(ci_w["lower"] - ci_e["lower"]) < 0.01)
@@ -231,6 +259,7 @@ test_that(".binom_ci() Wilson and exact agree closely for n=1000", {
 })
 
 test_that(".binom_ci() returns named vector with 'lower' and 'upper'", {
+  skip_on_cran()
   ci <- erSCM:::.binom_ci(10L, 20L)
   expect_named(ci, c("lower", "upper"))
 })
@@ -238,24 +267,28 @@ test_that(".binom_ci() returns named vector with 'lower' and 'upper'", {
 # ---- .extract_scm_settings() ------------------------------------------------
 
 test_that(".extract_scm_settings() extracts type correctly for GLM", {
+  skip_on_cran()
   fit      <- .fit_test_scm_glm()
   settings <- erSCM:::.extract_scm_settings(fit)
   expect_equal(settings$type, "glm")
 })
 
 test_that(".extract_scm_settings() extracts type correctly for CoxPH", {
+  skip_on_cran()
   fit      <- .fit_test_scm_coxph()
   settings <- erSCM:::.extract_scm_settings(fit)
   expect_equal(settings$type, "coxph")
 })
 
 test_that(".extract_scm_settings() exposure_vars not in covariates", {
+  skip_on_cran()
   fit      <- .fit_test_scm_glm()
   settings <- suppressMessages(erSCM:::.extract_scm_settings(fit))
   expect_false(any(settings$exposure_vars %in% settings$covariates))
 })
 
 test_that(".extract_scm_settings() returns data.frame for data", {
+  skip_on_cran()
   fit      <- .fit_test_scm_glm()
   settings <- suppressMessages(erSCM:::.extract_scm_settings(fit))
   expect_s3_class(settings$data, "data.frame")
@@ -263,6 +296,7 @@ test_that(".extract_scm_settings() returns data.frame for data", {
 })
 
 test_that(".extract_scm_settings() overrides significance_level when supplied", {
+  skip_on_cran()
   fit      <- .fit_test_scm_glm()
   settings <- suppressMessages(
     erSCM:::.extract_scm_settings(fit, significance_level = c(0.1, 0.05))
@@ -271,6 +305,7 @@ test_that(".extract_scm_settings() overrides significance_level when supplied", 
 })
 
 test_that(".extract_scm_settings() defaults significance_level with message", {
+  skip_on_cran()
   fit <- .fit_test_scm_glm()
   expect_message(
     erSCM:::.extract_scm_settings(fit),
@@ -281,6 +316,7 @@ test_that(".extract_scm_settings() defaults significance_level with message", {
 # ---- .compute_exposure_selection_prob() -------------------------------------
 
 test_that(".compute_exposure_selection_prob() correct for known input", {
+  skip_on_cran()
   models <- list(
     list(exposure = "CMAX",         covariates = c("AGE")),
     list(exposure = "CMAX",         covariates = c("AGE", "WT")),
@@ -295,6 +331,7 @@ test_that(".compute_exposure_selection_prob() correct for known input", {
 })
 
 test_that(".compute_exposure_selection_prob() no NAs means no none_significant", {
+  skip_on_cran()
   models <- list(
     list(exposure = "CMAX", covariates = c("AGE")),
     list(exposure = "AUC",  covariates = c("WT"))
@@ -306,6 +343,7 @@ test_that(".compute_exposure_selection_prob() no NAs means no none_significant",
 })
 
 test_that(".compute_exposure_selection_prob() handles empty boot_models", {
+  skip_on_cran()
   probs <- erSCM:::.compute_exposure_selection_prob(list(), c("CMAX", "AUC"))
   expect_equal(unname(probs), c(0, 0))
   expect_named(probs, c("CMAX", "AUC"))
@@ -314,6 +352,7 @@ test_that(".compute_exposure_selection_prob() handles empty boot_models", {
 # ---- .compute_inclusion_prob_by_exposure() -----------------------------------
 
 test_that(".compute_inclusion_prob_by_exposure() returns NULL for single exposure", {
+  skip_on_cran()
   models <- list(
     list(exposure = "CMAX", covariates = c("AGE", "WT")),
     list(exposure = "CMAX", covariates = c("AGE"))
@@ -325,6 +364,7 @@ test_that(".compute_inclusion_prob_by_exposure() returns NULL for single exposur
 })
 
 test_that(".compute_inclusion_prob_by_exposure() correct for multiple exposures", {
+  skip_on_cran()
   models <- list(
     list(exposure = "CMAX", covariates = c("AGE", "WT")),
     list(exposure = "CMAX", covariates = c("AGE")),
@@ -343,6 +383,7 @@ test_that(".compute_inclusion_prob_by_exposure() correct for multiple exposures"
 })
 
 test_that(".compute_inclusion_prob_by_exposure() returns NULL for empty models", {
+  skip_on_cran()
   result <- erSCM:::.compute_inclusion_prob_by_exposure(
     list(), c("AGE", "WT"), c("CMAX", "AUC")
   )
@@ -352,6 +393,7 @@ test_that(".compute_inclusion_prob_by_exposure() returns NULL for empty models",
 # ---- .identify_modal_model() includes exposure in model identity ------------
 
 test_that(".identify_modal_model() includes exposure in model identity", {
+  skip_on_cran()
   models <- list(
     list(exposure = "CMAX", covariates = c("AGE")),
     list(exposure = "CMAX", covariates = c("AGE")),
@@ -365,6 +407,7 @@ test_that(".identify_modal_model() includes exposure in model identity", {
 })
 
 test_that(".extract_scm_settings() returns selected_exposure for GLM", {
+  skip_on_cran()
   fit      <- .fit_test_scm_glm()
   settings <- suppressMessages(erSCM:::.extract_scm_settings(fit))
   expect_true("selected_exposure" %in% names(settings))
@@ -375,6 +418,7 @@ test_that(".extract_scm_settings() returns selected_exposure for GLM", {
 # ---- .compute_transform_freq() multi-exposure fix (Gap #9) ------------------
 
 test_that(".compute_transform_freq() returns named list for multi-exposure NL spec (Gap #9)", {
+  skip_on_cran()
   # Simulate 4 converged bootstrap models where CMAX and AUC are both NL candidates
   converged_models <- list(
     list(exposure_transform = "log",      covariate_transforms = list()),
@@ -401,6 +445,7 @@ test_that(".compute_transform_freq() returns named list for multi-exposure NL sp
 })
 
 test_that(".compute_transform_freq() returns named list for single-exposure NL spec (Gap #9)", {
+  skip_on_cran()
   converged_models <- list(
     list(exposure_transform = "log",    covariate_transforms = list()),
     list(exposure_transform = "linear", covariate_transforms = list())

@@ -97,6 +97,7 @@ data(demo_eres)
 # for you -- the columns must already be literally called "DV" and "TIME".
 demo_eres$DV <- demo_eres$sim_status
 demo_eres$TIME <- demo_eres$sim_time
+\donttest{
 best1 <- scm_forward_first_step_coxph(
   eres_data = demo_eres,
   exposure_vars = c("CMAXss", "AUCss"),
@@ -106,6 +107,7 @@ best1 <- scm_forward_first_step_coxph(
   run_tag = "ERES_step1"
 )
 best1$step1_sum
+}
 
 }
 \seealso{
