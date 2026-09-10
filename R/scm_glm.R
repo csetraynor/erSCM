@@ -403,8 +403,10 @@ scm_glm <- function(eres_data,
   }
 
   if (!checks_step1$flagforst) {
-    if (verbose) message("No significant exposure variable found. SCM complete.")
-    message("End of the SCM.")
+    if (verbose) {
+      message("No significant exposure variable found. SCM complete.")
+      message("End of the SCM.")
+    }
     # Return a fully-formed S3 object so all downstream methods work correctly.
     # final_model is NULL to signal no model was fit; all other fields are present.
     early_metadata <- list(

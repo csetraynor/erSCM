@@ -361,6 +361,19 @@ test_that("scale_to_median=TRUE and center=TRUE together issue a warning", {
   )
 })
 
+test_that("apply_var_labels covname stripping is element-wise (vectorised label regression)", {
+  # Regression: gsub(label, "", covname, fixed=TRUE) inside mutate uses label[1] only.
+  # With mapply the replacement must be per-row, not first-element.
+  fp <- data.frame(
+    covname = c("SEXFemale", "RACEWhite", "RACEBlack"),
+    label   = c("Female",    "White",     "Black"),
+    VAL     = c(NA_real_,    NA_real_,    NA_real_),
+    stringsAsFactors = FALSE
+  )
+  out <- erSCM:::apply_var_labels(fp, var_meta = NULL)
+  expect_equal(out$covname, c("SEX", "RACE", "RACE"))
+})
+
 test_that("var_spec transform = 'centered' correctly back-transforms values in forest plot", {
   skip_on_cran()
   set.seed(14)

@@ -454,8 +454,10 @@ scm_coxph <- function(
   }
 
   if (!checks_step1$flagforst) {
-    if (verbose) message("No significant exposure variable found. SCM complete.")
-    message("End of the SCM.")
+    if (verbose) {
+      message("No significant exposure variable found. SCM complete.")
+      message("End of the SCM.")
+    }
     # Return a fully-formed S3 object so all downstream methods work correctly.
     early_metadata <- list(
       dvid_name               = dvid,

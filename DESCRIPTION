@@ -25,7 +25,6 @@ Imports:
     glue,
     ggpubr,
     scales,
-    stringr,
     rlang,
     tidyselect
 Suggests:

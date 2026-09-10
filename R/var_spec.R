@@ -373,7 +373,7 @@ apply_var_labels <- function(fp_data, var_meta) {
       dplyr::mutate(
         units           = ifelse(is.na(VAL), NA_character_, "U"),
         group_level     = ifelse(is.na(VAL), label, paste(round(VAL, 3), "U")),
-        covname         = stringr::str_replace_all(covname, stringr::fixed(label), ""),
+        covname         = as.character(mapply(gsub, label, "", covname, MoreArgs = list(fixed = TRUE), USE.NAMES = FALSE)),
         display_covname = covname
       ))
   }
@@ -412,7 +412,7 @@ apply_var_labels <- function(fp_data, var_meta) {
         TRUE ~ paste(round(VAL_display, 3), units)
       ),
       # Clean categorical covname suffixes (e.g. "SEXFemale" -> "SEX")
-      covname = stringr::str_replace_all(covname, stringr::fixed(label), ""),
+      covname = as.character(mapply(gsub, label, "", covname, MoreArgs = list(fixed = TRUE), USE.NAMES = FALSE)),
       # display_covname: use display label for continuous, keep raw for categorical
       display_covname = dplyr::case_when(
         !is.na(display_label) & !is.na(VAL_display) ~ display_label,
