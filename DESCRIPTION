@@ -7,7 +7,7 @@ Authors@R:
 Description: Run Stepwise Covariate Modeling (SCM) for Exposure–Response (ER) and Exposure–Safety (ES) analyses. The package streamlines covariate screening, model building, and selection workflows (forward, backward, and hybrid stepwise strategies) with reproducible pipelines, audit-ready summaries, and visual diagnostics suitable for pharmacometric and clinical data. Utilities include automated candidate generation, interaction handling, model comparison, cross-validation, and standardized outputs to support decision-making in ERES contexts.
 License: GPL (>= 3)
 Encoding: UTF-8
-Language: en
+Language: en-GB
 Depends: R (>= 4.1)
 Imports:
     cli,
