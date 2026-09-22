@@ -1,5 +1,32 @@
 # erSCM 0.1.4
 
+## API Changes
+
+* Parameters that were silently ignored since the initial commit now raise errors
+  via `.NotYetImplemented()` so callers get an explicit signal rather than silent
+  misconfiguration:
+  - `removable_terms` in `scm_backward_delete()` / `scm_backward_delete_coxph()`:
+    changed from a required argument to `= NULL`; non-NULL raises an error.
+  - `fixed_terms` in `scm_backward_delete()` / `scm_backward_delete_coxph()`:
+    non-NULL raises an error.
+  - `criterion` in `scm_backward_delete()`, `scm_backward_delete_coxph()`,
+    `scm_forward_add()`, `scm_forward_add_coxph()`,
+    `scm_forward_first_step()`, `scm_forward_first_step_coxph()`:
+    any value other than `"AIC"` raises an error.
+  - `min_terms` in `scm_backward_delete()` / `scm_backward_delete_coxph()`:
+    any positive value raises an error.
+  - `max_terms` in `scm_forward_add()` / `scm_forward_add_coxph()`:
+    any finite value raises an error.
+  - `parallel` in `scm_coxph()`, `fit_univariate_models()`,
+    `fit_univariate_models_coxph()`: `TRUE` (or any non-`FALSE`) raises an error.
+
+* `outcome` in `scm_backward_delete()` / `scm_backward_delete_coxph()`: changed
+  from a required argument to `= NULL`; silently ignored. Documented as
+  deprecated; will be removed in 0.2.0.
+
+* `run_tag` in all step functions: no behaviour change; `@param` documentation
+  updated to "Reserved for future audit logging; currently unused."
+
 ## New Features
 
 * New function `vpc_coxph_sim()`: a simulation-based predictive Cox VPC for

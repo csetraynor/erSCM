@@ -39,10 +39,8 @@ all candidate models. Default \code{NULL}.}
 \item{family}{character or \code{\link[stats]{family}}. Model family passed to \code{\link[stats]{glm}}.
 Default \code{"binomial"}.}
 
-\item{criterion}{character. Model selection criterion used to rank candidates. One of
-\code{"AIC"}, \code{"BIC"}, or \code{"LRT"} (likelihood ratio test vs. null/adjusted-only).
-Default \code{"AIC"}.
-Ignored otherwise. Default \code{0.01}.}
+\item{criterion}{character. Model selection criterion. Only \code{"AIC"} is currently
+implemented; other values raise an error. Default \code{"AIC"}.}
 
 \item{significance_level}{Numeric vector of significance thresholds to evaluate (e.g. c(0.05, 0.001)). Values must be between 0 and 1. Defaults to c(0.05, 0.001)}
 
@@ -50,7 +48,7 @@ Ignored otherwise. Default \code{0.01}.}
 
 \item{verbose}{Logical; if TRUE, print progress messages and diagnostic information. Defaults to FALSE.}
 
-\item{run_tag}{character. Optional label for metadata and saved artifacts. Default \code{""}.}
+\item{run_tag}{character. Reserved for future audit logging; currently unused. Default \code{""}.}
 }
 \value{
 A list with one element:

@@ -40,15 +40,15 @@ Default \code{NULL}.}
 \item{family}{character or \code{\link[stats]{family}}. Model family passed to \code{\link[stats]{glm}}.
 Default \code{"binomial"}.}
 
-\item{criterion}{character. Selection criterion to rank candidates. One of \code{"AIC"},
-\code{"BIC"}, or \code{"LRT"}. Default \code{"AIC"}.}
+\item{criterion}{character. Selection criterion. Only \code{"AIC"} is currently
+implemented; other values raise an error. Default \code{"AIC"}.}
 
 \item{significance_level}{Numeric vector of significance thresholds to evaluate (e.g. c(0.05, 0.001)). Values must be between 0 and 1. Defaults to c(0.05, 0.001)}
 
-\item{max_terms}{integer. Optional cap on total terms allowed in the model (excluding intercept).
-If reached, the function will not add new terms. Default \code{Inf}.}
+\item{max_terms}{integer. Reserved; currently unimplemented. Pass \code{Inf} (the default).
+A finite value will raise an error.}
 
-\item{run_tag}{character. Optional label stored in metadata. Default \code{""}.}
+\item{run_tag}{character. Reserved for future audit logging; currently unused. Default \code{""}.}
 
 \item{return_models}{logical. If \code{TRUE}, include fitted candidate models in the output. Default \code{FALSE}.}
 

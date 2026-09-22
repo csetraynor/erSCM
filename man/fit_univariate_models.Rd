@@ -41,7 +41,8 @@ Default \code{"binomial"}.}
 
 \item{return_models}{logical. If \code{TRUE}, include fitted model objects in output. Default \code{FALSE}.}
 
-\item{parallel}{logical or integer. Whether to run fits in parallel or number of workers. Default \code{FALSE}.}
+\item{parallel}{logical or integer. Reserved; currently unimplemented. Pass \code{FALSE} (the
+default). \code{TRUE} or any positive integer will raise an error.}
 }
 \value{
 A list with one element:

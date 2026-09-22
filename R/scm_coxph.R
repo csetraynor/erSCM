@@ -114,8 +114,8 @@
 #'   If NULL (default), uses the same \code{significance_level} values as main effects.
 #' @param max_interaction_order Integer. Maximum order of interactions to generate when
 #'   \code{interactions} is provided as a list. Default 2 (pairwise only).
-#' @param parallel Logical; if \code{TRUE}, evaluates candidate terms in
-#'   parallel where applicable. Default \code{FALSE}.
+#' @param parallel Logical. Reserved; currently unimplemented. Pass \code{FALSE} (the default).
+#'   \code{TRUE} will raise an error.
 #' @param ... Additional arguments passed to \code{survival::coxph()} (e.g.,
 #'   \code{ties}, \code{weights}, \code{cluster}, \code{robust}).
 #'
@@ -253,6 +253,7 @@ scm_coxph <- function(
   if (direction == "backward" && is.null(start_covariates)) {
     cli::cli_abort("{.code direction = \"backward\"} requires {.arg start_covariates} to be provided.")
   }
+  if (!isFALSE(parallel)) .NotYetImplemented()
 
   # Handle deprecated parameters
   if (!missing(normalize_inputs) && normalize_inputs) {
@@ -774,15 +775,15 @@ scm_coxph <- function(
 #'   specification) before backward deletion. For formulas, the function will fit as needed.
 #' @param eres_data data.frame or tibble. Dataset used for fitting, containing the outcome,
 #'   exposure metrics, and covariates.
-#' @param removable_terms character. Vector of term names that are eligible for deletion
-#' @param outcome character. Not used. Column name of the outcome variable.
-#'   (typically non-fixed covariates currently present in \code{current_model}).
+#' @param removable_terms character or NULL. Reserved for future use: a caller-specified
+#'   set of terms eligible for deletion. Currently unimplemented; pass \code{NULL} (the
+#'   default). A non-\code{NULL} value will raise an error.
+#' @param outcome character or NULL. Deprecated; ignored. Will be removed in 0.2.0.
 #' @param fixed_terms character. Optional terms that must remain in the model and should
 #'   not be considered for deletion (e.g., exposure or baseline risk factors). Default \code{NULL}.
-#'   Default \code{"binomial"}.
-#' @param criterion character. Selection criterion guiding deletion decisions. One of
-#'   \code{"AIC"}, \code{"BIC"}, or \code{"LRT"} (likelihood ratio test vs. full model).
-#'   Default \code{"AIC"}.
+#'   Currently unimplemented; a non-\code{NULL} value will raise an error.
+#' @param criterion character. Selection criterion. Only \code{"AIC"} is currently
+#'   implemented; other values raise an error. Default \code{"AIC"}.
 #' @param exit_alpha numeric. Significance threshold for removal when \code{criterion = "LRT"}.
 #'   Ignored otherwise. Default \code{0.01}.
 #' @param exit_alpha_interaction numeric or NULL. Separate significance threshold for
@@ -790,9 +791,9 @@ scm_coxph <- function(
 #'   terms are evaluated against \code{exit_alpha} (same as main effects). When provided,
 #'   interaction terms (those containing ":") are compared against this threshold while
 #'   main effects continue to use \code{exit_alpha}.
-#' @param min_terms integer. Optional lower bound on the number of terms allowed to remain
-#'   in the model (excluding intercept). If reached, no deletion occurs. Default \code{0}.
-#' @param run_tag character. Optional label stored in metadata. Default \code{""}.
+#' @param min_terms integer. Reserved; currently unimplemented. Pass \code{0} (the default).
+#'   A positive value will raise an error.
+#' @param run_tag character. Reserved for future audit logging; currently unused. Default \code{""}.
 #' @param return_models logical. If \code{TRUE}, include fitted candidate removal models in the output.
 #'   Default \code{FALSE}.
 #'
@@ -857,12 +858,7 @@ scm_coxph <- function(
 #' step_b <- scm_backward_delete_coxph(
 #'   current_model = step_add,
 #'   eres_data = demo_eres,
-#'   removable_terms = step_add$Relation,
-#'   outcome = "sim_status",
-#'   criterion = "BIC",
-#'   exit_alpha = 0.01,
-#'   min_terms = 1,
-#'   run_tag = "bwd_del_1"
+#'   exit_alpha = 0.01
 #' )
 #' step_b$Relation
 #' setdiff(step_add$Relation, step_b$Relation)
@@ -874,8 +870,8 @@ scm_coxph <- function(
 scm_backward_delete_coxph <- function(
     current_model,
     eres_data,
-    removable_terms,
-    outcome,
+    removable_terms = NULL,
+    outcome = NULL,
     fixed_terms = NULL,
     criterion = "AIC",
     exit_alpha = 0.01,
@@ -887,6 +883,10 @@ scm_backward_delete_coxph <- function(
     verbose = FALSE
 ) {
   # implementation goes here
+  if (!is.null(removable_terms)) .NotYetImplemented()
+  if (!is.null(fixed_terms)) .NotYetImplemented()
+  if (!identical(criterion, "AIC")) .NotYetImplemented()
+  if (min_terms > 0) .NotYetImplemented()
   modds <- eres_data
   tmp_ref <- current_model$finalforward
   toto_tot <- current_model$toto_tot
@@ -1053,11 +1053,11 @@ scm_backward_delete_coxph <- function(
 #' @param adjust_for character. Optional fixed terms to include in all models (e.g., baseline risk factors).
 #'   Default \code{NULL}.
 #'   Default \code{"binomial"}.
-#' @param criterion character. Selection criterion to rank candidates. One of \code{"AIC"},
-#'   \code{"BIC"}, or \code{"LRT"}. Default \code{"AIC"}.
-#' @param max_terms integer. Optional cap on total terms allowed in the model (excluding intercept).
-#'   If reached, the function will not add new terms. Default \code{Inf}.
-#' @param run_tag character. Optional label stored in metadata. Default \code{""}.
+#' @param criterion character. Selection criterion. Only \code{"AIC"} is currently
+#'   implemented; other values raise an error. Default \code{"AIC"}.
+#' @param max_terms integer. Reserved; currently unimplemented. Pass \code{Inf} (the default).
+#'   A finite value will raise an error.
+#' @param run_tag character. Reserved for future audit logging; currently unused. Default \code{""}.
 #' @param return_models logical. If \code{TRUE}, include fitted candidate models in the output. Default \code{FALSE}.
 #'
 #' @return A list with:
@@ -1148,6 +1148,8 @@ scm_forward_add_coxph <- function(
     return_models = FALSE,
     verbose = FALSE
 ) {
+  if (!identical(criterion, "AIC")) .NotYetImplemented()
+  if (is.finite(max_terms)) .NotYetImplemented()
   modds <- eres_data
   ## second step
   tmp_ref <- current_model$finalforward
@@ -1296,11 +1298,9 @@ scm_forward_add_coxph <- function(
 #' @param adjust_for character. Optional covariates (e.g., baseline risk factors) to include in
 #'   all candidate models. Default \code{NULL}.
 #'   Default \code{"binomial"}.
-#' @param criterion character. Model selection criterion used to rank candidates. One of
-#'   \code{"AIC"}, \code{"BIC"}, or \code{"LRT"} (likelihood ratio test vs. null/adjusted-only).
-#'   Default \code{"AIC"}.
-#'   Ignored otherwise. Default \code{0.01}.
-#' @param run_tag character. Optional label for metadata and saved artifacts. Default \code{""}.
+#' @param criterion character. Model selection criterion. Only \code{"AIC"} is currently
+#'   implemented; other values raise an error. Default \code{"AIC"}.
+#' @param run_tag character. Reserved for future audit logging; currently unused. Default \code{""}.
 #'
 #' @return A list with one element:
 #' \itemize{
@@ -1360,6 +1360,7 @@ scm_forward_first_step_coxph <- function(
     verbose = FALSE,
     run_tag = ""
 ) {
+  if (!identical(criterion, "AIC")) .NotYetImplemented()
   modds <- eres_data
   ## ------------------------------
   ## Fit reference model
@@ -1491,7 +1492,8 @@ scm_forward_first_step_coxph <- function(
 #' @param adjust_for character. Optional covariates to include in all models (fixed effects). Default \code{NULL}.
 #' @param verbose logical. If TRUE, print progress. Default FALSE.
 #' @param return_models logical. If \code{TRUE}, include fitted model objects in output. Default \code{FALSE}.
-#' @param parallel logical or integer. Whether to run fits in parallel or number of workers. Default \code{FALSE}.
+#' @param parallel logical or integer. Reserved; currently unimplemented. Pass \code{FALSE} (the
+#'   default). \code{TRUE} or any positive integer will raise an error.
 #'
 #' @return A list with one element:
 #' \itemize{
@@ -1536,6 +1538,7 @@ fit_univariate_models_coxph <- function(
     return_models = FALSE,
     parallel = FALSE) {
   .check_inputs(modds = eres_data, dvid_col = dvid_col, dvid = dvid, dv_col = dv_col, covariates = covariates)
+  if (!isFALSE(parallel)) .NotYetImplemented()
   if(!is.null(dvid_col)) {
     modds <- dplyr::rename(eres_data, `:=`(DVID_name, !!dvid_col))
     modds <- dplyr::filter(modds, DVID_name == dvid)
