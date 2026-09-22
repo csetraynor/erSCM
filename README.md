@@ -10,7 +10,7 @@
 
 ```r
 # install.packages("devtools")
-devtools::install_github("your-org/erSCM")
+# devtools::install_github("your-org/erSCM") not available from CPQP github
 ```
 
 ### **Local development**
