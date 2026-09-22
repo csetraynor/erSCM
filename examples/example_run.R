@@ -2,7 +2,7 @@
 # For documented workflows, see vignette("introduction", package = "erSCM")
 
 # library(erSCM)
-devtools::document('~/Documents/d853/erSCM')
+devtools::document('~/erSCM')
 library(dplyr)
 
 data("demo_eres")
@@ -45,8 +45,8 @@ surv_search <- run_scm(
   dv_col             = "sim_status",
   time_col           = "sim_time",
   significance_level = c(0.01, 0.05),
-  dvid               = "ALL",
-  dvid_col           = "DVID",
+  # dvid               = "ALL",
+  # dvid_col           = "DVID",
   var_spec           = my_spec,
   adjust_for         =  "EGFR",      
   center             = TRUE,
@@ -75,6 +75,8 @@ plot(surv_search)
 vpc_coxph(surv_search)
 plot_cox_terms(surv_search, "CMAXss")
 
+vpc_coxph_sim(surv_search, covariate_term = "CMAXss", n_bins = 1)
+
 # -------------------------------------------------------- #
 # Logistic regression SCM
 # -------------------------------------------------------- #
@@ -91,6 +93,7 @@ lr_search <- scm_glm(
 
 lr_search
 plot(lr_search)
+vpc_logistic(lr_search, covariate_term = "CMAXss")
 
 # -------------------------------------------------------- #
 # Legacy approach (still works, but var_spec is preferred)
