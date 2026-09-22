@@ -227,7 +227,7 @@ get_sum_tbl_coxph <- function(model, p_min = 0.001, include_conf_int = FALSE, ex
   summary_table <- tidy_cox %>%
     dplyr::select(term, estimate, std.error, conf.low, conf.high, statistic, p.value) %>%
     dplyr::mutate(
-      term = stringr::str_replace_all(term, "_", " "), # Replaces underscores with spaces in variable names
+      term = gsub("_", " ", term, fixed = TRUE),
       estimate = round(estimate, 3),
       std.error = round(std.error, 3),
       conf.low = round(conf.low, 3),

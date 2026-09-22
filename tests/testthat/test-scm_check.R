@@ -2,7 +2,7 @@ test_that(".check_inputs validates correctly", {
   d <- data.frame(DV = 1:5, x1 = rnorm(5), x2 = rnorm(5))
 
   # Should not error with valid inputs
- expect_message(
+ expect_no_error(
     .check_inputs(modds = d, dvid_col = NULL, dvid = NULL, dv_col = "DV", covariates = c("x1", "x2"))
   )
 
@@ -59,10 +59,7 @@ test_that(".check_forward returns scalar NA_real_ when nothing is selected", {
     stringsAsFactors = FALSE
   )
 
-  expect_message(
-    res <- .check_forward(run_summary, relation = "base"),
-    "not significant"
-  )
+  res <- .check_forward(run_summary, relation = "base")
 
   expect_type(res$finalforward, "double")
   expect_length(res$finalforward, 1L)

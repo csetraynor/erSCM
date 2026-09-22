@@ -54,6 +54,13 @@
 
 ## Bug Fixes
 
+* ggplot2 4.0.0 compatibility: replaced deprecated `geom_errorbarh()` with
+  `geom_errorbar(orientation = "y")` in `make_forest_plot()` and
+  `plot.scm_bootstrap()`. Backward-compatible with ggplot2 ≥ 3.4.0.
+
+* `get_sum_tbl_coxph()`: removed undeclared `stringr` dependency; term
+  label formatting now uses base `gsub()`.
+
 * `vpc_coxph_sim()`: numeric covariate binning with `n_bins > 1` now works.
   The previous `cli_abort()` guard blocking this path has been removed and
   replaced with `ggplot2::cut_number()` quantile binning, matching the approach
@@ -142,6 +149,11 @@
   column-name variants (`Pr(>Chi)` and `Pr(>|Chi|)`).
 
 ## Testing
+
+* Fixed two incorrect test assertions in `test-scm_check.R`: replaced
+  `expect_message()` with `expect_no_error()` where no message is emitted, and
+  removed a spurious `expect_message(..., "not significant")` wrapper around
+  `.check_forward()`.
 
 * Bootstrap test suite optimised: `n_boot` values reduced to 10–20 across all
   tests. Long-running stability assessments (n_boot ≥ 200) are demonstrated in

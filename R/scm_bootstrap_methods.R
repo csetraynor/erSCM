@@ -732,9 +732,9 @@ plot.scm_bootstrap <- function(x,
     )
   ) +
     ggplot2::geom_col(width = 0.65, alpha = 0.9) +
-    ggplot2::geom_errorbarh(
+    ggplot2::geom_errorbar(
       ggplot2::aes(xmin = .data$ci_lower, xmax = .data$ci_upper),
-      height = 0.25, linewidth = 0.45, colour = "grey30"
+      orientation = "y", width = 0.25, linewidth = 0.45, colour = "grey30"
     ) +
     ggplot2::geom_vline(
       xintercept = threshold,
@@ -857,9 +857,9 @@ plot.scm_bootstrap <- function(x,
     )
   ) +
     ggplot2::geom_col(width = 0.55, alpha = 0.85, fill = "#4682B4") +
-    ggplot2::geom_errorbarh(
+    ggplot2::geom_errorbar(
       ggplot2::aes(xmin = .data$ci_lower, xmax = .data$ci_upper),
-      height = 0.2, linewidth = 0.45, colour = "grey30"
+      orientation = "y", width = 0.2, linewidth = 0.45, colour = "grey30"
     ) +
     ggplot2::scale_x_continuous(
       limits = c(0, 1),

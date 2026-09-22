@@ -908,10 +908,9 @@ plot_grouped_ratios <- function(
 
     p <- ggplot2::ggplot(dsub, ggplot2::aes(x = .data$mid, y = .data$group_level_f)) +
       ggplot2::geom_vline(xintercept = ref_line, linetype = "dashed", color = "grey40") +
-      ggplot2::geom_errorbarh(
+      ggplot2::geom_errorbar(
         ggplot2::aes(xmin = .data$lo, xmax = .data$hi),
-        #height = 0, 
-        #width = 0, 
+        orientation = "y",
         linewidth = ci_width, color = ci_color
       ) +
       ggplot2::geom_point(shape = pt_shape, size = point_size, stroke = 0.4,
