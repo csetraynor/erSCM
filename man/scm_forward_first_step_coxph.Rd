@@ -41,10 +41,8 @@ For binary event occurrence, this is typically a 0/1 indicator.}
 all candidate models. Default \code{NULL}.
 Default \code{"binomial"}.}
 
-\item{criterion}{character. Model selection criterion used to rank candidates. One of
-\code{"AIC"}, \code{"BIC"}, or \code{"LRT"} (likelihood ratio test vs. null/adjusted-only).
-Default \code{"AIC"}.
-Ignored otherwise. Default \code{0.01}.}
+\item{criterion}{character. Model selection criterion. Only \code{"AIC"} is currently
+implemented; other values raise an error. Default \code{"AIC"}.}
 
 \item{significance_level}{Numeric vector of length 2 giving the entry and
 retention p-value thresholds used in SCM. The first value is the \emph{entry}
@@ -58,7 +56,7 @@ Default \code{FALSE}.}
 \item{verbose}{Logical; if \code{TRUE}, prints progress messages and
 intermediate model summaries during SCM. Default \code{FALSE}.}
 
-\item{run_tag}{character. Optional label for metadata and saved artifacts. Default \code{""}.}
+\item{run_tag}{character. Reserved for future audit logging; currently unused. Default \code{""}.}
 }
 \value{
 A list with one element:
@@ -97,6 +95,7 @@ data(demo_eres)
 # for you -- the columns must already be literally called "DV" and "TIME".
 demo_eres$DV <- demo_eres$sim_status
 demo_eres$TIME <- demo_eres$sim_time
+\donttest{
 best1 <- scm_forward_first_step_coxph(
   eres_data = demo_eres,
   exposure_vars = c("CMAXss", "AUCss"),
@@ -106,6 +105,7 @@ best1 <- scm_forward_first_step_coxph(
   run_tag = "ERES_step1"
 )
 best1$step1_sum
+}
 
 }
 \seealso{

@@ -137,11 +137,9 @@ fmt_dcimals <- function(decimals = 0){
 #' @keywords internal
 #' @noRd
 quiet_confint <- function(fit, ...) {
-  suppressMessages(suppressWarnings(
-    withCallingHandlers(
-      stats::confint(fit, ...),
-      message = function(m) invokeRestart("muffleMessage")
-    )
+  suppressWarnings(withCallingHandlers(
+    stats::confint(fit, ...),
+    message = function(m) invokeRestart("muffleMessage")
   ))
 }
 

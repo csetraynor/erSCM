@@ -7,8 +7,8 @@
 scm_backward_delete(
   current_model,
   eres_data,
-  removable_terms,
-  outcome,
+  removable_terms = NULL,
+  outcome = NULL,
   fixed_terms = NULL,
   family = "binomial",
   criterion = "AIC",
@@ -28,20 +28,21 @@ specification) before backward deletion. For formulas, the function will fit as 
 \item{eres_data}{data.frame or tibble. Dataset used for fitting, containing the outcome,
 exposure metrics, and covariates.}
 
-\item{removable_terms}{character. Vector of term names that are eligible for deletion}
+\item{removable_terms}{character or NULL. Reserved for future use: a caller-specified
+set of terms eligible for deletion. Currently unimplemented; pass \code{NULL} (the
+default). A non-\code{NULL} value will raise an error.}
 
-\item{outcome}{character. Not used. Column name of the outcome variable.
-(typically non-fixed covariates currently present in \code{current_model}).}
+\item{outcome}{character or NULL. Deprecated; ignored. Will be removed in 0.2.0.}
 
 \item{fixed_terms}{character. Optional terms that must remain in the model and should
-not be considered for deletion (e.g., exposure or baseline risk factors). Default \code{NULL}.}
+not be considered for deletion (e.g., exposure or baseline risk factors). Default \code{NULL}.
+Currently unimplemented; a non-\code{NULL} value will raise an error.}
 
 \item{family}{character or \code{\link[stats]{family}}. Model family passed to \code{\link[stats]{glm}}.
 Default \code{"binomial"}.}
 
-\item{criterion}{character. Selection criterion guiding deletion decisions. One of
-\code{"AIC"}, \code{"BIC"}, or \code{"LRT"} (likelihood ratio test vs. full model).
-Default \code{"AIC"}.}
+\item{criterion}{character. Selection criterion. Only \code{"AIC"} is currently
+implemented; other values raise an error. Default \code{"AIC"}.}
 
 \item{exit_alpha}{numeric. Significance threshold for removal when \code{criterion = "LRT"}.
 Ignored otherwise. Default \code{0.01}.}
@@ -62,10 +63,10 @@ covariates in the base model. These terms are:
 Use this for known confounders or protocol-mandated adjustments. Default \code{NULL}
 (no forced adjustments; SCM starts from an intercept-only base model).}
 
-\item{min_terms}{integer. Optional lower bound on the number of terms allowed to remain
-in the model (excluding intercept). If reached, no deletion occurs. Default \code{0}.}
+\item{min_terms}{integer. Reserved; currently unimplemented. Pass \code{0} (the default).
+A positive value will raise an error.}
 
-\item{run_tag}{character. Optional label stored in metadata. Default \code{""}.}
+\item{run_tag}{character. Reserved for future audit logging; currently unused. Default \code{""}.}
 
 \item{return_models}{logical. If \code{TRUE}, include fitted candidate removal models in the output.
 Default \code{FALSE}.}
@@ -115,7 +116,7 @@ than chaining these step functions by hand.
 \examples{
 data(demo_eres)
 demo_eres$DV <- demo_eres$sim_status
-
+\donttest{
 # Build a small current_model with two terms already selected (see
 # scm_forward_add() for how this list is constructed step by step; this
 # bookkeeping is normally done for you inside scm_glm()).
@@ -139,16 +140,12 @@ step_add <- scm_forward_add(
 step_b <- scm_backward_delete(
   current_model = step_add,
   eres_data = demo_eres,
-  removable_terms = step_add$Relation,
-  outcome = "sim_status",
   family = "binomial",
-  criterion = "BIC",
-  exit_alpha = 0.01,
-  min_terms = 1,
-  run_tag = "bwd_del_1"
+  exit_alpha = 0.01
 )
 step_b$Relation
 setdiff(step_add$Relation, step_b$Relation)
+}
 
 }
 \seealso{

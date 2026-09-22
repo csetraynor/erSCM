@@ -100,14 +100,14 @@ test_that("non-existent YAML path gives informative error", {
 test_that("all col_names present in data produces no warning", {
   df <- data.frame(WT = 1:5, AGE = 11:15)
   spec <- parse_var_spec(c(WT = "Weight (kg)", AGE = "Age (years)"))
-  expect_no_warning(validate_var_spec(spec, df, "WT", "AGE"))
+  expect_no_warning(erSCM:::validate_var_spec(spec, df, "WT", "AGE"))
 })
 
 test_that("missing col_names in data produce warning and are filtered out", {
   df <- data.frame(WT = 1:5)
   spec <- parse_var_spec(c(WT = "Weight (kg)", MISSING = "Ghost"))
   result <- expect_warning(
-    validate_var_spec(spec, df, "WT", character(0)),
+    erSCM:::validate_var_spec(spec, df, "WT", character(0)),
     regexp = "not found in data"
   )
   expect_false("MISSING" %in% result$col_name)
@@ -118,7 +118,7 @@ test_that("model variables not in spec trigger message and are auto-added", {
   spec <- parse_var_spec(c(WT = "Weight (kg)"))
   msgs <- character(0)
   result <- withCallingHandlers(
-    validate_var_spec(spec, df, "WT", "AGE"),
+    erSCM:::validate_var_spec(spec, df, "WT", "AGE"),
     message = function(m) {
       msgs <<- c(msgs, conditionMessage(m))
       invokeRestart("muffleMessage")
@@ -136,7 +136,7 @@ test_that("var_type auto-detection: numeric -> continuous, factor -> categorical
     units = NA_character_, var_type = NA_character_,
     categories = list(NULL, NULL), transform = "none"
   )
-  result <- validate_var_spec(spec, df, c("WT", "SEX"), character(0))
+  result <- erSCM:::validate_var_spec(spec, df, c("WT", "SEX"), character(0))
   expect_equal(result$var_type[result$col_name == "WT"],  "continuous")
   expect_equal(result$var_type[result$col_name == "SEX"], "categorical")
 })
@@ -361,6 +361,19 @@ test_that("scale_to_median=TRUE and center=TRUE together issue a warning", {
   )
 })
 
+test_that("apply_var_labels covname stripping is element-wise (vectorised label regression)", {
+  # Regression: gsub(label, "", covname, fixed=TRUE) inside mutate uses label[1] only.
+  # With mapply the replacement must be per-row, not first-element.
+  fp <- data.frame(
+    covname = c("SEXFemale", "RACEWhite", "RACEBlack"),
+    label   = c("Female",    "White",     "Black"),
+    VAL     = c(NA_real_,    NA_real_,    NA_real_),
+    stringsAsFactors = FALSE
+  )
+  out <- erSCM:::apply_var_labels(fp, var_meta = NULL)
+  expect_equal(out$covname, c("SEX", "RACE", "RACE"))
+})
+
 test_that("var_spec transform = 'centered' correctly back-transforms values in forest plot", {
   skip_on_cran()
   set.seed(14)
@@ -380,8 +393,7 @@ test_that("var_spec transform = 'centered' correctly back-transforms values in f
   # Back-transformed quantile labels should be in original scale (~100 ± 3*20)
   num_labels <- suppressWarnings(as.numeric(gsub("[^0-9.-]", "", exp_rows$group_level)))
   non_na <- num_labels[!is.na(num_labels) & num_labels != 0]
-  if (length(non_na) > 0) {
-    expect_true(any(abs(non_na - 100) < 4 * 20),
-                info = paste("Label values:", paste(round(non_na, 1), collapse = ", ")))
-  }
+  skip_if(length(non_na) == 0, "no numeric labels in forest plot")
+  expect_true(any(abs(non_na - 100) < 4 * 20),
+              info = paste("Label values:", paste(round(non_na, 1), collapse = ", ")))
 })

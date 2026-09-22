@@ -3,6 +3,7 @@
 ## length-2 probs (no median line) path.
 
 test_that("vpc_logistic() produces a well-formed band end-to-end", {
+  skip_on_cran()
   set.seed(404L)
   n <- 120L
   x  <- rnorm(n, 0, 1)
@@ -34,6 +35,7 @@ test_that("vpc_logistic() produces a well-formed band end-to-end", {
 })
 
 test_that("vpc_logistic() with length-2 probs omits the median (sim_mid = NA)", {
+  skip_on_cran()
   set.seed(505L)
   n <- 100L
   x  <- rnorm(n)

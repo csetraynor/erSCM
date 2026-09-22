@@ -190,6 +190,7 @@ required, or pre-transform the column and set \code{nonlinear = NULL}.
 \examples{
 data(demo_eres)
 demo_eres$SEX <- as.factor(demo_eres$SEX)
+\donttest{
 fit <- scm_glm(
   eres_data = demo_eres,
   exposure_vars = "CMAXss",
@@ -198,6 +199,7 @@ fit <- scm_glm(
   significance_level = c(0.05, 0.01)
 )
 fit$summary
+}
 
 }
 \seealso{
