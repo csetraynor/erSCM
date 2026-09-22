@@ -31,6 +31,7 @@
 }
 
 test_that("vpc_coxph_sim(plot = FALSE) returns required columns", {
+  skip_on_cran()
   fit <- .fit_vpc_sim_shape()
   d <- vpc_coxph_sim(fit, "ARM", n_sim = 60L, plot = FALSE)
 
@@ -42,6 +43,7 @@ test_that("vpc_coxph_sim(plot = FALSE) returns required columns", {
 })
 
 test_that("vpc_coxph_sim() clamps user time_grid to observed event range", {
+  skip_on_cran()
   fit <- .fit_vpc_sim_shape()
   max_evt <- max(fit$model_data$TIME[fit$model_data$DV == 1])
 
@@ -58,6 +60,7 @@ test_that("vpc_coxph_sim() clamps user time_grid to observed event range", {
 })
 
 test_that("vpc_coxph_sim() returns ggplot when plot = TRUE", {
+  skip_on_cran()
   fit <- .fit_vpc_sim_shape()
   p <- vpc_coxph_sim(fit, "ARM", n_sim = 40L, plot = TRUE)
   expect_s3_class(p, "ggplot")

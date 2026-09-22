@@ -44,18 +44,18 @@ if \code{dvid} is provided.}
 Default \code{NULL}.
 Default \code{"binomial"}.}
 
-\item{criterion}{character. Selection criterion to rank candidates. One of \code{"AIC"},
-\code{"BIC"}, or \code{"LRT"}. Default \code{"AIC"}.}
+\item{criterion}{character. Selection criterion. Only \code{"AIC"} is currently
+implemented; other values raise an error. Default \code{"AIC"}.}
 
 \item{significance_level}{Numeric vector of length 2 giving the entry and
 retention p-value thresholds used in SCM. The first value is the \emph{entry}
 criterion (e.g., 0.01) and the second is the \emph{retention} criterion
 (e.g., 0.001).}
 
-\item{max_terms}{integer. Optional cap on total terms allowed in the model (excluding intercept).
-If reached, the function will not add new terms. Default \code{Inf}.}
+\item{max_terms}{integer. Reserved; currently unimplemented. Pass \code{Inf} (the default).
+A finite value will raise an error.}
 
-\item{run_tag}{character. Optional label stored in metadata. Default \code{""}.}
+\item{run_tag}{character. Reserved for future audit logging; currently unused. Default \code{""}.}
 
 \item{return_models}{logical. If \code{TRUE}, include fitted candidate models in the output. Default \code{FALSE}.}
 
@@ -109,7 +109,7 @@ orchestrated internally by \code{\link{scm_coxph}}; most users should call
 data(demo_eres)
 demo_eres$DV <- demo_eres$sim_status
 demo_eres$TIME <- demo_eres$sim_time
-
+\donttest{
 # Build the current_model list expected by scm_forward_add_coxph() from the
 # output of scm_forward_first_step_coxph() (this bookkeeping is normally
 # done for you inside scm_coxph()).
@@ -136,6 +136,7 @@ step <- scm_forward_add_coxph(
 )
 step$Relation
 setdiff(step$Relation, current_model$Relation)
+}
 
 }
 \seealso{

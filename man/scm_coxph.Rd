@@ -174,8 +174,8 @@ intermediate model summaries during SCM. Default \code{FALSE}.}
 for the intermediate steps in addition to summary outputs.
 Default \code{FALSE}.}
 
-\item{parallel}{Logical; if \code{TRUE}, evaluates candidate terms in
-parallel where applicable. Default \code{FALSE}.}
+\item{parallel}{Logical. Reserved; currently unimplemented. Pass \code{FALSE} (the default).
+\code{TRUE} will raise an error.}
 
 \item{...}{Additional arguments passed to \code{survival::coxph()} (e.g.,
 \code{ties}, \code{weights}, \code{cluster}, \code{robust}).}
@@ -243,6 +243,7 @@ required, or pre-transform the column and set \code{nonlinear = NULL}.
 \examples{
 data(demo_eres)
 demo_eres$SEX <- as.factor(demo_eres$SEX)
+\donttest{
 res <- scm_coxph(
   eres_data = demo_eres,
   covariates = c("AGE", "WT"),
@@ -252,6 +253,7 @@ res <- scm_coxph(
   time_col = "sim_time"
 )
 res$summary
+}
 
 }
 \seealso{

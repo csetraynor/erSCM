@@ -21,6 +21,7 @@
 }
 
 test_that("vpc_logistic() returns one row per requested bin, numerically ordered", {
+  skip_on_cran()
   fit <- .fit_vpc_bin_scm_glm()
   skip_if_not("WT" %in% fit$metadata$finalRelation)
 
@@ -33,6 +34,7 @@ test_that("vpc_logistic() returns one row per requested bin, numerically ordered
 })
 
 test_that("vpc_logistic() honours var_spec back-transformed labels under scaling", {
+  skip_on_cran()
   spec <- parse_var_spec(c(
     CMAXss = "Cmax,ss (ng/mL)",
     WT     = "Body Weight (kg)",
@@ -49,6 +51,7 @@ test_that("vpc_logistic() honours var_spec back-transformed labels under scaling
 })
 
 test_that("vpc_logistic() ordering survives n_bins >= 10", {
+  skip_on_cran()
   fit <- .fit_vpc_bin_scm_glm()
   skip_if_not("WT" %in% fit$metadata$finalRelation)
 
@@ -58,6 +61,7 @@ test_that("vpc_logistic() ordering survives n_bins >= 10", {
 })
 
 test_that("vpc_logistic() observed rate for each bin comes from that bin's own rows", {
+  skip_on_cran()
   # Identity-join regression guard (Phase A analogue): the observed proportion
   # attached to a bin must equal the mean outcome over exactly the rows that
   # fall in that bin -- not a lexically/positionally mismatched set.
@@ -82,6 +86,7 @@ test_that("vpc_logistic() observed rate for each bin comes from that bin's own r
 })
 
 test_that("vpc_logistic() supports a categorical covariate with ordered levels", {
+  skip_on_cran()
   # Synthetic data where SEX strongly predicts the outcome, so it reliably
   # enters the model and can be used as the VPC stratifier.
   set.seed(707L)

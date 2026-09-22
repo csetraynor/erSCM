@@ -125,6 +125,7 @@
 #' @examples
 #' data(demo_eres)
 #' demo_eres$SEX <- as.factor(demo_eres$SEX)
+#' \donttest{
 #' fit <- scm_glm(
 #'   eres_data = demo_eres,
 #'   exposure_vars = "CMAXss",
@@ -133,6 +134,7 @@
 #'   significance_level = c(0.05, 0.01)
 #' )
 #' fit$summary
+#' }
 #'
 #' @export
 scm_glm <- function(eres_data,
@@ -403,8 +405,10 @@ scm_glm <- function(eres_data,
   }
 
   if (!checks_step1$flagforst) {
-    if (verbose) message("No significant exposure variable found. SCM complete.")
-    message("End of the SCM.")
+    if (verbose) {
+      message("No significant exposure variable found. SCM complete.")
+      message("End of the SCM.")
+    }
     # Return a fully-formed S3 object so all downstream methods work correctly.
     # final_model is NULL to signal no model was fit; all other fields are present.
     early_metadata <- list(
@@ -442,14 +446,6 @@ scm_glm <- function(eres_data,
   selected_exp <- utils::tail(checks_step1$Relation, 1)
   if (verbose) message("  Exposure variable selected: ", selected_exp)
 
-  # initialize lists to capture all forward steps
-  covariate_list <- list()
-  finalforward_list <- list()
-  toto_list <- list()
-  toto_tot_list <- list()
-  Relation_list <- list()
-  flagforst_list <- list()
-
   forward_count = 2
 
   flagforst <- checks_step1$flagforst
@@ -466,12 +462,6 @@ scm_glm <- function(eres_data,
     if (verbose) message("  Pre-loaded start_covariates: ", paste(start_covariates, collapse = ", "))
   }
 
-  covariate_list[[1]]    <- covariates_scm
-  finalforward_list[[1]] <- finalforward
-  toto_list[[1]]         <- checks_step1$toto_tot
-  toto_tot_list[[1]]     <- checks_step1$toto_tot
-  Relation_list[[1]]     <- Relation
-  flagforst_list[[1]]    <- flagforst
   current_model <- checks_step1
   current_model$Relation <- Relation
   # Carry transform_registry in current_model for the nonlinear path
@@ -613,12 +603,6 @@ scm_glm <- function(eres_data,
     }
   }
 
-  # while loop - take steps until no covariates are selected
-
-  # initialize lists to capture all forward steps
-  covariate_list<-list()
-  finalrunlist<-list()
-  toto_back<-list()
   finalrun<-finalforward
 
   backward_count = 1
@@ -746,16 +730,17 @@ scm_glm <- function(eres_data,
 #'   specification) before backward deletion. For formulas, the function will fit as needed.
 #' @param eres_data data.frame or tibble. Dataset used for fitting, containing the outcome,
 #'   exposure metrics, and covariates.
-#' @param removable_terms character. Vector of term names that are eligible for deletion
-#' @param outcome character. Not used. Column name of the outcome variable.
-#'   (typically non-fixed covariates currently present in \code{current_model}).
+#' @param removable_terms character or NULL. Reserved for future use: a caller-specified
+#'   set of terms eligible for deletion. Currently unimplemented; pass \code{NULL} (the
+#'   default). A non-\code{NULL} value will raise an error.
+#' @param outcome character or NULL. Deprecated; ignored. Will be removed in 0.2.0.
 #' @param fixed_terms character. Optional terms that must remain in the model and should
 #'   not be considered for deletion (e.g., exposure or baseline risk factors). Default \code{NULL}.
+#'   Currently unimplemented; a non-\code{NULL} value will raise an error.
 #' @param family character or \code{\link[stats]{family}}. Model family passed to \code{\link[stats]{glm}}.
 #'   Default \code{"binomial"}.
-#' @param criterion character. Selection criterion guiding deletion decisions. One of
-#'   \code{"AIC"}, \code{"BIC"}, or \code{"LRT"} (likelihood ratio test vs. full model).
-#'   Default \code{"AIC"}.
+#' @param criterion character. Selection criterion. Only \code{"AIC"} is currently
+#'   implemented; other values raise an error. Default \code{"AIC"}.
 #' @param exit_alpha numeric. Significance threshold for removal when \code{criterion = "LRT"}.
 #'   Ignored otherwise. Default \code{0.01}.
 #' @param exit_alpha_interaction numeric or NULL. Separate significance threshold for
@@ -763,9 +748,9 @@ scm_glm <- function(eres_data,
 #'   terms are evaluated against \code{exit_alpha} (same as main effects). When provided,
 #'   interaction terms (those containing ":") are compared against this threshold while
 #'   main effects continue to use \code{exit_alpha}.
-#' @param min_terms integer. Optional lower bound on the number of terms allowed to remain
-#'   in the model (excluding intercept). If reached, no deletion occurs. Default \code{0}.
-#' @param run_tag character. Optional label stored in metadata. Default \code{""}.
+#' @param min_terms integer. Reserved; currently unimplemented. Pass \code{0} (the default).
+#'   A positive value will raise an error.
+#' @param run_tag character. Reserved for future audit logging; currently unused. Default \code{""}.
 #' @param return_models logical. If \code{TRUE}, include fitted candidate removal models in the output.
 #'   Default \code{FALSE}.
 #'
@@ -805,7 +790,7 @@ scm_glm <- function(eres_data,
 #' @examples
 #' data(demo_eres)
 #' demo_eres$DV <- demo_eres$sim_status
-#'
+#' \donttest{
 #' # Build a small current_model with two terms already selected (see
 #' # scm_forward_add() for how this list is constructed step by step; this
 #' # bookkeeping is normally done for you inside scm_glm()).
@@ -829,16 +814,12 @@ scm_glm <- function(eres_data,
 #' step_b <- scm_backward_delete(
 #'   current_model = step_add,
 #'   eres_data = demo_eres,
-#'   removable_terms = step_add$Relation,
-#'   outcome = "sim_status",
 #'   family = "binomial",
-#'   criterion = "BIC",
-#'   exit_alpha = 0.01,
-#'   min_terms = 1,
-#'   run_tag = "bwd_del_1"
+#'   exit_alpha = 0.01
 #' )
 #' step_b$Relation
 #' setdiff(step_add$Relation, step_b$Relation)
+#' }
 #'
 #' @seealso \code{\link{scm_forward_add}}, \code{\link{scm_glm}}, \code{\link{fit_univariate_models}}
 #' @inheritParams scm_glm
@@ -846,8 +827,8 @@ scm_glm <- function(eres_data,
 scm_backward_delete <- function(
     current_model,
     eres_data,
-    removable_terms,
-    outcome,
+    removable_terms = NULL,
+    outcome = NULL,
     fixed_terms = NULL,
     family = "binomial",
     criterion = "AIC",
@@ -860,10 +841,13 @@ scm_backward_delete <- function(
     verbose = FALSE
 ) {
   # implementation goes here
+  if (!is.null(removable_terms)) .NotYetImplemented()
+  if (!is.null(fixed_terms)) .NotYetImplemented()
+  if (!identical(criterion, "AIC")) .NotYetImplemented()
+  if (min_terms > 0) .NotYetImplemented()
   modds <- eres_data
   tmp_ref <- current_model$finalforward
   toto_tot <- current_model$toto_tot
-  Relation_forwardlast <- unique(current_model$Relation)
   Relation         <- unique(current_model$Relation)
   covariates_back1 <- unique(current_model$Relation)
 
@@ -889,14 +873,12 @@ scm_backward_delete <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(covback1))
   mod_sum <- vector(mode = "list", length = length(covback1))
-  mod_coef <- vector(mode = "list", length = length(covback1))
   mod_metric <- vector(mode = "list", length = length(covback1))
   summ.list <- vector(mode = "list", length = length(covback1))
 
   for (i in seq_along(covback1)) {
     mod_obj[[i]] <- stats::glm(build_model_formula("DV", covback1[i]), data = modds, family = family)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- removable_back1[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }
@@ -1051,11 +1033,11 @@ scm_backward_delete <- function(
 #'   Default \code{NULL}.
 #' @param family character or \code{\link[stats]{family}}. Model family passed to \code{\link[stats]{glm}}.
 #'   Default \code{"binomial"}.
-#' @param criterion character. Selection criterion to rank candidates. One of \code{"AIC"},
-#'   \code{"BIC"}, or \code{"LRT"}. Default \code{"AIC"}.
-#' @param max_terms integer. Optional cap on total terms allowed in the model (excluding intercept).
-#'   If reached, the function will not add new terms. Default \code{Inf}.
-#' @param run_tag character. Optional label stored in metadata. Default \code{""}.
+#' @param criterion character. Selection criterion. Only \code{"AIC"} is currently
+#'   implemented; other values raise an error. Default \code{"AIC"}.
+#' @param max_terms integer. Reserved; currently unimplemented. Pass \code{Inf} (the default).
+#'   A finite value will raise an error.
+#' @param run_tag character. Reserved for future audit logging; currently unused. Default \code{""}.
 #' @param return_models logical. If \code{TRUE}, include fitted candidate models in the output. Default \code{FALSE}.
 #'
 #' @return A list with:
@@ -1098,7 +1080,7 @@ scm_backward_delete <- function(
 #' @examples
 #' data(demo_eres)
 #' demo_eres$DV <- demo_eres$sim_status
-#'
+#' \donttest{
 #' # Build the current_model list expected by scm_forward_add() from the
 #' # output of scm_forward_first_step() (this bookkeeping is normally done for
 #' # you inside scm_glm()).
@@ -1126,6 +1108,7 @@ scm_backward_delete <- function(
 #' )
 #' step$Relation
 #' setdiff(step$Relation, current_model$Relation)
+#' }
 #'
 #' @seealso \code{\link{scm_forward_first_step}}, \code{\link{scm_glm}}, \code{\link{fit_univariate_models}}
 #' @inheritParams scm_glm
@@ -1146,6 +1129,8 @@ scm_forward_add <- function(
     verbose = FALSE
 ) {
 
+  if (!identical(criterion, "AIC")) .NotYetImplemented()
+  if (is.finite(max_terms)) .NotYetImplemented()
   modds <- eres_data
 
   ## second step
@@ -1167,14 +1152,12 @@ scm_forward_add <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(tmp_cov_combo))
   mod_sum <- vector(mode = "list", length = length(tmp_cov_combo))
-  mod_coef <- vector(mode = "list", length = length(tmp_cov_combo))
   mod_metric <- vector(mode = "list", length = length(tmp_cov_combo))
   summ.list <- vector(mode = "list", length = length(tmp_cov_combo))
 
   for (i in seq_along(tmp_cov)) {
     mod_obj[[i]] <- stats::glm(build_model_formula("DV", tmp_cov_combo[i]), data = modds, family = family)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- tmp_cov[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }
@@ -1317,11 +1300,9 @@ scm_forward_add <- function(
 #'   all candidate models. Default \code{NULL}.
 #' @param family character or \code{\link[stats]{family}}. Model family passed to \code{\link[stats]{glm}}.
 #'   Default \code{"binomial"}.
-#' @param criterion character. Model selection criterion used to rank candidates. One of
-#'   \code{"AIC"}, \code{"BIC"}, or \code{"LRT"} (likelihood ratio test vs. null/adjusted-only).
-#'   Default \code{"AIC"}.
-#'   Ignored otherwise. Default \code{0.01}.
-#' @param run_tag character. Optional label for metadata and saved artifacts. Default \code{""}.
+#' @param criterion character. Model selection criterion. Only \code{"AIC"} is currently
+#'   implemented; other values raise an error. Default \code{"AIC"}.
+#' @param run_tag character. Reserved for future audit logging; currently unused. Default \code{""}.
 #'
 #' @return A list with one element:
 #' \itemize{
@@ -1351,6 +1332,7 @@ scm_forward_add <- function(
 #' # NOTE: unlike scm_glm(), this low-level step does not rename dv_col for
 #' # you -- the outcome column must already be literally called "DV".
 #' demo_eres$DV <- demo_eres$sim_status
+#' \donttest{
 #' best1 <- scm_forward_first_step(
 #'   eres_data = demo_eres,
 #'   exposure_vars = c("CMAXss", "AUCss"),
@@ -1361,6 +1343,7 @@ scm_forward_add <- function(
 #'   run_tag = "ERES_step1"
 #' )
 #' best1$step1_sum
+#' }
 #'
 #' @seealso \code{\link{scm_glm}}, \code{\link{fit_univariate_models}}
 #' @inheritParams scm_glm
@@ -1380,6 +1363,7 @@ scm_forward_first_step <- function(
     run_tag = ""
 ) {
 
+  if (!identical(criterion, "AIC")) .NotYetImplemented()
   modds <- eres_data
 
   ## ------------------------------
@@ -1403,7 +1387,6 @@ scm_forward_first_step <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(exposure_vars))
   mod_sum <- vector(mode = "list", length = length(exposure_vars))
-  mod_coef <- vector(mode = "list", length = length(exposure_vars))
   mod_metric <- vector(mode = "list", length = length(exposure_vars))
   summ.list <- vector(mode = "list", length = length(exposure_vars))
 
@@ -1411,7 +1394,6 @@ scm_forward_first_step <- function(
     cand_rhs <- paste(c(adjust_for, exposure_vars[i]), collapse = "+")
     mod_obj[[i]] <- stats::glm(build_model_formula("DV", cand_rhs), data = modds, family = family)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- exposure_vars[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }
@@ -1534,7 +1516,8 @@ scm_forward_first_step <- function(
 #' @param adjust_for character. Optional covariates to include in all models (fixed effects). Default \code{NULL}.
 #' @param verbose logical. If TRUE, print progress. Default FALSE.
 #' @param return_models logical. If \code{TRUE}, include fitted model objects in output. Default \code{FALSE}.
-#' @param parallel logical or integer. Whether to run fits in parallel or number of workers. Default \code{FALSE}.
+#' @param parallel logical or integer. Reserved; currently unimplemented. Pass \code{FALSE} (the
+#'   default). \code{TRUE} or any positive integer will raise an error.
 #'
 #' @return A list with one element:
 #' \itemize{
@@ -1552,6 +1535,7 @@ scm_forward_first_step <- function(
 #'
 #' @examples
 #' data(demo_eres)
+#' \donttest{
 #' uni <- fit_univariate_models(
 #'   eres_data = demo_eres,
 #'   covariates = c("AGE", "WT"),
@@ -1560,6 +1544,7 @@ scm_forward_first_step <- function(
 #'   family = "binomial"
 #' )
 #' uni$step1_sum
+#' }
 #'
 #' @seealso \code{\link[stats]{glm}}, \code{\link{scm_glm}}
 #' @importFrom broom glance
@@ -1578,6 +1563,7 @@ fit_univariate_models <- function(
     parallel = FALSE) {
 
   .check_inputs(modds = eres_data, dvid_col = dvid_col, dvid = dvid, dv_col = dv_col, covariates = covariates)
+  if (!isFALSE(parallel)) .NotYetImplemented()
 
   if(!is.null(dvid_col)) {
     modds <- dplyr::rename(eres_data, `:=`(DVID_name, !!dvid_col))
@@ -1606,14 +1592,12 @@ fit_univariate_models <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(covariates))
   mod_sum <- vector(mode = "list", length = length(covariates))
-  mod_coef <- vector(mode = "list", length = length(covariates))
   mod_metric <- vector(mode = "list", length = length(covariates))
   summ.list <- vector(mode = "list", length = length(covariates))
 
   for (i in seq_along(covariates)) {
     mod_obj[[i]] <- stats::glm(build_model_formula("DV", covariates[i]), data = modds, family = family)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- covariates[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }

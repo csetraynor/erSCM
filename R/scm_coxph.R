@@ -114,8 +114,8 @@
 #'   If NULL (default), uses the same \code{significance_level} values as main effects.
 #' @param max_interaction_order Integer. Maximum order of interactions to generate when
 #'   \code{interactions} is provided as a list. Default 2 (pairwise only).
-#' @param parallel Logical; if \code{TRUE}, evaluates candidate terms in
-#'   parallel where applicable. Default \code{FALSE}.
+#' @param parallel Logical. Reserved; currently unimplemented. Pass \code{FALSE} (the default).
+#'   \code{TRUE} will raise an error.
 #' @param ... Additional arguments passed to \code{survival::coxph()} (e.g.,
 #'   \code{ties}, \code{weights}, \code{cluster}, \code{robust}).
 #'
@@ -170,6 +170,7 @@
 #' @examples
 #' data(demo_eres)
 #' demo_eres$SEX <- as.factor(demo_eres$SEX)
+#' \donttest{
 #' res <- scm_coxph(
 #'   eres_data = demo_eres,
 #'   covariates = c("AGE", "WT"),
@@ -179,6 +180,7 @@
 #'   time_col = "sim_time"
 #' )
 #' res$summary
+#' }
 #'
 #' @export
 scm_coxph <- function(
@@ -251,6 +253,7 @@ scm_coxph <- function(
   if (direction == "backward" && is.null(start_covariates)) {
     cli::cli_abort("{.code direction = \"backward\"} requires {.arg start_covariates} to be provided.")
   }
+  if (!isFALSE(parallel)) .NotYetImplemented()
 
   # Handle deprecated parameters
   if (!missing(normalize_inputs) && normalize_inputs) {
@@ -454,8 +457,10 @@ scm_coxph <- function(
   }
 
   if (!checks_step1$flagforst) {
-    if (verbose) message("No significant exposure variable found. SCM complete.")
-    message("End of the SCM.")
+    if (verbose) {
+      message("No significant exposure variable found. SCM complete.")
+      message("End of the SCM.")
+    }
     # Return a fully-formed S3 object so all downstream methods work correctly.
     early_metadata <- list(
       dvid_name               = dvid,
@@ -495,13 +500,6 @@ scm_coxph <- function(
     if (verbose) message("  Exposure variable selected: ", exposure_var)
   }
 
-  # initialize lists to capture all forward steps
-  covariate_list <- list()
-  finalforward_list <- list()
-  toto_list <- list()
-  toto_tot_list <- list()
-  Relation_list <- list()
-  flagforst_list <- list()
   forward_count = 2
   flagforst     <- checks_step1$flagforst
   finalforward  <- checks_step1$finalforward
@@ -516,12 +514,6 @@ scm_coxph <- function(
     if (verbose) message("  Pre-loaded start_covariates: ", paste(start_covariates, collapse = ", "))
   }
 
-  covariate_list[[1]]    <- covariates_scm
-  finalforward_list[[1]] <- finalforward
-  toto_list[[1]]         <- checks_step1$toto_tot
-  toto_tot_list[[1]]     <- checks_step1$toto_tot
-  Relation_list[[1]]     <- Relation
-  flagforst_list[[1]]    <- flagforst
   current_model <- checks_step1
   current_model$Relation <- Relation
   if (use_nonlinear) current_model$transform_registry <- transform_registry
@@ -667,11 +659,6 @@ scm_coxph <- function(
     }
   }
 
-  # while loop - take steps until no covariates are selected
-  # initialize lists to capture all forward steps
-  covariate_list<-list()
-  finalrunlist<-list()
-  toto_back<-list()
   finalrun<-finalforward
   backward_count = 1
   if (direction != "forward" && length(current_model$Relation) > 1){
@@ -788,15 +775,15 @@ scm_coxph <- function(
 #'   specification) before backward deletion. For formulas, the function will fit as needed.
 #' @param eres_data data.frame or tibble. Dataset used for fitting, containing the outcome,
 #'   exposure metrics, and covariates.
-#' @param removable_terms character. Vector of term names that are eligible for deletion
-#' @param outcome character. Not used. Column name of the outcome variable.
-#'   (typically non-fixed covariates currently present in \code{current_model}).
+#' @param removable_terms character or NULL. Reserved for future use: a caller-specified
+#'   set of terms eligible for deletion. Currently unimplemented; pass \code{NULL} (the
+#'   default). A non-\code{NULL} value will raise an error.
+#' @param outcome character or NULL. Deprecated; ignored. Will be removed in 0.2.0.
 #' @param fixed_terms character. Optional terms that must remain in the model and should
 #'   not be considered for deletion (e.g., exposure or baseline risk factors). Default \code{NULL}.
-#'   Default \code{"binomial"}.
-#' @param criterion character. Selection criterion guiding deletion decisions. One of
-#'   \code{"AIC"}, \code{"BIC"}, or \code{"LRT"} (likelihood ratio test vs. full model).
-#'   Default \code{"AIC"}.
+#'   Currently unimplemented; a non-\code{NULL} value will raise an error.
+#' @param criterion character. Selection criterion. Only \code{"AIC"} is currently
+#'   implemented; other values raise an error. Default \code{"AIC"}.
 #' @param exit_alpha numeric. Significance threshold for removal when \code{criterion = "LRT"}.
 #'   Ignored otherwise. Default \code{0.01}.
 #' @param exit_alpha_interaction numeric or NULL. Separate significance threshold for
@@ -804,9 +791,9 @@ scm_coxph <- function(
 #'   terms are evaluated against \code{exit_alpha} (same as main effects). When provided,
 #'   interaction terms (those containing ":") are compared against this threshold while
 #'   main effects continue to use \code{exit_alpha}.
-#' @param min_terms integer. Optional lower bound on the number of terms allowed to remain
-#'   in the model (excluding intercept). If reached, no deletion occurs. Default \code{0}.
-#' @param run_tag character. Optional label stored in metadata. Default \code{""}.
+#' @param min_terms integer. Reserved; currently unimplemented. Pass \code{0} (the default).
+#'   A positive value will raise an error.
+#' @param run_tag character. Reserved for future audit logging; currently unused. Default \code{""}.
 #' @param return_models logical. If \code{TRUE}, include fitted candidate removal models in the output.
 #'   Default \code{FALSE}.
 #'
@@ -847,7 +834,7 @@ scm_coxph <- function(
 #' data(demo_eres)
 #' demo_eres$DV <- demo_eres$sim_status
 #' demo_eres$TIME <- demo_eres$sim_time
-#'
+#' \donttest{
 #' # Build a small current_model with two terms already selected (see
 #' # scm_forward_add_coxph() for how this list is constructed step by step;
 #' # this bookkeeping is normally done for you inside scm_coxph()).
@@ -871,15 +858,11 @@ scm_coxph <- function(
 #' step_b <- scm_backward_delete_coxph(
 #'   current_model = step_add,
 #'   eres_data = demo_eres,
-#'   removable_terms = step_add$Relation,
-#'   outcome = "sim_status",
-#'   criterion = "BIC",
-#'   exit_alpha = 0.01,
-#'   min_terms = 1,
-#'   run_tag = "bwd_del_1"
+#'   exit_alpha = 0.01
 #' )
 #' step_b$Relation
 #' setdiff(step_add$Relation, step_b$Relation)
+#' }
 #'
 #' @seealso \code{\link{scm_forward_add_coxph}}, \code{\link{scm_coxph}}, \code{\link{fit_univariate_models_coxph}}
 #' @inheritParams scm_coxph
@@ -887,8 +870,8 @@ scm_coxph <- function(
 scm_backward_delete_coxph <- function(
     current_model,
     eres_data,
-    removable_terms,
-    outcome,
+    removable_terms = NULL,
+    outcome = NULL,
     fixed_terms = NULL,
     criterion = "AIC",
     exit_alpha = 0.01,
@@ -900,10 +883,13 @@ scm_backward_delete_coxph <- function(
     verbose = FALSE
 ) {
   # implementation goes here
+  if (!is.null(removable_terms)) .NotYetImplemented()
+  if (!is.null(fixed_terms)) .NotYetImplemented()
+  if (!identical(criterion, "AIC")) .NotYetImplemented()
+  if (min_terms > 0) .NotYetImplemented()
   modds <- eres_data
   tmp_ref <- current_model$finalforward
   toto_tot <- current_model$toto_tot
-  Relation_forwardlast <- unique(current_model$Relation)
   Relation <- unique(current_model$Relation)
   covariates_back1 <- unique(current_model$Relation)
 
@@ -929,13 +915,11 @@ scm_backward_delete_coxph <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(covback1))
   mod_sum <- vector(mode = "list", length = length(covback1))
-  mod_coef <- vector(mode = "list", length = length(covback1))
   mod_metric <- vector(mode = "list", length = length(covback1))
   summ.list <- vector(mode = "list", length = length(covback1))
   for (i in seq_along(covback1)) {
     mod_obj[[i]] <- survival::coxph(build_model_formula("survival::Surv(TIME, DV)", covback1[i]), data = modds)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- removable_back1[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }
@@ -1069,11 +1053,11 @@ scm_backward_delete_coxph <- function(
 #' @param adjust_for character. Optional fixed terms to include in all models (e.g., baseline risk factors).
 #'   Default \code{NULL}.
 #'   Default \code{"binomial"}.
-#' @param criterion character. Selection criterion to rank candidates. One of \code{"AIC"},
-#'   \code{"BIC"}, or \code{"LRT"}. Default \code{"AIC"}.
-#' @param max_terms integer. Optional cap on total terms allowed in the model (excluding intercept).
-#'   If reached, the function will not add new terms. Default \code{Inf}.
-#' @param run_tag character. Optional label stored in metadata. Default \code{""}.
+#' @param criterion character. Selection criterion. Only \code{"AIC"} is currently
+#'   implemented; other values raise an error. Default \code{"AIC"}.
+#' @param max_terms integer. Reserved; currently unimplemented. Pass \code{Inf} (the default).
+#'   A finite value will raise an error.
+#' @param run_tag character. Reserved for future audit logging; currently unused. Default \code{""}.
 #' @param return_models logical. If \code{TRUE}, include fitted candidate models in the output. Default \code{FALSE}.
 #'
 #' @return A list with:
@@ -1117,7 +1101,7 @@ scm_backward_delete_coxph <- function(
 #' data(demo_eres)
 #' demo_eres$DV <- demo_eres$sim_status
 #' demo_eres$TIME <- demo_eres$sim_time
-#'
+#' \donttest{
 #' # Build the current_model list expected by scm_forward_add_coxph() from the
 #' # output of scm_forward_first_step_coxph() (this bookkeeping is normally
 #' # done for you inside scm_coxph()).
@@ -1144,6 +1128,7 @@ scm_backward_delete_coxph <- function(
 #' )
 #' step$Relation
 #' setdiff(step$Relation, current_model$Relation)
+#' }
 #'
 #' @seealso \code{\link{scm_forward_first_step_coxph}}, \code{\link{scm_coxph}}, \code{\link{fit_univariate_models_coxph}}
 #' @inheritParams scm_coxph
@@ -1163,6 +1148,8 @@ scm_forward_add_coxph <- function(
     return_models = FALSE,
     verbose = FALSE
 ) {
+  if (!identical(criterion, "AIC")) .NotYetImplemented()
+  if (is.finite(max_terms)) .NotYetImplemented()
   modds <- eres_data
   ## second step
   tmp_ref <- current_model$finalforward
@@ -1181,13 +1168,11 @@ scm_forward_add_coxph <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(tmp_cov_combo))
   mod_sum <- vector(mode = "list", length = length(tmp_cov_combo))
-  mod_coef <- vector(mode = "list", length = length(tmp_cov_combo))
   mod_metric <- vector(mode = "list", length = length(tmp_cov_combo))
   summ.list <- vector(mode = "list", length = length(tmp_cov_combo))
   for (i in seq_along(tmp_cov)) {
     mod_obj[[i]] <- survival::coxph(build_model_formula("survival::Surv(TIME, DV)", tmp_cov_combo[i]), data = modds)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- tmp_cov[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }
@@ -1313,11 +1298,9 @@ scm_forward_add_coxph <- function(
 #' @param adjust_for character. Optional covariates (e.g., baseline risk factors) to include in
 #'   all candidate models. Default \code{NULL}.
 #'   Default \code{"binomial"}.
-#' @param criterion character. Model selection criterion used to rank candidates. One of
-#'   \code{"AIC"}, \code{"BIC"}, or \code{"LRT"} (likelihood ratio test vs. null/adjusted-only).
-#'   Default \code{"AIC"}.
-#'   Ignored otherwise. Default \code{0.01}.
-#' @param run_tag character. Optional label for metadata and saved artifacts. Default \code{""}.
+#' @param criterion character. Model selection criterion. Only \code{"AIC"} is currently
+#'   implemented; other values raise an error. Default \code{"AIC"}.
+#' @param run_tag character. Reserved for future audit logging; currently unused. Default \code{""}.
 #'
 #' @return A list with one element:
 #' \itemize{
@@ -1348,6 +1331,7 @@ scm_forward_add_coxph <- function(
 #' # for you -- the columns must already be literally called "DV" and "TIME".
 #' demo_eres$DV <- demo_eres$sim_status
 #' demo_eres$TIME <- demo_eres$sim_time
+#' \donttest{
 #' best1 <- scm_forward_first_step_coxph(
 #'   eres_data = demo_eres,
 #'   exposure_vars = c("CMAXss", "AUCss"),
@@ -1357,6 +1341,7 @@ scm_forward_add_coxph <- function(
 #'   run_tag = "ERES_step1"
 #' )
 #' best1$step1_sum
+#' }
 #'
 #' @seealso \code{\link{scm_coxph}}, \code{\link{fit_univariate_models_coxph}}
 #' @inheritParams scm_coxph
@@ -1375,6 +1360,7 @@ scm_forward_first_step_coxph <- function(
     verbose = FALSE,
     run_tag = ""
 ) {
+  if (!identical(criterion, "AIC")) .NotYetImplemented()
   modds <- eres_data
   ## ------------------------------
   ## Fit reference model
@@ -1393,14 +1379,12 @@ scm_forward_first_step_coxph <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(exposure_vars))
   mod_sum <- vector(mode = "list", length = length(exposure_vars))
-  mod_coef <- vector(mode = "list", length = length(exposure_vars))
   mod_metric <- vector(mode = "list", length = length(exposure_vars))
   summ.list <- vector(mode = "list", length = length(exposure_vars))
   for (i in seq_along(exposure_vars)) {
     cand_rhs <- paste(c(adjust_for, exposure_vars[i]), collapse = "+")
     mod_obj[[i]] <- survival::coxph(build_model_formula("survival::Surv(TIME, DV)", cand_rhs), data = modds)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- exposure_vars[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }
@@ -1508,7 +1492,8 @@ scm_forward_first_step_coxph <- function(
 #' @param adjust_for character. Optional covariates to include in all models (fixed effects). Default \code{NULL}.
 #' @param verbose logical. If TRUE, print progress. Default FALSE.
 #' @param return_models logical. If \code{TRUE}, include fitted model objects in output. Default \code{FALSE}.
-#' @param parallel logical or integer. Whether to run fits in parallel or number of workers. Default \code{FALSE}.
+#' @param parallel logical or integer. Reserved; currently unimplemented. Pass \code{FALSE} (the
+#'   default). \code{TRUE} or any positive integer will raise an error.
 #'
 #' @return A list with one element:
 #' \itemize{
@@ -1526,6 +1511,7 @@ scm_forward_first_step_coxph <- function(
 #'
 #' @examples
 #' data(demo_eres)
+#' \donttest{
 #' uni <- fit_univariate_models_coxph(
 #'   eres_data = demo_eres,
 #'   covariates = c("AGE", "WT"),
@@ -1534,6 +1520,7 @@ scm_forward_first_step_coxph <- function(
 #'   significance_level = c(0.05, 0.01)
 #' )
 #' uni$step1_sum
+#' }
 #'
 #' @seealso \code{\link[survival]{coxph}}, \code{\link{scm_coxph}}
 #' @importFrom broom glance
@@ -1551,6 +1538,7 @@ fit_univariate_models_coxph <- function(
     return_models = FALSE,
     parallel = FALSE) {
   .check_inputs(modds = eres_data, dvid_col = dvid_col, dvid = dvid, dv_col = dv_col, covariates = covariates)
+  if (!isFALSE(parallel)) .NotYetImplemented()
   if(!is.null(dvid_col)) {
     modds <- dplyr::rename(eres_data, `:=`(DVID_name, !!dvid_col))
     modds <- dplyr::filter(modds, DVID_name == dvid)
@@ -1575,13 +1563,11 @@ fit_univariate_models_coxph <- function(
   # initialize lists
   mod_obj <- vector(mode = "list", length = length(covariates))
   mod_sum <- vector(mode = "list", length = length(covariates))
-  mod_coef <- vector(mode = "list", length = length(covariates))
   mod_metric <- vector(mode = "list", length = length(covariates))
   summ.list <- vector(mode = "list", length = length(covariates))
   for (i in seq_along(covariates)) {
     mod_obj[[i]] <- survival::coxph(build_model_formula("survival::Surv(TIME, DV)", covariates[i]), data = modds)
     mod_sum[[i]] <- broom::glance(mod_obj[[i]])
-    mod_coef[[i]] <- broom::tidy(mod_obj[[i]], conf.int = TRUE)
     mod_metric[i] <- covariates[i]
     summ.list[[i]] <- summary(mod_obj[[i]])
   }

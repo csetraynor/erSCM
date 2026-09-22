@@ -1,53 +1,31 @@
-## R CMD check results
+# cran-comments
 
-0 errors | 0 warnings | 1 note
+## Submission
 
-* This is a re-submission (version 0.1.4).
-
-## Notes
-
-1. **"unable to verify current time"** — the build server cannot reach an
-   external time server. This is an infrastructure issue unrelated to the
-   package.
-
-## Test suite
-
-Bootstrap tests are guarded with `skip_on_cran()` and have been optimized to
-use `n_boot` in the range 10–25. The full test suite (excluding
-`skip_on_cran()` tests) completes in under 60 seconds. Long-running stability
-assessments (n_boot >= 200) are demonstrated in the vignette rather than the
-test suite.
-
-## Changes since last submission (0.1.3 → 0.1.4)
-
-* Nonlinear (FP / RCS / log) transformation support added to `scm_glm()` and
-  `scm_coxph()`: new `nonlinear`, `linearity_alpha`, `fp_powers`, and
-  `spline_df` arguments.
-* `plot_nonlinear_effect()` and `plot_all_nonlinear()` exported.
-* Bootstrap transformation-frequency tracking fixed for multi-exposure NL fits.
-* S3 class always returned from `scm_glm()` / `scm_coxph()` even when no
-  exposure enters the model.
-* New vignette: *Non-Linear Transformations in SCM*.
-
-## Changes since last submission (0.1.1 → 0.1.2)
-
-* Added **Exposure Selection Stability** tracking to `scm_bootstrap()`:
-  new fields `exposure_selection_prob`, `exposure_selected_per_boot`, and
-  `inclusion_prob_by_exposure`.
-* `modal_model` and `original_selected` now return `list(exposure, covariates)`
-  instead of a plain character vector.
-* Fixed a metadata bug in `scm_coxph()`: `metadata$candidate_exposure_vars`
-  now stores the full candidate list rather than only the selected winner.
-* New `plot(type = "exposure")` and `stable_covariates(include_exposure)` options.
-* UTF-8 fallback in `.block_bar()` for non-UTF-8 terminals.
-* All new variables registered in `utils::globalVariables()` to avoid NOTEs.
+This is the first CRAN submission of erSCM.
 
 ## Test environments
 
-* Linux x86_64, R 4.3.2 (local build server)
-* win-builder (devel and release) — pending
-* R-hub (linux, windows, macos) — pending
+- Local: Linux (RHEL 8, kernel 4.18.0), R version 4.5.1 (2025-06-13)
+- Additional platforms (R-hub / win-builder): to be verified on compute node before final submission
 
-## Downstream dependencies
+## R CMD check results
 
-There are no reverse dependencies.
+0 errors | 0 warnings | 0 notes
+
+(Full `R CMD check` to be re-verified on compute node before submission.)
+
+## Reverse dependencies
+
+None (first submission).
+
+## Notes for the reviewer
+
+- All exported step-function `@examples` that fit models are wrapped in `\donttest{}`
+  to keep example run time within CRAN's 5-second-per-example guideline.
+- Heavy integration tests (model-fitting, bootstrap, VPC) are guarded with
+  `skip_on_cran()` in six test files; the remaining test suite runs entirely
+  within 3 minutes on a single CPU.
+- `inst/WORDLIST` was created to cover domain-specific terms (pharmacokinetics,
+  pharmacometrics, statistician names, R package names, abbreviations) that are
+  not in the standard en-GB dictionary.

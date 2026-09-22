@@ -59,10 +59,12 @@
 }
 
 test_that("vpc_coxph_sim() rejects a non-eres_scm_coxph object", {
+  skip_on_cran()
   expect_error(vpc_coxph_sim(list(1, 2), "EXP"), "eres_scm_coxph")
 })
 
 test_that("vpc_coxph_sim() rejects fit with no final_model", {
+  skip_on_cran()
   bad_fit <- structure(
     list(
       final_model = NULL,
@@ -76,12 +78,14 @@ test_that("vpc_coxph_sim() rejects fit with no final_model", {
 })
 
 test_that("vpc_coxph_sim() rejects interaction and unknown covariate terms", {
+  skip_on_cran()
   fit <- .fit_vpc_sim_valid_categorical()
   expect_error(vpc_coxph_sim(fit, "EXP:SEX"), "interaction")
   expect_error(vpc_coxph_sim(fit, "NOPE"), "predictor")
 })
 
 test_that("vpc_coxph_sim() validates n_bins, n_sim, probs, and time_grid", {
+  skip_on_cran()
   fit <- .fit_vpc_sim_valid_categorical()
 
   expect_error(vpc_coxph_sim(fit, "EXP", n_bins = 0), "n_bins")
@@ -94,11 +98,13 @@ test_that("vpc_coxph_sim() validates n_bins, n_sim, probs, and time_grid", {
 })
 
 test_that("vpc_coxph_sim() aborts numeric n_bins > 1 in v2", {
+  skip_on_cran()
   fit <- .fit_vpc_sim_valid_numeric()
   expect_error(vpc_coxph_sim(fit, "WT", n_bins = 2, plot = FALSE), "S-6")
 })
 
 test_that("vpc_coxph_sim() aborts unsupported formula specials", {
+  skip_on_cran()
   set.seed(1101L)
   dat <- data.frame(
     TIME = rexp(120, rate = 0.08),
