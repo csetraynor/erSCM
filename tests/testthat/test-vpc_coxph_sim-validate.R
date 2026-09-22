@@ -97,10 +97,12 @@ test_that("vpc_coxph_sim() validates n_bins, n_sim, probs, and time_grid", {
   expect_error(vpc_coxph_sim(fit, "EXP", time_grid = c(NA_real_, 1)), "time_grid")
 })
 
-test_that("vpc_coxph_sim() aborts numeric n_bins > 1 in v2", {
+test_that("vpc_coxph_sim() bins numeric covariate_term with n_bins > 1", {
   skip_on_cran()
   fit <- .fit_vpc_sim_valid_numeric()
-  expect_error(vpc_coxph_sim(fit, "WT", n_bins = 2, plot = FALSE), "S-6")
+  d <- vpc_coxph_sim(fit, "WT", n_bins = 2, n_sim = 40L, plot = FALSE)
+  expect_s3_class(d, "data.frame")
+  expect_equal(length(unique(d$strata)), 2L)
 })
 
 test_that("vpc_coxph_sim() aborts unsupported formula specials", {

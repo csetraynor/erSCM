@@ -31,14 +31,16 @@ print.eres_scm_glm <- function(x, ...) {
     return(invisible(x))
   }
 
-  n_tested <- length(x$metadata$candidate_covariates)
+  n_exp_tested <- length(x$metadata$candidate_exposure_vars)
+  n_cov_tested <- length(x$metadata$candidate_covariates)
   n_selected <- length(x$metadata$finalRelation)
   fam <- x$final_model$family$family
   aic_val <- stats::AIC(x$final_model)
 
   cat("Family:              ", fam, "\n")
-  cat("Covariates tested:   ", n_tested, "\n")
-  cat("Covariates selected: ", n_selected, "\n")
+  cat("Exposure candidates: ", n_exp_tested, "\n")
+  cat("Covariate candidates:", n_cov_tested, "\n")
+  cat("Terms in final model:", n_selected, "\n")
 
   cat("Final covariates:\n")
   for (rel in x$metadata$finalRelation) {
@@ -93,13 +95,15 @@ print.eres_scm_coxph <- function(x, ...) {
     return(invisible(x))
   }
 
-  n_tested <- length(x$metadata$candidate_covariates)
+  n_exp_tested <- length(x$metadata$candidate_exposure_vars)
+  n_cov_tested <- length(x$metadata$candidate_covariates)
   n_selected <- length(x$metadata$finalRelation)
   aic_val <- stats::AIC(x$final_model)
 
   cat("Model:               Cox Proportional Hazards\n")
-  cat("Covariates tested:   ", n_tested, "\n")
-  cat("Covariates selected: ", n_selected, "\n")
+  cat("Exposure candidates: ", n_exp_tested, "\n")
+  cat("Covariate candidates:", n_cov_tested, "\n")
+  cat("Terms in final model:", n_selected, "\n")
 
   cat("Final covariates:\n")
   for (rel in x$metadata$finalRelation) {

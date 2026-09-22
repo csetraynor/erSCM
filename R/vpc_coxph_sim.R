@@ -37,10 +37,9 @@
 #' censoring-model uncertainty, or simultaneous-time coverage.
 #'
 #' @section Limitations:
-#' - Categorical stratification is supported in this release.
-#' - Numeric \code{covariate_term} with \code{n_bins > 1} is not implemented in
-#'   this release and errors explicitly; numeric binning is deferred to follow-up
-#'   phase S-6.
+#' - Categorical and numeric (\code{n_bins >= 1}) stratification are both supported.
+#'   Numeric binning uses \code{ggplot2::cut_number()}, so each bin contains
+#'   approximately equal numbers of subjects.
 #' - Time-dependent Cox model forms are not supported in this release. Models
 #'   using \code{tt()}, \code{strata()}, \code{cluster()}, or start-stop
 #'   \code{Surv()} responses abort with an informative error.
@@ -49,9 +48,12 @@
 #'   \code{\link{scm_coxph}}.
 #' @param covariate_term Character; main-effect covariate used to define
 #'   stratification groups for observed and simulated Kaplan-Meier summaries.
-#' @param n_bins Integer; currently retained for API compatibility with other
-#'   VPC interfaces. For numeric \code{covariate_term}, values greater than 1 are
-#'   rejected in this release (S-6 follow-up).
+#' @param n_bins Integer >= 1; number of quantile strata for a numeric
+#'   \code{covariate_term}. When \code{n_bins = 1} (the only sensible value for
+#'   a factor/character covariate) the entire cohort is treated as one group
+#'   (\code{"Overall"}). For a numeric covariate, \code{n_bins > 1} divides
+#'   subjects into equal-count quantile bins via \code{ggplot2::cut_number()},
+#'   and separate observed/simulated KM curves are produced per bin. Default 4.
 #' @param n_sim Integer; number of simulation replicates. Default 500. For
 #'   formal reporting, consider \code{n_sim >= 1000}.
 #' @param probs Numeric vector of length 2 or 3 with values in \code{(0, 1)}.
@@ -83,7 +85,7 @@
 #'   eres_data = demo_eres, exposure_vars = "CMAXss", covariates = c("AGE", "WT"),
 #'   dv_col = "sim_status", time_col = "sim_time", significance_level = c(0.2, 0.2)
 #' )
-#' vpc_coxph_sim(fit, covariate_term = "CMAXss", n_bins = 1, n_sim = 200)
+#' vpc_coxph_sim(fit, covariate_term = "CMAXss", n_bins = 4, n_sim = 200)
 #' }
 #'
 #' @importFrom stats vcov coef rnorm runif quantile model.frame
@@ -175,20 +177,18 @@ vpc_coxph_sim <- function(fit, covariate_term, n_bins = 4, n_sim = 500,
   n_bins <- as.integer(n_bins)
   n_sim <- as.integer(n_sim)
 
-  if (is_numeric_cov && n_bins > 1L) {
-    cli::cli_abort(c(
-      "{.arg n_bins} > 1 is not implemented for numeric {.arg covariate_term} in {.fun vpc_coxph_sim}.",
-      "i" = "Numeric binning is deferred to follow-up phase S-6."
-    ))
-  }
-
   if (is.factor(cov_values)) {
     strata_levels_raw <- levels(droplevels(cov_values))
     strata_raw <- as.character(cov_values)
   } else if (is.character(cov_values) || is.logical(cov_values)) {
     strata_levels_raw <- sort(unique(as.character(cov_values)))
     strata_raw <- as.character(cov_values)
+  } else if (is_numeric_cov && n_bins > 1L) {
+    bin_factor <- ggplot2::cut_number(cov_values, n = n_bins)
+    strata_levels_raw <- levels(bin_factor)
+    strata_raw <- as.character(bin_factor)
   } else {
+    # Numeric, n_bins == 1: single "Overall" group
     strata_levels_raw <- "Overall"
     strata_raw <- rep("Overall", length(cov_values))
   }
@@ -205,6 +205,9 @@ vpc_coxph_sim <- function(fit, covariate_term, n_bins = 4, n_sim = 500,
     }
     strata_levels_disp <- paste0(cov_label, "\n", unname(raw_to_disp[strata_levels_raw]))
     strata_disp <- paste0(cov_label, "\n", unname(raw_to_disp[strata_raw]))
+  } else if (is_numeric_cov && n_bins > 1L) {
+    strata_levels_disp <- paste0(cov_label, "\n", strata_levels_raw)
+    strata_disp <- paste0(cov_label, "\n", strata_raw)
   } else {
     strata_levels_disp <- "Overall"
     strata_disp <- rep("Overall", length(strata_raw))

@@ -54,16 +54,23 @@
 
 ## Bug Fixes
 
+* `vpc_coxph_sim()`: numeric covariate binning with `n_bins > 1` now works.
+  The previous `cli_abort()` guard blocking this path has been removed and
+  replaced with `ggplot2::cut_number()` quantile binning, matching the approach
+  in `vpc_logistic()` and `vpc_coxph()`. A separate observed/simulated KM curve
+  is produced per bin and displayed via facets.
+
+* `scm_coxph()` now stores only the covariate candidates (not exposure
+  variables) in `metadata$candidate_covariates`, consistent with `scm_glm()`.
+  The `print()` method for both `eres_scm_coxph` and `eres_scm_glm` now
+  reports "Exposure candidates", "Covariate candidates", and
+  "Terms in final model" separately.
+
 * `vpc_coxph()`: added strict input validation (`eres_scm_coxph` class,
   non-NULL `final_model`, `ci` in (0, 1), integer `n_bins >= 1`), removed
   grouped-summary message noise, enforced stable ordered-facet strata display,
   and corrected documentation to describe the current analytical
   confidence-band diagnostic behavior.
-* User-visible change: `vpc_coxph()` now errors explicitly when `n_bins > 1`
-  and the fitted main effects include numeric terms. This path was previously
-  dead/ambiguous; real numeric binning is deferred to
-  `reports/vpc_coxph_v2_plan.md`.
-
 * Bug fix (critical): `plot_cox_terms()` previously assigned predicted survival
   curves to strata by position, causing silent mislabelling when bin labels did
   not sort in numeric order (e.g., with var_spec back-transformed labels or

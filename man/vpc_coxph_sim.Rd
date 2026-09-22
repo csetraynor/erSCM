@@ -23,9 +23,12 @@ vpc_coxph_sim(
 \item{covariate_term}{Character; main-effect covariate used to define
 stratification groups for observed and simulated Kaplan-Meier summaries.}
 
-\item{n_bins}{Integer; currently retained for API compatibility with other
-VPC interfaces. For numeric \code{covariate_term}, values greater than 1 are
-rejected in this release (S-6 follow-up).}
+\item{n_bins}{Integer >= 1; number of quantile strata for a numeric
+\code{covariate_term}. When \code{n_bins = 1} (the only sensible value for
+a factor/character covariate) the entire cohort is treated as one group
+(\code{"Overall"}). For a numeric covariate, \code{n_bins > 1} divides
+subjects into equal-count quantile bins via \code{ggplot2::cut_number()},
+and separate observed/simulated KM curves are produced per bin. Default 4.}
 
 \item{n_sim}{Integer; number of simulation replicates. Default 500. For
 formal reporting, consider \code{n_sim >= 1000}.}
@@ -99,10 +102,9 @@ censoring-model uncertainty, or simultaneous-time coverage.
 \section{Limitations}{
 
 \itemize{
-\item Categorical stratification is supported in this release.
-\item Numeric \code{covariate_term} with \code{n_bins > 1} is not implemented in
-this release and errors explicitly; numeric binning is deferred to follow-up
-phase S-6.
+\item Categorical and numeric (\code{n_bins >= 1}) stratification are both supported.
+Numeric binning uses \code{ggplot2::cut_number()}, so each bin contains
+approximately equal numbers of subjects.
 \item Time-dependent Cox model forms are not supported in this release. Models
 using \code{tt()}, \code{strata()}, \code{cluster()}, or start-stop
 \code{Surv()} responses abort with an informative error.
@@ -117,7 +119,7 @@ fit <- scm_coxph(
   eres_data = demo_eres, exposure_vars = "CMAXss", covariates = c("AGE", "WT"),
   dv_col = "sim_status", time_col = "sim_time", significance_level = c(0.2, 0.2)
 )
-vpc_coxph_sim(fit, covariate_term = "CMAXss", n_bins = 1, n_sim = 200)
+vpc_coxph_sim(fit, covariate_term = "CMAXss", n_bins = 4, n_sim = 200)
 }
 
 }
